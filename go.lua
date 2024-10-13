@@ -121,6 +121,7 @@ local function clearTextures(v)
         v.Material = "Plastic"
         v.Reflectance = 0
         v.TextureID = 10385902758728957
+        v.Transparency = 1
     elseif v:IsA("SpecialMesh") then
         v.TextureId = 0
     elseif v:IsA("ShirtGraphic") then
@@ -136,6 +137,7 @@ end
 
 
 -- make player invis
+
 for _, v in pairs(game.Players:GetChildren()) do
     for _, v2 in pairs(v.Character:GetDescendants()) do
         if v2:IsA("BasePart") or v2:IsA("Decal") then
@@ -180,10 +182,8 @@ for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
 end
 
 
-game:GetService("Workspace")["__THINGS"].Breakables.DescendantAdded:Connect(function(v)
-    if v:IsA("MeshPart") then
-        v.Transparency = 1
-    end
+game:GetService("Workspace").DescendantAdded:Connect(function(v)
+    clearTextures(v)
 end)
 
 -- ^^^ Optimizer ^^^
