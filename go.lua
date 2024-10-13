@@ -138,13 +138,15 @@ end
 
 -- make player invis
 
-for _, v in pairs(game.Players:GetChildren()) do
-    for _, v2 in pairs(v.Character:GetDescendants()) do
-        if v2:IsA("BasePart") or v2:IsA("Decal") then
-            v2.Transparency = 1
+pcall(function()
+    for _, v in pairs(game.Players:GetChildren()) do
+        for _, v2 in pairs(v.Character:GetDescendants()) do
+            if v2:IsA("BasePart") or v2:IsA("Decal") then
+                v2.Transparency = 1
+            end
         end
     end
-end
+end)
 
 for _, v in pairs(game:GetService("Workspace").MAP.INTERACT:GetChildren()) do
     if v.Name ~= "Machines" and v.Name ~= "Items" then
