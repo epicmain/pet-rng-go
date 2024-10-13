@@ -186,6 +186,10 @@ game:GetService("Workspace").DescendantAdded:Connect(function(v)
     clearTextures(v)
 end)
 
+pcall(function()
+    local RunService = game:GetService("RunService")
+    RunService:Set3dRenderingEnabled(false)
+end)
 -- ^^^ Optimizer ^^^
 
 
