@@ -176,7 +176,7 @@ network.Fired("Merchant_Updated"):Connect(function(...)
             end
         end
         
-        print(string.format("Offer %d: Item: %s, Tier: %d, Stock: %d, Price ID: %s, Cost: %s", offerIndex, itemId, tier, stock, priceId, cost))
+        pcall(print, string.format("Offer %d: Item: %s, Tier: %d, Stock: %d, Price ID: %s, Cost: %s", offerIndex, itemId, tier, stock, priceId, cost))
     end
 end)
 
