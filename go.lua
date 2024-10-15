@@ -268,10 +268,10 @@ game:GetService("Workspace").DescendantAdded:Connect(function(v)
     clearTextures(v)
 end)
 
--- pcall(function()
---     local RunService = game:GetService("RunService")
---     RunService:Set3dRenderingEnabled(false)
--- end)
+pcall(function()
+    local RunService = game:GetService("RunService")
+    RunService:Set3dRenderingEnabled(false)
+end)
 -- ^^^ Optimizer ^^^
 
 
@@ -896,5 +896,5 @@ while true do
     end
 end
 
--- REMEMBER TO MAKE AN INVENTORY SEARCHER THAT SEARCHES EVERYTHING THEN RETURN EVERYTHING SO I CAN JUST USE "." TO GET TO IT
 
+-- REMEMBER TO MAKE AN INVENTORY SEARCHER THAT SEARCHES EVERYTHING THEN RETURN EVERYTHING SO I CAN JUST USE "." TO GET TO IT
