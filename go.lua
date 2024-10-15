@@ -71,6 +71,7 @@ end
 
 game:GetService("Workspace").OUTER:Destroy()
 game:GetService("Workspace").MAP.PARTS:Destroy()
+game:GetService("ReplicatedStorage").Network["Move Server"]:Destroy()
 game:GetService("Workspace")[localPlayerName].HumanoidRootPart.Anchored = true
 
 local platform = Instance.new("Part")
@@ -894,7 +895,6 @@ while true do
         game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Login Streaks: Bonus Roll Request"):InvokeServer()
     end
 end
-
 
 -- REMEMBER TO MAKE AN INVENTORY SEARCHER THAT SEARCHES EVERYTHING THEN RETURN EVERYTHING SO I CAN JUST USE "." TO GET TO IT
 
