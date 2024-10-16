@@ -14,6 +14,16 @@ local instantLuck3PotionId
 local upgradeFruitTimeStart = tick()
 local upgradeFruitDelay = 60
 
+-- discord
+local doNotResend = {}
+local discordId = "973180636959490058"
+local httpService = game:GetService("HttpService")
+local webhookURL = "https://discord.com/api/webhooks/1293110746204340325/dZizvbUU4LtGv9P-1Qmywgdv7tWFNNXU9WxEsGwo9HDBcs7mKNnqdIOK9n69QcMFVJ5L"
+
+-- gui display
+local bestDifficulty = 0
+local bestDifficultyDisplay
+
 
 orb.DefaultPickupDistance = 0  -- slowly comes to player, disable
 orb.CollectDistance = 400  -- insane instant magnet
@@ -70,7 +80,6 @@ end
 
 
 game:GetService("Workspace").OUTER:Destroy()
-game:GetService("Workspace").MAP.PARTS:Destroy()
 game:GetService("ReplicatedStorage").Network["Move Server"]:Destroy()
 game:GetService("Workspace")[localPlayerName].HumanoidRootPart.Anchored = true
 
@@ -129,6 +138,24 @@ for _, settingNames in pairs(toggleSettings) do
     end
 end
 
+for _, v in game:GetService("Workspace").MAP:GetChildren() do
+    if v.Name ~= "SPAWNS" and v.Name ~= "INTERACT" then
+        v:Destroy()
+    end
+end
+
+for _, v in game:GetService("CoreGui"):GetChildren() do
+    v:Destroy()
+end
+
+for _, v in game:GetService("Players").LocalPlayer.PlayerGui.Main:GetChildren() do
+    if v:IsA("Frame") and v.Name ~= "Boosts" then
+        v.Visible = false
+    end
+end
+-- disable annoying xp balls
+game:GetService("ReplicatedStorage").Library.Client.XPBallCmds.Ball.Center.Item.Lifetime = NumberRange.new(0)
+
 game:GetService("Players").LocalPlayer.PlayerScripts.Scripts.Core["Idle Tracking"].Disabled = true
 if getconnections then
     for _, v in pairs(getconnections(game:GetService("Players").LocalPlayer.Idled)) do
@@ -186,8 +213,6 @@ local function clearTextures(v)
         v.Material = "Plastic"
         v.Reflectance = 0
         v.Transparency = 1
-    elseif v:IsA("ParticleEmitter") and v.Name == "Item" then
-        v:Destroy()
     elseif v:IsA("MeshPart") and tostring(v.Parent) == "Orbs" then
         v.Transparency = 1
     elseif (v:IsA("Decal") or v:IsA("Texture")) then
@@ -219,7 +244,6 @@ end
 
 
 -- make player invis
-
 for _, v in pairs(game.Players:GetChildren()) do
     for _, v2 in pairs(v.Character:GetDescendants()) do
         if v2:IsA("BasePart") or v2:IsA("Decal") then
@@ -268,10 +292,7 @@ game:GetService("Workspace").DescendantAdded:Connect(function(v)
     clearTextures(v)
 end)
 
-pcall(function()
-    local RunService = game:GetService("RunService")
-    RunService:Set3dRenderingEnabled(false)
-end)
+
 -- ^^^ Optimizer ^^^
 
 
@@ -430,13 +451,14 @@ end
 
 local function teleportToDig()
     for _, v in game:GetService("Workspace")["__THINGS"].Digging:GetChildren() do
-        task.wait()
+        task.wait(2)
         game:GetService("Workspace")[localPlayerName].HumanoidRootPart.CFrame = v.CFrame
     end
 end
 
 
 local function teleportToMachine(machineName)    
+    print("Teleporting To", machineName)
     game:GetService("Workspace")[localPlayerName].HumanoidRootPart.CFrame = game:GetService("Workspace").MAP.INTERACT.Machines[machineName].PadGlow.CFrame + Vector3.new(0, -8, 0)
     task.wait(1)
 end
@@ -502,8 +524,10 @@ local function consumeBestPotion()
             end
         end
 
-        print("Using Instant Luck 3 Potion")
         if cocktailConsumed then
+            print("Using Instant Luck 3 Potion")
+            pcall(function() game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Consumables_Consume"):InvokeServer(instantLuck3PotionId, 1) end)
+            task.wait(0.5)
             pcall(function() game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Consumables_Consume"):InvokeServer(instantLuck3PotionId, 1) end)
             task.wait(0.5)
         end
@@ -789,6 +813,56 @@ local function upgradeFruits()
 end
 
 
+local function sendWebhook(content)
+    local messageContent = {
+        ["content"] = "<@" .. discordId .. ">" .. "\n```" .. content .. "\nAccount Name: " .. localPlayerName .. "```",
+        ["username"] = "Ello What's Bot",
+    }
+
+    local jsonData = httpService:JSONEncode(messageContent)
+    local requestFunction = syn and syn.request or request or http_request or http and http.request
+
+    if requestFunction then
+        local success, response = pcall(function()
+            return requestFunction({
+                Url = webhookURL,
+                Method = "POST",
+                Headers = {
+                    ["Content-Type"] = "application/json",
+                },
+                Body = jsonData,
+            })
+        end)
+
+        if success then
+            print("Message successfully sent to Discord!")
+        else
+            warn("Failed to send message: " .. response)
+        end
+    else
+        warn("Your executor does not support HTTP requests.")
+    end
+end
+
+
+local function getBestDifficultyPet()
+    -- get best pet to display in gui
+    for petId, tbl in require(game:GetService("ReplicatedStorage").Library.Client.PlayerPet).GetAll() do
+        local petDifficulty = require(game:GetService("ReplicatedStorage").Library.Directory).Pets[tbl.item._data.id].difficulty / 1000
+        if petDifficulty > bestDifficulty then
+            bestDifficulty = petDifficulty
+
+            if petDifficulty >= 1000 then
+                bestDifficultyDisplay = "BEST PET: " .. (petDifficulty / 1000) .. "M" 
+            elseif petDifficulty >= 100 then
+                bestDifficultyDisplay = "BEST PET: " .. petDifficulty .. "K" 
+            else
+                bestDifficultyDisplay = "BEST PET: " .. petDifficulty
+            end
+        end
+    end
+end
+
 
 if require(Client.HoverboardCmds).IsEquipped() then
     require(Client.HoverboardCmds).RequestUnequip()
@@ -803,30 +877,6 @@ task.spawn(function()
     while true do
         task.wait()
         traverseModules(Root)
-
-        if not require(game:GetService("ReplicatedStorage").Library.Client.EggCmds).IsRolling() and save.DiceCombos["Rainbow"] ~= 80 then
-            game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Eggs_Roll"):InvokeServer()
-            task.wait(0.5)
-            
-        elseif save.DiceCombos["Rainbow"] == 80 then
-            print("Rainbow READY")
-            local instantLuck3PotionFound
-            for itemId, tbl in pairs(require(game:GetService("ReplicatedStorage").Library.Client.Save).Get().Inventory.Consumable) do
-                if tbl.id == "Instant Luck Potion" and tbl.tn == 3 then
-                    instantLuck3PotionFound = true
-                    instantLuck3PotionId = itemId
-                    pcall(consumeBestPotion)  -- use every best potion + instant luck 3
-                    game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Eggs_Roll"):InvokeServer()
-                    task.wait(0.5)
-                    break
-                end
-            end
-            if not instantLuck3PotionFound then
-                print("No Instant Luck 3 Potions Detected")
-                game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Eggs_Roll"):InvokeServer()
-                task.wait(0.5)
-            end
-        end
         
         pcall(checkAndConsumeFruits)
     
@@ -846,8 +896,176 @@ task.spawn(function()
         task.wait()
         pcall(petTargetChestAndBreakables)
         pcall(tapChestAndBreakables)
+
+        if not require(game:GetService("ReplicatedStorage").Library.Client.EggCmds).IsRolling() and save.DiceCombos["Rainbow"] ~= 80 then
+            game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Eggs_Roll"):InvokeServer()
+            task.wait()
+            
+        elseif save.DiceCombos["Rainbow"] == 80 then
+            print("Rainbow READY")
+            local instantLuck3PotionFound
+            for itemId, tbl in pairs(require(game:GetService("ReplicatedStorage").Library.Client.Save).Get().Inventory.Consumable) do
+                if tbl.id == "Instant Luck Potion" and tbl.tn == 3 then
+                    instantLuck3PotionFound = true
+                    instantLuck3PotionId = itemId
+                    pcall(consumeBestPotion)  -- use every best potion + instant luck 3
+                    game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Eggs_Roll"):InvokeServer()
+                    task.wait()
+                    break
+                end
+            end
+            if not instantLuck3PotionFound then
+                print("No Instant Luck 3 Potions Detected")
+                game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Eggs_Roll"):InvokeServer()
+                task.wait()
+            end
+        end
     end
 end)
+
+-- ===============================================  GUI  ===============================================
+local player = game.Players.LocalPlayer
+local mouse = player:GetMouse() -- Get the player's mouse
+local gui = Instance.new("ScreenGui", player.PlayerGui)
+gui.IgnoreGuiInset = true -- Allows GUI to cover the screen
+
+-- Create a black Frame to cover the whole screen
+local overlayFrame = Instance.new("Frame", gui)
+overlayFrame.Size = UDim2.new(1, 0, 1, 0) -- Full width and height
+overlayFrame.Position = UDim2.new(0, 0, 0, 0) -- Top left corner
+overlayFrame.BackgroundColor3 = Color3.new(0, 0, 0) -- Black background
+
+-- Create a TextLabel for the toggle message
+local toggleLabel = Instance.new("TextLabel", overlayFrame)
+toggleLabel.Size = UDim2.new(0, 300, 0, 30) -- Width: 300px, Height: 30px
+toggleLabel.Position = UDim2.new(0.5, -150, 0, 10) -- Centered horizontally, positioned at the top
+toggleLabel.Text = 'Right-click or press "O" to toggle overlay'
+toggleLabel.TextColor3 = Color3.new(1, 1, 1) -- White text
+toggleLabel.BackgroundTransparency = 1 -- Make label background transparent
+toggleLabel.TextScaled = true
+toggleLabel.TextSize = 14 -- Set a smaller text size for one line
+
+-- Create a TextLabel for the best difficulty message
+local bestPetLabel = Instance.new("TextLabel", overlayFrame)
+bestPetLabel.Size = UDim2.new(0, 600, 0, 70) -- Width: 600px, Height: 70px
+bestPetLabel.Position = UDim2.new(0.5, -300, 0.5, -85) -- Adjusted to align properly
+bestPetLabel.TextColor3 = Color3.new(1, 1, 1) -- White text
+bestPetLabel.BackgroundTransparency = 1 -- Make label background transparent
+bestPetLabel.TextScaled = true
+bestPetLabel.TextSize = 36 -- Set a larger text size
+
+-- Create a TextLabel for Current Rolls
+local currentRollsLabel = Instance.new("TextLabel", overlayFrame)
+currentRollsLabel.Size = UDim2.new(0, 600, 0, 70) -- Width: 600px, Height: 70px
+currentRollsLabel.Position = UDim2.new(0.5, -300, 0.5, -15) -- Positioned below BEST PET
+currentRollsLabel.TextColor3 = Color3.new(1, 1, 1) -- White text
+currentRollsLabel.BackgroundTransparency = 1 -- Make label background transparent
+currentRollsLabel.TextScaled = true
+currentRollsLabel.TextSize = 36 -- Same text size as BEST PET
+
+-- Create a TextLabel for Total Rolls
+local totalRollsLabel = Instance.new("TextLabel", overlayFrame)
+totalRollsLabel.Size = UDim2.new(0, 600, 0, 70) -- Width: 600px, Height: 70px
+totalRollsLabel.Position = UDim2.new(0.5, -300, 0.5, 55) -- Positioned below Current Rolls
+totalRollsLabel.TextColor3 = Color3.new(1, 1, 1) -- White text
+totalRollsLabel.BackgroundTransparency = 1 -- Make label background transparent
+totalRollsLabel.TextScaled = true
+totalRollsLabel.TextSize = 36 -- Same text size as BEST PET
+
+-- Create a TextLabel for Current Inventory
+local inventoryLabel = Instance.new("TextLabel", overlayFrame)
+inventoryLabel.Size = UDim2.new(0, 600, 0, 70) -- Width: 600px, Height: 70px
+inventoryLabel.Position = UDim2.new(0.5, -300, 0.5, 125) -- Positioned below Total Rolls
+inventoryLabel.TextColor3 = Color3.new(1, 1, 1) -- White text
+inventoryLabel.BackgroundTransparency = 1 -- Make label background transparent
+inventoryLabel.TextScaled = true
+inventoryLabel.TextSize = 36 -- Same text size as BEST PET
+
+local RunService = game:GetService("RunService")
+
+-- Set initial state to visible
+local overlayVisible = true
+
+-- Function to toggle 3D rendering
+local function toggleRendering(state)
+    pcall(function()
+        RunService:Set3dRenderingEnabled(state)
+    end)
+end
+
+-- Set initial rendering state
+toggleRendering(false) -- Set 3D rendering to false when GUI is activated
+
+-- Function to toggle overlay visibility
+local function toggleOverlay()
+    overlayVisible = not overlayVisible -- Toggle visibility
+    gui.Enabled = overlayVisible -- Show or hide the overlay
+    
+    -- Toggle 3D rendering based on overlay visibility
+    if overlayVisible then
+        toggleRendering(false) -- Set 3D rendering to false when overlay is active
+    else
+        toggleRendering(true) -- Set 3D rendering to true when overlay is inactive
+    end
+end
+
+-- Detect right-click using the mouse
+mouse.Button2Down:Connect(function()
+    toggleOverlay()
+end)
+
+-- Detect key press for "O"
+local userInputService = game:GetService("UserInputService")
+userInputService.InputBegan:Connect(function(input, gameProcessed)
+    if input.KeyCode == Enum.KeyCode.O and not gameProcessed then
+        toggleOverlay()
+    end
+end)
+
+-- Variables for best difficulty
+local bestDifficulty = 0
+local bestDifficultyDisplay = ""
+
+local startTotalRolls = require(game:GetService("ReplicatedStorage").Library.Client.Save).Get().TotalRolls
+local startInventoryNotifications = require(game:GetService("ReplicatedStorage").Library.Client.Save).Get().InventoryNotifications
+
+-- Function to get the best difficulty pet and update the display
+local function getBestDifficultyPet()
+    -- Get best pet to display in GUI
+    for petId, tbl in require(game:GetService("ReplicatedStorage").Library.Client.PlayerPet).GetAll() do
+        local petDifficulty = require(game:GetService("ReplicatedStorage").Library.Directory).Pets[tbl.item._data.id].difficulty / 1000
+        if petDifficulty > bestDifficulty then
+            bestDifficulty = petDifficulty
+
+            if petDifficulty >= 1000 then
+                bestDifficultyDisplay = "BEST PET: " .. (petDifficulty / 1000) .. "M" 
+            elseif petDifficulty >= 100 then
+                bestDifficultyDisplay = "BEST PET: " .. petDifficulty .. "K" 
+            else
+                bestDifficultyDisplay = "BEST PET: " .. petDifficulty
+            end
+        end
+    end
+
+    -- Update the GUI label
+    bestPetLabel.Text = bestDifficultyDisplay
+end
+
+-- Update the GUI periodically
+while true do
+    local currentTotalRolls = require(game:GetService("ReplicatedStorage").Library.Client.Save).Get().TotalRolls
+    local currentRolls = currentTotalRolls - startTotalRolls
+
+    local currentInventoryNotification = require(game:GetService("ReplicatedStorage").Library.Client.Save).Get().InventoryNotifications - startInventoryNotifications
+
+    currentRollsLabel.Text = "Current Rolls: (+" .. currentRolls .. ")"
+    totalRollsLabel.Text = "Total Rolls: " .. currentTotalRolls
+    inventoryLabel.Text = "Current Inventory: " .. currentInventoryNotification
+
+    getBestDifficultyPet()
+    wait(1) -- Update every second (you can adjust the wait time)
+end
+-- ===============================================  GUI  ===============================================
 
 
 local advancedIndexShop = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Trading["Pet Index"]["Index Shop"]["Advanced Index Shop"])
@@ -880,6 +1098,7 @@ while true do
     if upgradeCmds.IsUnlocked(potionWizard) then
         local potionCraftingMagnitude = (game:GetService("Workspace")[localPlayerName].HumanoidRootPart.Position - game:GetService("Workspace").MAP.INTERACT.Machines.PotionCraftingMachine.PadGlow.Position).Magnitude
         if potionCraftingMagnitude > 30 then
+            task.wait(1)
             teleportToMachine("PotionCraftingMachine")
         end
         pcall(smartPotionUpgrade)
@@ -894,7 +1113,34 @@ while true do
     if require(game:GetService("ReplicatedStorage").Library.Client.LoginStreakCmds).CanClaim() then
         game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Login Streaks: Bonus Roll Request"):InvokeServer()
     end
+
+    -- check for huges and send webhook
+    for petId, tbl in require(game:GetService("ReplicatedStorage").Library.Client.Save).Get().Inventory.Pet do
+        local sentBefore = false
+        for _, hugeName in pairs(doNotResend) do
+            if tbl.id == hugeName then
+                sentBefore = true
+                break
+            end
+        end
+        if not sentBefore and string.find(tbl.id:lower(), "huge") then
+            table.insert(doNotResend, tbl.id)
+            local quantity = tbl._am or 1
+            sendWebhook("Huge Pet Found: " .. tbl.id .. "\nQuantity: " .. quantity)
+        end
+    end
 end
 
 
 -- REMEMBER TO MAKE AN INVENTORY SEARCHER THAT SEARCHES EVERYTHING THEN RETURN EVERYTHING SO I CAN JUST USE "." TO GET TO IT
+
+
+
+
+
+
+
+
+
+
+
