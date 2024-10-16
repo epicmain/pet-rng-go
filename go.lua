@@ -1,18 +1,3 @@
-pcall(function()
-    settings().Rendering.QualityLevel = 1
-    settings().Rendering.MeshPartDetailLevel = Enum.MeshPartDetailLevel.Level04
-    game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.Chat,false)
-    UserSettings():GetService('UserGameSettings').MasterVolume = 0
-    game.StarterGui:SetCore("TopbarEnabled", false)
-    game.StarterGui:SetCore("DevConsoleVisible", false)
-    game.StarterGui:SetCoreGuiEnabled("Enum.CoreGuiType.PlayerList",false)
-    game.StarterGui:SetCoreGuiEnabled("Enum.CoreGuiType.All",false)
-    for i, v in getconnections(game.Players.LocalPlayer.Idled) do
-        v:Disable()
-    end
-end)
-
-
 local Root = game:GetService("ReplicatedStorage")["__DIRECTORY"].Upgrades.Root
 local Client = game:GetService("ReplicatedStorage"):WaitForChild("Library").Client
 local network = require(game:GetService("ReplicatedStorage").Library.Client.Network)
@@ -559,14 +544,14 @@ local function smartPotionUpgrade()
                 -- print("Crafted Lucky Tier 2")
                 for i=1, math.floor(tbl._am / 3) do
                     game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 1)
-                    task.wait(1.5)
+                    task.wait(0.5)
                 end
     
             elseif tbl.tn == 2 and tbl._am ~= nil and tbl._am >= 4 then
                 -- print("Crafted Lucky Tier 3")
                 for i=1, math.floor(tbl._am / 4) do
                     game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 2)
-                    task.wait(1.5)
+                    task.wait(0.5)
                 end
     
             elseif tbl.tn == 3 and tbl._am ~= nil and tbl._am >= 5 then
@@ -594,7 +579,7 @@ local function smartPotionUpgrade()
                     for i=1, amountToCraft do
                         -- print("Crafted Lucky Tier 4")
                         game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 3)
-                        task.wait(1.5)
+                        task.wait(0.5)
                     end
                 end
     
@@ -625,7 +610,7 @@ local function smartPotionUpgrade()
                             if tbl2.id == "Orange" and tbl2._am ~= nil and tbl2._am >= 12 then
                                 -- print("Crafted Lucky Tier 5")
                                 game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 4)
-                                task.wait(1.5)
+                                task.wait(0.5)
                                 break
                             end
                         end
@@ -640,21 +625,21 @@ local function smartPotionUpgrade()
                 -- print("Crafted Coins Potion 2")
                 for i=1, math.floor(tbl._am / 3) do
                     game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 5)
-                    task.wait(1.5)
+                    task.wait(0.5)
                 end
     
             elseif tbl.tn == 2 and tbl._am ~= nil and tbl._am >= 4 then
                 -- print("Crafted Coins Potion 3")
                 for i=1, math.floor(tbl._am / 4) do
                     game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 6)
-                    task.wait(1.5)
+                    task.wait(0.5)
                 end
     
             elseif tbl.tn == 3 and tbl._am ~= nil and tbl._am >= 5 then
                 -- print("Crafted Coins Potion 4")
                 for i=1, math.floor(tbl._am / 5) do
                     game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 7)
-                    task.wait(1.5)
+                    task.wait(0.5)
                 end
     
             elseif tbl.tn == 4 and tbl._am ~= nil and tbl._am >= 5 then
@@ -662,7 +647,7 @@ local function smartPotionUpgrade()
                     if tbl2.id == "Banana" and tbl2._am >= 12 then
                         -- print("Crafted Coins Potion 5 (BEST)")
                         game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 8)
-                        task.wait(1.5)
+                        task.wait(0.5)
                     end
                 end
             end
@@ -674,7 +659,7 @@ local function smartPotionUpgrade()
                 -- print("Crafted Breakables Potion 2 (BEST)")
                 for i=1, math.floor(tbl._am / 3) do
                     game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 10)
-                    task.wait(1.5)
+                    task.wait(0.5)
                 end
             end
         end
@@ -685,14 +670,14 @@ local function smartPotionUpgrade()
                 -- print("Crafted Items Potion 2")
                 for i=1, math.floor(tbl._am / 3) do
                     game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 13)
-                    task.wait(1.5)
+                    task.wait(0.5)
                 end
     
             elseif tbl.tn == 2 and tbl._am ~= nil and tbl._am >= 4 then
                 -- print("Crafted Items Potion 3 (BEST)")
                 for i=1, math.floor(tbl._am / 4) do
                     game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 14)
-                    task.wait(1.5)
+                    task.wait(0.5)
                 end
             end
         end
@@ -754,7 +739,7 @@ local function craft(potion)
             amounts.instantLuck2Amount = amounts.instantLuck2Amount - 3
             amounts.rainbowDiceAmount = amounts.rainbowDiceAmount - 2
             game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 22)
-            task.wait(1.5)
+            task.wait(0.5)
             print("Crafted: Instant Luck 3")
         else
             while amounts.instantLuck2Amount < 3 or amounts.rainbowDiceAmount < 2 do
@@ -770,7 +755,7 @@ local function craft(potion)
             amounts.instantLuck2Amount = amounts.instantLuck2Amount - 3
             amounts.rainbowDiceAmount = amounts.rainbowDiceAmount - 2
             game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 22)
-            task.wait(1.5)
+            task.wait(0.5)
             print("Crafted: Instant Luck 3")
         end
     elseif potion == "instantLuck2" then
@@ -787,7 +772,7 @@ local function craft(potion)
             amounts.instantLuck1Amount = amounts.instantLuck1Amount - 3
             amounts.rainbowDiceAmount = amounts.rainbowDiceAmount - 2
             game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 21)
-            task.wait(1.5)
+            task.wait(0.5)
             print("Crafted: Instant Luck 2")
         end
     elseif potion == "rainbowDice" then
@@ -795,7 +780,7 @@ local function craft(potion)
             amounts.lucky4Amount = amounts.lucky4Amount - 2
             amounts.rainbowFruitAmount = amounts.rainbowFruitAmount - 4
             game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 19)
-            task.wait(1.5)
+            task.wait(0.5)
             print("Crafted: Rainbow Dice")
         else
             error("Not enough materials to craft Rainbow Dice, quitting process.")
@@ -822,7 +807,7 @@ local function upgradeFruits()
                 }
             }
             game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("UpgradeFruitsMachine_Activate"):InvokeServer(unpack(args))
-            task.wait(2)
+            task.wait(1)
         end
     end
 end
@@ -879,64 +864,8 @@ local function getBestDifficultyPet()
 end
 
 
-if require(Client.HoverboardCmds).IsEquipped() then
-    require(Client.HoverboardCmds).RequestUnequip()
-end
 
 
-local fruitBoost = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit)
-local potionsUpgrade = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit["Lucky Potion"])
-
--- background stuff
-task.spawn(function()
-    while true do
-        task.wait()
-        traverseModules(Root)
-        
-        pcall(checkAndConsumeFruits)
-    
-        pcall(consumeBestPotion)
-        
-
-        if game:GetService("Players").LocalPlayer.PlayerGui.Message.Enabled then
-            game:GetService("Players").LocalPlayer.PlayerGui.Message.Enabled = false
-        end
-    end
-end)
-
-
-local breakables = require(Root["Faster Egg Open"]["Faster Egg Open 2"]["Instant Egg Open"]["Golden Dice"]["Small Coin Piles"])
-task.spawn(function()
-    while true do
-        task.wait()
-        pcall(petTargetChestAndBreakables)
-        pcall(tapChestAndBreakables)
-
-        if not require(game:GetService("ReplicatedStorage").Library.Client.EggCmds).IsRolling() and save.DiceCombos["Rainbow"] ~= 80 then
-            game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Eggs_Roll"):InvokeServer()
-            task.wait()
-            
-        elseif save.DiceCombos["Rainbow"] == 80 then
-            print("Rainbow READY")
-            local instantLuck3PotionFound
-            for itemId, tbl in pairs(require(game:GetService("ReplicatedStorage").Library.Client.Save).Get().Inventory.Consumable) do
-                if tbl.id == "Instant Luck Potion" and tbl.tn == 3 then
-                    instantLuck3PotionFound = true
-                    instantLuck3PotionId = itemId
-                    pcall(consumeBestPotion)  -- use every best potion + instant luck 3
-                    game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Eggs_Roll"):InvokeServer()
-                    task.wait()
-                    break
-                end
-            end
-            if not instantLuck3PotionFound then
-                print("No Instant Luck 3 Potions Detected")
-                game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Eggs_Roll"):InvokeServer()
-                task.wait()
-            end
-        end
-    end
-end)
 
 -- ===============================================  GUI  ===============================================
 local player = game.Players.LocalPlayer
@@ -1067,20 +996,103 @@ local function getBestDifficultyPet()
 end
 
 -- Update the GUI periodically
-while true do
-    local currentTotalRolls = require(game:GetService("ReplicatedStorage").Library.Client.Save).Get().TotalRolls
-    local currentRolls = currentTotalRolls - startTotalRolls
+task.spawn(function()
+    while true do
+        local currentTotalRolls = require(game:GetService("ReplicatedStorage").Library.Client.Save).Get().TotalRolls
+        local currentRolls = currentTotalRolls - startTotalRolls
 
-    local currentInventoryNotification = require(game:GetService("ReplicatedStorage").Library.Client.Save).Get().InventoryNotifications - startInventoryNotifications
+        local currentInventoryNotification = require(game:GetService("ReplicatedStorage").Library.Client.Save).Get().InventoryNotifications - startInventoryNotifications
 
-    currentRollsLabel.Text = "Current Rolls: (+" .. currentRolls .. ")"
-    totalRollsLabel.Text = "Total Rolls: " .. currentTotalRolls
-    inventoryLabel.Text = "Current Inventory: (+" .. currentInventoryNotification .. ")"
+        currentRollsLabel.Text = "Current Rolls: (+" .. currentRolls .. ")"
+        totalRollsLabel.Text = "Total Rolls: " .. currentTotalRolls
+        inventoryLabel.Text = "Current Inventory: (+" .. currentInventoryNotification .. ")"
 
-    getBestDifficultyPet()
-    wait(1) -- Update every second (you can adjust the wait time)
-end
+        getBestDifficultyPet()
+        wait(1) -- Update every second (you can adjust the wait time)
+    end
+end)
 -- ===============================================  GUI  ===============================================
+
+
+
+
+
+if require(Client.HoverboardCmds).IsEquipped() then
+    require(Client.HoverboardCmds).RequestUnequip()
+end
+
+
+local fruitBoost = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit)
+local potionsUpgrade = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit["Lucky Potion"])
+
+-- background stuff
+task.spawn(function()
+    while true do
+        task.wait()
+        traverseModules(Root)
+        
+        pcall(checkAndConsumeFruits)
+    
+        pcall(consumeBestPotion)
+        
+
+        if game:GetService("Players").LocalPlayer.PlayerGui.Message.Enabled then
+            game:GetService("Players").LocalPlayer.PlayerGui.Message.Enabled = false
+        end
+    end
+end)
+
+
+local breakables = require(Root["Faster Egg Open"]["Faster Egg Open 2"]["Instant Egg Open"]["Golden Dice"]["Small Coin Piles"])
+task.spawn(function()
+    while true do
+        task.wait()
+        pcall(petTargetChestAndBreakables)
+        pcall(tapChestAndBreakables)
+
+        if not require(game:GetService("ReplicatedStorage").Library.Client.EggCmds).IsRolling() and save.DiceCombos["Rainbow"] ~= 80 then
+            game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Eggs_Roll"):InvokeServer()
+            task.wait()
+            
+        elseif save.DiceCombos["Rainbow"] == 80 then
+            print("Rainbow READY")
+            local instantLuck3PotionFound
+            for itemId, tbl in pairs(require(game:GetService("ReplicatedStorage").Library.Client.Save).Get().Inventory.Consumable) do
+                if tbl.id == "Instant Luck Potion" and tbl.tn == 3 then
+                    instantLuck3PotionFound = true
+                    instantLuck3PotionId = itemId
+                    pcall(consumeBestPotion)  -- use every best potion + instant luck 3
+                    game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Eggs_Roll"):InvokeServer()
+                    task.wait()
+                    break
+                end
+            end
+            if not instantLuck3PotionFound then
+                print("No Instant Luck 3 Potions Detected")
+                game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Eggs_Roll"):InvokeServer()
+                task.wait()
+            end
+        end
+
+        -- check for huges and send webhook
+        for petId, tbl in require(game:GetService("ReplicatedStorage").Library.Client.Save).Get().Inventory.Pet do
+            local sentBefore = false
+            for _, hugeName in pairs(doNotResend) do
+                if tbl.id == hugeName then
+                    sentBefore = true
+                    break
+                end
+            end
+            if not sentBefore and string.find(tbl.id:lower(), "huge") then
+                print("found:", tbl.id)
+                table.insert(doNotResend, tbl.id)
+                local quantity = tbl._am or 1
+                sendWebhook("Huge Pet Found: Huge Cat")
+                -- sendWebhook("Huge Pet Found: " .. tbl.id .. "\nQuantity: " .. quantity)
+            end
+        end
+    end
+end)
 
 
 local advancedIndexShop = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Trading["Pet Index"]["Index Shop"]["Advanced Index Shop"])
@@ -1097,7 +1109,10 @@ while true do
     -- if upgradeCmds.IsUnlocked(advancedIndexShop) then
     --     buyIndexShop()
     -- end
-    
+
+    if require(game:GetService("ReplicatedStorage").Library.Client.LoginStreakCmds).CanClaim() then
+        game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Login Streaks: Bonus Roll Request"):InvokeServer()
+    end
 
     pcall(collectHiddenGift)
 
@@ -1110,39 +1125,20 @@ while true do
             task.wait(0.5)
         end
     end
+
+    if upgradeCmds.IsUnlocked(fruitMachine) and (tick() - upgradeFruitTimeStart) >= upgradeFruitDelay then
+        upgradeFruitTimeStart = tick()
+        pcall(upgradeFruits)
+    end
+
     if upgradeCmds.IsUnlocked(potionWizard) then
         local potionCraftingMagnitude = (game:GetService("Workspace")[localPlayerName].HumanoidRootPart.Position - game:GetService("Workspace").MAP.INTERACT.Machines.PotionCraftingMachine.PadGlow.Position).Magnitude
         if potionCraftingMagnitude > 30 then
             task.wait(1)
             teleportToMachine("PotionCraftingMachine")
         end
-        pcall(smartPotionUpgrade)
         pcall(craft, "instantLuck3")
-    end
-    
-    if upgradeCmds.IsUnlocked(fruitMachine) and (tick() - upgradeFruitTimeStart) >= upgradeFruitDelay then
-        upgradeFruitTimeStart = tick()
-        pcall(upgradeFruits)
-    end
-
-    if require(game:GetService("ReplicatedStorage").Library.Client.LoginStreakCmds).CanClaim() then
-        game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Login Streaks: Bonus Roll Request"):InvokeServer()
-    end
-
-    -- check for huges and send webhook
-    for petId, tbl in require(game:GetService("ReplicatedStorage").Library.Client.Save).Get().Inventory.Pet do
-        local sentBefore = false
-        for _, hugeName in pairs(doNotResend) do
-            if tbl.id == hugeName then
-                sentBefore = true
-                break
-            end
-        end
-        if not sentBefore and string.find(tbl.id:lower(), "huge") then
-            table.insert(doNotResend, tbl.id)
-            local quantity = tbl._am or 1
-            sendWebhook("Huge Pet Found: " .. tbl.id .. "\nQuantity: " .. quantity)
-        end
+        pcall(smartPotionUpgrade)
     end
 end
 
