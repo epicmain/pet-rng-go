@@ -1075,7 +1075,7 @@ while true do
 
     currentRollsLabel.Text = "Current Rolls: (+" .. currentRolls .. ")"
     totalRollsLabel.Text = "Total Rolls: " .. currentTotalRolls
-    inventoryLabel.Text = "Current Inventory: " .. currentInventoryNotification
+    inventoryLabel.Text = "Current Inventory: (+" .. currentInventoryNotification .. ")"
 
     getBestDifficultyPet()
     wait(1) -- Update every second (you can adjust the wait time)
