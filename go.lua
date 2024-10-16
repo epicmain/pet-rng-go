@@ -1,3 +1,18 @@
+pcall(function()
+    settings().Rendering.QualityLevel = 1
+    settings().Rendering.MeshPartDetailLevel = Enum.MeshPartDetailLevel.Level04
+    game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.Chat,false)
+    UserSettings():GetService('UserGameSettings').MasterVolume = 0
+    game.StarterGui:SetCore("TopbarEnabled", false)
+    game.StarterGui:SetCore("DevConsoleVisible", false)
+    game.StarterGui:SetCoreGuiEnabled("Enum.CoreGuiType.PlayerList",false)
+    game.StarterGui:SetCoreGuiEnabled("Enum.CoreGuiType.All",false)
+    for i, v in getconnections(game.Players.LocalPlayer.Idled) do
+        v:Disable()
+    end
+end)
+
+
 local Root = game:GetService("ReplicatedStorage")["__DIRECTORY"].Upgrades.Root
 local Client = game:GetService("ReplicatedStorage"):WaitForChild("Library").Client
 local network = require(game:GetService("ReplicatedStorage").Library.Client.Network)
