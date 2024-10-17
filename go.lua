@@ -81,6 +81,7 @@ end
 
 game:GetService("Workspace").OUTER:Destroy()
 game:GetService("ReplicatedStorage").Network["Move Server"]:Destroy()
+game:GetService("Lighting"):ClearAllChildren()
 game:GetService("Workspace")[localPlayerName].HumanoidRootPart.Anchored = true
 
 local platform = Instance.new("Part")
@@ -104,6 +105,23 @@ end
 require(Client.FriendCmds).GetEffectiveFriendsOnline = function(...)
     return 110
 end
+
+
+-- Function to set all lights to NoLight
+local function setAllLightsToNoLight()
+    for _, v in ipairs(game:GetDescendants()) do
+        -- Check if the object is a light
+        if v:IsA("PointLight") or v:IsA("SpotLight") or v:IsA("SurfaceLight") then
+            -- Set the light to NoLight by setting its brightness to 0
+            v.Brightness = 0
+            v.Enabled = false
+        end
+    end
+end
+
+-- Call the function
+setAllLightsToNoLight()
+
 
 
 -- VVV Optimizer VVV
@@ -144,17 +162,18 @@ for _, v in game:GetService("Workspace").MAP:GetChildren() do
     end
 end
 
-for _, v in game:GetService("CoreGui"):GetChildren() do
-    v:Destroy()
-end
-
 for _, v in game:GetService("Players").LocalPlayer.PlayerGui.Main:GetChildren() do
-    if v:IsA("Frame") and v.Name ~= "Boosts" then
+    if v:IsA("Frame") then
         v.Visible = false
     end
 end
 -- disable annoying xp balls
-game:GetService("ReplicatedStorage").Library.Client.XPBallCmds.Ball.Center.Item.Lifetime = NumberRange.new(0)
+game:GetService("ReplicatedStorage").Library.Client.XPBallCmds:Destroy()
+game:GetService("ReplicatedStorage").Network.XPBalls_BulkCreate:Destroy()
+game:GetService("ReplicatedStorage").Library.Types.XPBalls:Destroy()
+
+game:GetService("Players").LocalPlayer.PlayerScripts.Scripts.Game["Breakable VFX"]:Destroy()
+
 
 game:GetService("Players").LocalPlayer.PlayerScripts.Scripts.Core["Idle Tracking"].Disabled = true
 if getconnections then
@@ -169,43 +188,6 @@ else
     end)
 end
 print("[Anti-AFK Activated!]")
-
-
--- buy advanced merchant potions
-network.Fired("Merchant_Updated"):Connect(function(...)
-    local args = {...}
-    local indexTokenAmount = 0
-
-    for itemId, tbl in pairs(require(game:GetService("ReplicatedStorage").Library.Client.Save).Get().Inventory.Misc) do
-        if tbl.id == "Index Token" and tbl._am ~= nil then
-            indexTokenAmount = tbl._am
-        end
-    end    
-
-    print("Offers for AdvancedIndexMerchant:")
-    for offerIndex, offer in pairs(args[1]["AdvancedIndexMerchant"].Offers) do
-        local itemId = offer.ItemData.data.id
-        local tier = offer.ItemData.data.tn
-        local stock = offer.Stock
-        local priceId = offer.PriceData.data.id
-        local cost = offer.PriceData.data._am
-
-        if itemId == "The Cocktail" or itemId == "Instant Luck Potion" then
-            if indexTokenAmount >= (cost * stock) then
-                for i=1, stock do
-                    game:GetService("ReplicatedStorage").Network["Merchant_RequestPurchase"]:InvokeServer("AdvancedIndexMerchant", tonumber(offerIndex))
-                    print("Bought:", itemId .. ", Item Number:", offerIndex)
-                    print(1)
-                end
-            else
-                -- check if always not enough index or too much index tokens. then adjust script
-                print("Can't Afford Index Item")
-            end
-        end
-        
-        pcall(print, string.format("Offer %d: Item: %s, Tier: %d, Stock: %d, Price ID: %s, Cost: %s", offerIndex, itemId, tier, stock, priceId, cost))
-    end
-end)
 
 
 local function clearTextures(v)
@@ -238,7 +220,7 @@ local function clearTextures(v)
     end
 end
 
-for _, v in pairs(Workspace:GetDescendants()) do
+for _, v in pairs(game:GetDescendants()) do
     clearTextures(v)
 end
 
@@ -251,6 +233,25 @@ for _, v in pairs(game.Players:GetChildren()) do
         end
     end
 end
+-- make joining players invis
+game.Players.DescendantAdded:Connect(function(v)
+    if v:IsA("BasePart") or v:IsA("Decal") then
+        v.Transparency = 1
+    end
+end)
+
+-- make pets letter invis
+for _, v in pairs(workspace.__THINGS.Pets:GetDescendants()) do
+    if v.Name == "PetBillboard" then
+        v.Enabled = false
+    end
+end
+
+workspace.__THINGS.Pets.DescendantAdded:Connect(function(v)
+    if v.Name == "PetBillboard" then
+        v.Enabled = false
+    end
+end)
 
 for _, v in pairs(game:GetService("Workspace").MAP.INTERACT:GetChildren()) do
     if v.Name ~= "Machines" and v.Name ~= "Items" then
@@ -259,6 +260,14 @@ for _, v in pairs(game:GetService("Workspace").MAP.INTERACT:GetChildren()) do
 end
 
 game:GetService("Players").LocalPlayer.PlayerGui.Notifications:Destroy()
+
+hookfunction(getsenv(game:GetService("Players").LocalPlayer.PlayerScripts.Scripts.Game["Breakables Frontend"]).updateBreakable, function()
+    return
+end)
+
+hookfunction(require(game:GetService("ReplicatedStorage").Library.Client.WorldFX).RewardBillboard, function()
+    return
+end)
 
 hookfunction(require(game:GetService("ReplicatedStorage").Library.Client.OrbCmds.Orb).RenderParticles, function()
     return
@@ -271,6 +280,12 @@ end)
 hookfunction(require(game:GetService("ReplicatedStorage").Library.Client.GUIFX.Confetti).Play, function()
     return
 end)
+
+for _, v in pairs(game:GetService("ReplicatedStorage").Assets:GetChildren()) do
+    if v.Name ~= "Cutscenes" and v.Name ~= "Particles" and v.Name ~= "UI" and v.Name ~= "Models" then
+        v:Destroy()
+    end    
+end
 
 local worldFXList = {"Confetti", "RewardImage", "QuestGlow", "Damage", "SpinningChests", "RewardItem", "Sparkles", "AnimatePad", "PlayerTeleport", "AnimateChest", "Poof",
 "SmallPuff", "Flash", "Arrow3D", "ArrowPointer3D", "RainbowGlow"}
@@ -291,6 +306,40 @@ end
 game:GetService("Workspace").DescendantAdded:Connect(function(v)
     clearTextures(v)
 end)
+
+
+-- Lower FOV and Set Camera to First-Person
+game.Workspace.CurrentCamera.FieldOfView = 1
+local player = game.Players.LocalPlayer
+player.CameraMode = Enum.CameraMode.LockFirstPerson
+
+-- Disable Particle Effects
+for _, v in pairs(game.Workspace:GetDescendants()) do
+    if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Smoke") then
+        v.Enabled = false
+    end
+end
+
+-- Disable Shadows
+game.Lighting.GlobalShadows = false
+
+-- Lower Lighting Quality
+game.Lighting.Brightness = 0
+game.Lighting.OutdoorAmbient = Color3.new(0, 0, 0) -- Set to black for minimal lighting
+game.Lighting.TimeOfDay = "14:00:00" -- Keep it in daytime for simpler lighting
+
+-- Disable Textures
+for _, v in pairs(game.Workspace:GetDescendants()) do
+    if v:IsA("Texture") or v:IsA("Decal") then
+        v:Destroy() -- or set Texture to nil
+    end
+end
+
+-- Disconnect Unnecessary Events
+local connections = getconnections or get_signal_cons
+for _, connection in pairs(connections(game:GetService("RunService").RenderStepped)) do
+    connection:Disable()
+end
 
 
 -- ^^^ Optimizer ^^^
@@ -389,10 +438,10 @@ local function traverseModules(module)
         if upgradeCmds.IsUnlocked(child.Name) then
             traverseModules(child)
         elseif upgradeCmds.CanAfford(child.Name) then
-            if child.Name ~= "Trading Booths" and child.Name ~= "More Pet Details" and child.Name ~= "Hoverboard" and child.Name ~= "Faster Pets" then
-                upgradeCmds.Unlock(child.Name)
-                print("Bought affordable upgrade: " .. child.Name)
-            end
+            -- if child.Name ~= "Trading Booths" and child.Name ~= "More Pet Details" and child.Name ~= "Hoverboard" and child.Name ~= "Faster Pets" then
+            upgradeCmds.Unlock(child.Name)
+            print("Bought affordable upgrade: " .. child.Name)
+            -- end
         end
     end
 end
@@ -430,20 +479,8 @@ local function collectHiddenGift()
                 local targetPosition = v2.Position
 
                 humanoid:MoveTo(targetPosition)
+                task.wait(1)
             end
-    
-            local loaded = false
-            local detectLoad = game:GetService("Workspace")["__THINGS"].HiddenGifts.ChildRemoved:Connect(function(child)
-                if child.Name == "Model" then
-                    loaded = true
-                end
-            end)
-    
-            repeat
-                task.wait()
-            until loaded
-    
-            detectLoad:Disconnect()
         end
     end
 end
@@ -459,7 +496,7 @@ end
 
 local function teleportToMachine(machineName)    
     print("Teleporting To", machineName)
-    game:GetService("Workspace")[localPlayerName].HumanoidRootPart.CFrame = game:GetService("Workspace").MAP.INTERACT.Machines[machineName].PadGlow.CFrame + Vector3.new(0, -8, 0)
+    game:GetService("Workspace")[localPlayerName].HumanoidRootPart.CFrame = game:GetService("Workspace").MAP.INTERACT.Machines[machineName].PadGlow.CFrame + Vector3.new(0, -10, 0)
     task.wait(1)
 end
 
@@ -525,7 +562,14 @@ local function consumeBestPotion()
         end
 
         if cocktailConsumed then
-            print("Using Instant Luck 3 Potion")
+            for itemId, tbl in pairs(require(game:GetService("ReplicatedStorage").Library.Client.Save).Get().Inventory.Consumable) do
+                if tbl.id == "Golden Dice Potion" then
+                    pcall(function() game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Consumables_Consume"):InvokeServer(itemId, 1) end)
+                    task.wait(1)
+                    break
+                end
+            end
+            print("Using Gold & Instant Luck 3 Potion")
             pcall(function() game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Consumables_Consume"):InvokeServer(instantLuck3PotionId, 1) end)
             task.wait(0.5)
             pcall(function() game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Consumables_Consume"):InvokeServer(instantLuck3PotionId, 1) end)
@@ -864,6 +908,43 @@ local function getBestDifficultyPet()
 end
 
 
+-- buy advanced merchant potions
+network.Fired("Merchant_Updated"):Connect(function(...)
+    local args = {...}
+    local indexTokenAmount = 0
+
+    for itemId, tbl in pairs(require(game:GetService("ReplicatedStorage").Library.Client.Save).Get().Inventory.Misc) do
+        if tbl.id == "Index Token" and tbl._am ~= nil then
+            indexTokenAmount = tbl._am
+        end
+    end    
+
+    print("Offers for AdvancedIndexMerchant:")
+    for offerIndex, offer in pairs(args[1]["AdvancedIndexMerchant"].Offers) do
+        local itemId = offer.ItemData.data.id
+        local tier = offer.ItemData.data.tn
+        local stock = offer.Stock
+        local priceId = offer.PriceData.data.id
+        local cost = offer.PriceData.data._am
+
+        if itemId == "The Cocktail" or itemId == "Instant Luck Potion" then
+            if indexTokenAmount >= (cost * stock) then
+                for i=1, stock do
+                    game:GetService("ReplicatedStorage").Network["Merchant_RequestPurchase"]:InvokeServer("AdvancedIndexMerchant", tonumber(offerIndex))
+                    print("Bought:", itemId .. ", Item Number:", offerIndex)
+                    print(1)
+                end
+            else
+                -- check if always not enough index or too much index tokens. then adjust script
+                print("Can't Afford Index Item")
+            end
+        end
+        
+        pcall(print, string.format("Offer %d: Item: %s, Tier: %d, Stock: %d, Price ID: %s, Cost: %s", offerIndex, itemId, tier, stock, priceId, cost))
+    end
+end)
+
+
 
 
 
@@ -1039,6 +1120,33 @@ task.spawn(function()
         if game:GetService("Players").LocalPlayer.PlayerGui.Message.Enabled then
             game:GetService("Players").LocalPlayer.PlayerGui.Message.Enabled = false
         end
+
+        for _, v in pairs(game:GetService("Players").LocalPlayer.PlayerGui._MACHINES:GetChildren()) do
+            if v.Enabled then
+                v.Enabled = false
+            end
+        end        
+
+        -- check for huges and send webhook
+        for petId, tbl in require(game:GetService("ReplicatedStorage").Library.Client.Save).Get().Inventory.Pet do
+            local sentBefore = false
+            for _, hugeName in pairs(doNotResend) do
+                if tbl.id == hugeName then
+                    sentBefore = true
+                    break
+                end
+            end
+            if not sentBefore and (string.find(tbl.id:lower(), "huge") or string.find(tbl.id:lower(), "banana") or string.find(tbl.id:lower(), "hippomelon") or 
+            string.find(tbl.id:lower(), "sun angelus") or string.find(tbl.id:lower(), "pentangelus") or string.find(tbl.id:lower(), "arcane cat") or
+            string.find(tbl.id:lower(), "diamond dragon") or string.find(tbl.id:lower(), "m-2 prototype") or string.find(tbl.id:lower(), "angelus") or 
+            string.find(tbl.id:lower(), "night terror cat") or string.find(tbl.id:lower(), "electric dragon")) then
+                
+                print("found:", tbl.id)
+                table.insert(doNotResend, tbl.id)
+                local quantity = tbl._am or 1
+                sendWebhook("Huge Pet Found: " .. tbl.id .. "\nQuantity: " .. quantity)
+            end
+        end
     end
 end)
 
@@ -1049,7 +1157,12 @@ task.spawn(function()
         task.wait()
         pcall(petTargetChestAndBreakables)
         pcall(tapChestAndBreakables)
+    end
+end)
 
+task.spawn(function()
+    while true do
+        task.wait()
         if not require(game:GetService("ReplicatedStorage").Library.Client.EggCmds).IsRolling() and save.DiceCombos["Rainbow"] ~= 80 then
             game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Eggs_Roll"):InvokeServer()
             task.wait()
@@ -1073,27 +1186,12 @@ task.spawn(function()
                 task.wait()
             end
         end
-
-        -- check for huges and send webhook
-        for petId, tbl in require(game:GetService("ReplicatedStorage").Library.Client.Save).Get().Inventory.Pet do
-            local sentBefore = false
-            for _, hugeName in pairs(doNotResend) do
-                if tbl.id == hugeName then
-                    sentBefore = true
-                    break
-                end
-            end
-            if not sentBefore and string.find(tbl.id:lower(), "huge") then
-                print("found:", tbl.id)
-                table.insert(doNotResend, tbl.id)
-                local quantity = tbl._am or 1
-                sendWebhook("Huge Pet Found: Huge Cat")
-                -- sendWebhook("Huge Pet Found: " .. tbl.id .. "\nQuantity: " .. quantity)
-            end
-        end
     end
 end)
 
+for _, v in game:GetService("CoreGui"):GetChildren() do
+    v:Destroy()
+end
 
 local advancedIndexShop = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Trading["Pet Index"]["Index Shop"]["Advanced Index Shop"])
 local coinPresents = require(Root["Faster Egg Open"]["Faster Egg Open 2"]["Instant Egg Open"]["Golden Dice"]["Small Coin Piles"]["Large Coin Piles"]["Coin Crates"]["Coin Presents"])
@@ -1112,6 +1210,14 @@ while true do
 
     if require(game:GetService("ReplicatedStorage").Library.Client.LoginStreakCmds).CanClaim() then
         game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Login Streaks: Bonus Roll Request"):InvokeServer()
+    end
+
+    if require(game:GetService("ReplicatedStorage").Library.Client.BonusRollCmds).HasAvailable() then
+        game:GetService("ReplicatedStorage").Network["Bonus Rolls: Claim"]:InvokeServer()
+        task.wait(1)
+        if game:GetService("Players").LocalPlayer.PlayerGui.BonusRoll.Enabled then
+            game:GetService("Players").LocalPlayer.PlayerGui.BonusRoll.Enabled = false
+        end
     end
 
     pcall(collectHiddenGift)
@@ -1147,11 +1253,7 @@ end
 
 
 
+-- find graphic intensive stuff here -> game:GetService("Players").LocalPlayer.PlayerScripts.Scripts
 
 
-
-
-
-
-
-
+-- game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
