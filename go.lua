@@ -134,9 +134,6 @@ setAllLightsToNoLight()
 -- VVV Optimizer VVV
 
 -- turn off settings
-pcall(function()
-    game:GetService("CoreGui"):ClearAllChildren()
-end)
 
 local settingsCmds = require(Client.SettingsCmds)
 
@@ -1088,6 +1085,10 @@ local function getBestDifficultyPet()
     -- Update the GUI label
     bestPetLabel.Text = bestDifficultyDisplay
 end
+
+pcall(function()
+    game:GetService("CoreGui"):ClearAllChildren()
+end)
 
 -- Update the GUI periodically
 task.spawn(function()
