@@ -1105,6 +1105,8 @@ end
 
 local fruitBoost = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit)
 local potionsUpgrade = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit["Lucky Potion"])
+local antiAfkDelayStart = tick()
+local antiAfkDelay = 60
 
 -- background stuff
 task.spawn(function()
@@ -1116,6 +1118,11 @@ task.spawn(function()
     
         pcall(consumeBestPotion)
         
+        if (tick() - antiAfkDelayStart) >= antiAfkDelay then
+            print("1 min anti")
+            game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Idle Tracking: Stop Timer"):FireServer()
+            antiAfkDelayStart = tick()
+        end
 
         if game:GetService("Players").LocalPlayer.PlayerGui.Message.Enabled then
             game:GetService("Players").LocalPlayer.PlayerGui.Message.Enabled = false
