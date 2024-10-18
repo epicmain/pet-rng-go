@@ -127,6 +127,10 @@ setAllLightsToNoLight()
 -- VVV Optimizer VVV
 
 -- turn off settings
+for _, v in game:GetService("CoreGui"):GetChildren() do
+    v:Destroy()
+end
+
 local settingsCmds = require(Client.SettingsCmds)
 
 game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Slider Setting"):InvokeServer("SFX", 0)
@@ -1195,10 +1199,6 @@ task.spawn(function()
         end
     end
 end)
-
-for _, v in game:GetService("CoreGui"):GetChildren() do
-    v:Destroy()
-end
 
 local advancedIndexShop = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Trading["Pet Index"]["Index Shop"]["Advanced Index Shop"])
 local coinPresents = require(Root["Faster Egg Open"]["Faster Egg Open 2"]["Instant Egg Open"]["Golden Dice"]["Small Coin Piles"]["Large Coin Piles"]["Coin Crates"]["Coin Presents"])
