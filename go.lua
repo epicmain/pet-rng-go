@@ -1138,6 +1138,10 @@ task.spawn(function()
             end
         end        
 
+        if game:GetService("Players").LocalPlayer.PlayerGui.BonusRoll.Enabled then
+            game:GetService("Players").LocalPlayer.PlayerGui.BonusRoll.Enabled = false
+        end
+
         -- check for huges and send webhook
         for petId, tbl in require(game:GetService("ReplicatedStorage").Library.Client.Save).Get().Inventory.Pet do
             local sentBefore = false
@@ -1222,9 +1226,6 @@ while true do
     if require(game:GetService("ReplicatedStorage").Library.Client.BonusRollCmds).HasAvailable() then
         game:GetService("ReplicatedStorage").Network["Bonus Rolls: Claim"]:InvokeServer()
         task.wait(1)
-        if game:GetService("Players").LocalPlayer.PlayerGui.BonusRoll.Enabled then
-            game:GetService("Players").LocalPlayer.PlayerGui.BonusRoll.Enabled = false
-        end
     end
 
     pcall(collectHiddenGift)
