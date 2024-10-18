@@ -1078,7 +1078,7 @@ local function getBestDifficultyPet()
             if petDifficulty >= 1000000 then
                 bestDifficultyDisplay = "BEST PET: " .. (petDifficulty / 1000000) .. "M" 
             elseif petDifficulty >= 100000 then
-                bestDifficultyDisplay = "BEST PET: " .. petDifficulty .. "K" 
+                bestDifficultyDisplay = "BEST PET: " .. (petDifficulty / 100000) .. "K" 
             else
                 bestDifficultyDisplay = "BEST PET: " .. petDifficulty
             end
