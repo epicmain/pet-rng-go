@@ -134,11 +134,9 @@ setAllLightsToNoLight()
 -- VVV Optimizer VVV
 
 -- turn off settings
--- pcall(function()
---     for _, v in game:GetService("CoreGui"):GetChildren() do
---         v:Destroy()
---     end
--- end)
+pcall(function()
+    game:GetService("CoreGui"):ClearAllChildren()
+end)
 
 local settingsCmds = require(Client.SettingsCmds)
 
