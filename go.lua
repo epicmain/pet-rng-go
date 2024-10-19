@@ -88,6 +88,7 @@ end
 pcall(function()
     game:GetService("CoreGui"):ClearAllChildren()
 end)
+
 workspace.OUTER:Destroy()
 network["Move Server"]:Destroy()
 game:GetService("Lighting"):ClearAllChildren()
@@ -100,7 +101,6 @@ platform.CFrame = workspace.MAP.SPAWNS.Spawn.CFrame + Vector3.new(0, -5.5, 0)
 platform.Size = Vector3.new(500, 1, 500)
 -- platform.Transparency = 1
 workspace[localPlayerName].HumanoidRootPart.Anchored = false
-
 
 
 require(Client.PlayerPet).CalculateSpeedMultiplier = function(...)
@@ -130,7 +130,6 @@ end
 
 -- Call the function
 setAllLightsToNoLight()
-
 
 
 -- VVV Optimizer VVV
@@ -173,11 +172,6 @@ local function fullOptimizer()
         end
     end
 
-    for _, v in LocalPlayer.PlayerGui.Main:GetChildren() do
-        if v:IsA("Frame") then
-            v.Visible = false
-        end
-    end
     -- disable annoying xp balls
     Client.XPBallCmds:Destroy()
     network.XPBalls_BulkCreate:Destroy()
@@ -270,8 +264,6 @@ local function fullOptimizer()
         end
     end
 
-    LocalPlayer.PlayerGui.Notifications:Destroy()
-
     hookfunction(getsenv(LocalPlayer.PlayerScripts.Scripts.Game["Breakables Frontend"]).updateBreakable, function()
         return
     end)
@@ -351,6 +343,46 @@ local function fullOptimizer()
         connection:Disable()
     end
 end
+
+
+local parentObject = game:GetService("Players").LocalPlayer.PlayerGui -- Replace with your actual object
+
+for _, children in pairs(parentObject:GetChildren()) do
+    if children.Name ~= "Main" and children.Name ~= "TouchGui" then
+        children:Destroy()
+    elseif children.Name == "Main" then
+        for _, children2 in pairs(children:GetChildren()) do
+            if children2.Name ~= "Boosts" then
+                children2:Destroy()
+            end
+        end
+    end
+end
+
+game:GetService("Players").LocalPlayer.PlayerGui.Main.Enabled = false
+
+local parentObject = game:GetService("Players").LocalPlayer.PlayerScripts.Scripts.GUIs -- Replace with your actual object
+
+for _, children in pairs(parentObject:GetChildren()) do
+    if children.Name ~= "Boosts Panel V3" then
+        children:Destroy()
+    end
+end
+
+game:GetService("Players").LocalPlayer.PlayerScripts.Scripts.Game.Opening["Rolling Egg Opening"]:Destroy()
+
+for _, v in pairs(workspace.MAP.INTERACT.Machines:GetChildren()) do
+    for _, v2 in pairs(v:GetChildren()) do
+        if v2.Name ~= "PadGlow" then
+            v2:Destroy()
+        end
+    end
+end
+
+game:GetService("ReplicatedStorage").Network["Eggs_ConsumableVFX"]:Destroy()
+game:GetService("ReplicatedStorage").Network.Pets_ReplicateChanges:Destroy()
+
+game:GetService("Players").LocalPlayer.PlayerScripts.Scripts.Game["Machine Animations"]:Destroy()
 
 fullOptimizer()
 
@@ -1093,9 +1125,9 @@ require(Client.Network).Fired("Merchant_Updated"):Connect(function(...)
 end)
 
 
-
-
-
+pcall(function()
+    game:GetService("CoreGui"):ClearAllChildren()
+end)
 -- ===============================================  GUI  ===============================================
 local mouse = LocalPlayer:GetMouse() -- Get the player's mouse
 local gui = Instance.new("ScreenGui", LocalPlayer.PlayerGui)
@@ -1241,9 +1273,6 @@ local function getBestDifficultyPet()
     bestPetLabel.Text = bestDifficultyDisplay
 end
 
-pcall(function()
-    game:GetService("CoreGui"):ClearAllChildren()
-end)
 
 -- Update the GUI periodically
 task.spawn(function()
@@ -1280,86 +1309,15 @@ if require(Client.HoverboardCmds).IsEquipped() then
 end
 
 
-local fruitBoost = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit)
-local potionsUpgrade = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit["Lucky Potion"])
-local antiAfkDelayStart = tick()
-local antiAfkDelay = 60
-local webhookSendDelayStart = tick()
-local webhookSendDelay = 60
-
--- background stuff
-task.spawn(function()
-    while true do
-        task.wait()
-        traverseModules(Root)
-        
-        pcall(checkAndConsumeFruits)
-    
-        pcall(consumeBestPotion)
-        
-        if (tick() - antiAfkDelayStart) >= antiAfkDelay then
-            network:WaitForChild("Idle Tracking: Stop Timer"):FireServer()
-            antiAfkDelayStart = tick()
-        end
-
-        if game:GetService("Players").LocalPlayer.PlayerGui.Message.Enabled then
-            game:GetService("Players").LocalPlayer.PlayerGui.Message.Enabled = false
-        end
-
-        for _, v in pairs(game:GetService("Players").LocalPlayer.PlayerGui._MACHINES:GetChildren()) do
-            if v.Enabled then
-                v.Enabled = false
-            end
-        end        
-
-        if game:GetService("Players").LocalPlayer.PlayerGui.BonusRoll.Enabled then
-            game:GetService("Players").LocalPlayer.PlayerGui.BonusRoll.Enabled = false
-        end
-
-        if game:GetService("Players").LocalPlayer.PlayerGui.DailyRoll.Enabled then
-            game:GetService("Players").LocalPlayer.PlayerGui.DailyRoll.Enabled = false
-        end
-
-        -- check for huges and send webhook
-        if (tick() - webhookSendDelayStart) >= webhookSendDelay then
-            for petId, tbl in save.Get().Inventory.Pet do
-                local sentBefore = false
-                for _, hugeName in pairs(doNotResend) do
-                    if tbl.id == hugeName then
-                        sentBefore = true
-                        break
-                    end
-                end
-                if not sentBefore and (string.find(tbl.id:lower(), "huge") or string.find(tbl.id:lower(), "banana") or string.find(tbl.id:lower(), "hippomelon") or 
-                string.find(tbl.id:lower(), "sun angelus") or string.find(tbl.id:lower(), "pentangelus") or string.find(tbl.id:lower(), "arcane cat") or
-                string.find(tbl.id:lower(), "diamond dragon") or string.find(tbl.id:lower(), "m-2 prototype") or string.find(tbl.id:lower(), "angelus") or 
-                string.find(tbl.id:lower(), "night terror cat") or string.find(tbl.id:lower(), "electric dragon")) then
-                    
-                    table.insert(doNotResend, tbl.id)
-                    local quantity = tbl._am or 1
-                    sendWebhook("Pet Found: " .. tbl.id .. "\nQuantity: " .. quantity)
-                end
-            end
-        end
-    end
-end)
-
-
 local breakables = require(Root["Faster Egg Open"]["Faster Egg Open 2"]["Instant Egg Open"]["Golden Dice"]["Small Coin Piles"])
 task.spawn(function()
     while true do
         task.wait()
         pcall(petTargetChestAndBreakables)
         pcall(tapChestAndBreakables)
-    end
-end)
 
-task.spawn(function()
-    while true do
-        task.wait()
         if not require(Client.EggCmds).IsRolling() and save.Get().DiceCombos["Rainbow"] ~= 80 then
-            network:WaitForChild("Eggs_Roll"):InvokeServer()
-            task.wait()
+            network.Eggs_Roll:InvokeServer()
             
         elseif save.Get().DiceCombos["Rainbow"] == 80 then
             print("Rainbow READY")
@@ -1369,15 +1327,13 @@ task.spawn(function()
                     instantLuck3PotionFound = true
                     instantLuck3PotionId = itemId
                     pcall(consumeBestPotion)  -- use every best potion + instant luck 3
-                    network:WaitForChild("Eggs_Roll"):InvokeServer()
-                    task.wait()
+                    network.Eggs_Roll:InvokeServer()
                     break
                 end
             end
             if not instantLuck3PotionFound then
                 print("No Instant Luck 3 Potions Detected")
-                network:WaitForChild("Eggs_Roll"):InvokeServer()
-                task.wait()
+                network.Eggs_Roll:InvokeServer()
             end
         end
     end
@@ -1390,15 +1346,54 @@ local potionVending = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inven
 local potionWizard = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit["Lucky Potion"]["Lucky Potion Tier 2"]["Potion Crafting"]["Crafting More Potion Recipes"]["Potion Wizard"])
 local fruitMachine = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit["More Fruit"]["Finding Fruit"]["Rainbow Fruit"]["Fruit Machine"])
 local merchantUpgrade = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit["Lucky Potion"]["Coins Potion"]["Coins Potion Tier 2"]["Coins Potion Tier 3"].Merchant)
+local fruitBoost = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit)
+local potionsUpgrade = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit["Lucky Potion"])
 
+local antiAfkDelayStart = tick()
+local antiAfkDelay = 60
+local webhookSendDelayStart = tick()
+local webhookSendDelay = 60
 
 -- collect forever pack free
 game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("ForeverPacks: Claim Free"):InvokeServer("Default")
 
-
 -- background stuff
 while true do
     task.wait()
+    traverseModules(Root)
+    
+    pcall(checkAndConsumeFruits)
+
+    pcall(consumeBestPotion)
+    
+    if (tick() - antiAfkDelayStart) >= antiAfkDelay then
+        network:WaitForChild("Idle Tracking: Stop Timer"):FireServer()
+        antiAfkDelayStart = tick()
+    end
+
+    -- check for huges and send webhook
+    if (tick() - webhookSendDelayStart) >= webhookSendDelay then
+        for petId, tbl in save.Get().Inventory.Pet do
+            local sentBefore = false
+            for _, hugeName in pairs(doNotResend) do
+                if tbl.id == hugeName then
+                    sentBefore = true
+                    break
+                end
+            end
+            if not sentBefore and (string.find(tbl.id:lower(), "huge") or string.find(tbl.id:lower(), "banana") or string.find(tbl.id:lower(), "hippomelon") or 
+            string.find(tbl.id:lower(), "sun angelus") or string.find(tbl.id:lower(), "pentangelus") or string.find(tbl.id:lower(), "arcane cat") or
+            string.find(tbl.id:lower(), "diamond dragon") or string.find(tbl.id:lower(), "m-2 prototype") or string.find(tbl.id:lower(), "angelus") or 
+            string.find(tbl.id:lower(), "night terror cat") or string.find(tbl.id:lower(), "electric dragon")) then
+                
+                table.insert(doNotResend, tbl.id)
+                local quantity = tbl._am or 1
+                sendWebhook("Pet Found: " .. tbl.id .. "\nQuantity: " .. quantity)
+            end
+        end
+        webhookSendDelayStart = tick()
+    end
+
     -- if upgradeCmds.IsUnlocked(advancedIndexShop) then
     --     buyIndexShop()
     -- end
@@ -1453,16 +1448,3 @@ while true do
         pcall(smartPotionUpgrade)
     end
 end
-
-
--- REMEMBER TO MAKE AN INVENTORY SEARCHER THAT SEARCHES EVERYTHING THEN RETURN EVERYTHING SO I CAN JUST USE "." TO GET TO IT
-
-
-
--- find graphic intensive stuff here -> game:GetService("Players").LocalPlayer.PlayerScripts.Scripts
-
-
--- game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
-
-
-
