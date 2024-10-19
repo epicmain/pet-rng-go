@@ -85,7 +85,9 @@ if workspace:FindFirstChild("TRADING") then
     end
 end
 
-
+pcall(function()
+    game:GetService("CoreGui"):ClearAllChildren()
+end)
 workspace.OUTER:Destroy()
 network["Move Server"]:Destroy()
 game:GetService("Lighting"):ClearAllChildren()
@@ -133,221 +135,224 @@ setAllLightsToNoLight()
 
 -- VVV Optimizer VVV
 
--- turn off settings
+local function fullOptimizer()
+    -- turn off settings
 
-local settingsCmds = require(Client.SettingsCmds)
+    local settingsCmds = require(Client.SettingsCmds)
 
-network:WaitForChild("Slider Setting"):InvokeServer("SFX", 0)
-network:WaitForChild("Slider Setting"):InvokeServer("Music", 0)
+    network:WaitForChild("Slider Setting"):InvokeServer("SFX", 0)
+    network:WaitForChild("Slider Setting"):InvokeServer("Music", 0)
 
-local toggleSettings = {
-    "Notifications",
-    "ItemNotifications",
-    "GlobalHatchMessages",
-    "ServerHatchMessages",
-    "GlobalNameDisplay",
-    "FireworkShow",
-    "ShowOtherPets",
-    "PetSFX",
-    "PetAuras",
-    "Vibrations"
-}
+    local toggleSettings = {
+        "Notifications",
+        "ItemNotifications",
+        "GlobalHatchMessages",
+        "ServerHatchMessages",
+        "GlobalNameDisplay",
+        "FireworkShow",
+        "ShowOtherPets",
+        "PetSFX",
+        "PetAuras",
+        "Vibrations"
+    }
 
-for _, settingNames in pairs(toggleSettings) do
-    if settingsCmds.Get(settingNames) == "Off" then
-        -- turn off and on for it to work
-        network:WaitForChild("Toggle Setting"):InvokeServer(settingNames)
-        task.wait(1)
-        network:WaitForChild("Toggle Setting"):InvokeServer(settingNames)
-    else
-        network:WaitForChild("Toggle Setting"):InvokeServer(settingNames)
-    end
-end
-
-for _, v in workspace.MAP:GetChildren() do
-    if v.Name ~= "SPAWNS" and v.Name ~= "INTERACT" then
-        v:Destroy()
-    end
-end
-
-for _, v in LocalPlayer.PlayerGui.Main:GetChildren() do
-    if v:IsA("Frame") then
-        v.Visible = false
-    end
-end
--- disable annoying xp balls
-Client.XPBallCmds:Destroy()
-network.XPBalls_BulkCreate:Destroy()
-Library.Types.XPBalls:Destroy()
-
-LocalPlayer.PlayerScripts.Scripts.Game["Breakable VFX"]:Destroy()
-
-
-LocalPlayer.PlayerScripts.Scripts.Core["Idle Tracking"].Disabled = true
-if getconnections then
-    for _, v in pairs(getconnections(LocalPlayer.Idled)) do
-        v:Disable()
-    end
-else
-    LocalPlayer.Idled:Connect(function()
-        virtualUser:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-        task.wait(1)
-        virtualUser:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-    end)
-end
-print("[Anti-AFK Activated!]")
-
-
-local function clearTextures(v)
-    if v:IsA("BasePart") and not v:IsA("MeshPart") then
-        v.Material = "Plastic"
-        v.Reflectance = 0
-        v.Transparency = 1
-    elseif v:IsA("MeshPart") and tostring(v.Parent) == "Orbs" then
-        v.Transparency = 1
-    elseif (v:IsA("Decal") or v:IsA("Texture")) then
-        v.Transparency = 1
-    elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
-        v.Lifetime = NumberRange.new(0)
-    elseif v:IsA("Explosion") then
-        v.BlastPressure = 1
-        v.BlastRadius = 1
-    elseif v:IsA("Fire") or v:IsA("SpotLight") or v:IsA("Smoke") or v:IsA("Sparkles") then
-        v.Enabled = false
-    elseif v:IsA("MeshPart") then
-        v.Material = "Plastic"
-        v.Reflectance = 0
-        v.TextureID = 10385902758728957
-        v.Transparency = 1
-    elseif v:IsA("SpecialMesh") then
-        v.TextureId = 0
-    elseif v:IsA("ShirtGraphic") then
-        v.Graphic = 1
-    elseif (v:IsA("Shirt") or v:IsA("Pants")) then
-        v[v.ClassName .. "Template"] = 1
-    end
-end
-
-for _, v in pairs(game:GetDescendants()) do
-    clearTextures(v)
-end
-
-
--- make player invis
-for _, v in pairs(game.Players:GetChildren()) do
-    for _, v2 in pairs(v.Character:GetDescendants()) do
-        if v2:IsA("BasePart") or v2:IsA("Decal") then
-            v2.Transparency = 1
+    for _, settingNames in pairs(toggleSettings) do
+        if settingsCmds.Get(settingNames) == "Off" then
+            -- turn off and on for it to work
+            network:WaitForChild("Toggle Setting"):InvokeServer(settingNames)
+            task.wait(1)
+            network:WaitForChild("Toggle Setting"):InvokeServer(settingNames)
+        else
+            network:WaitForChild("Toggle Setting"):InvokeServer(settingNames)
         end
     end
-end
--- make joining players invis
-game.Players.DescendantAdded:Connect(function(v)
-    if v:IsA("BasePart") or v:IsA("Decal") then
-        v.Transparency = 1
+
+    for _, v in workspace.MAP:GetChildren() do
+        if v.Name ~= "SPAWNS" and v.Name ~= "INTERACT" then
+            v:Destroy()
+        end
     end
-end)
 
--- make pets letter invis
-for _, v in pairs(workspace.__THINGS.Pets:GetDescendants()) do
-    if v.Name == "PetBillboard" then
-        v.Enabled = false
+    for _, v in LocalPlayer.PlayerGui.Main:GetChildren() do
+        if v:IsA("Frame") then
+            v.Visible = false
+        end
     end
-end
+    -- disable annoying xp balls
+    Client.XPBallCmds:Destroy()
+    network.XPBalls_BulkCreate:Destroy()
+    Library.Types.XPBalls:Destroy()
 
-workspace.__THINGS.Pets.DescendantAdded:Connect(function(v)
-    if v.Name == "PetBillboard" then
-        v.Enabled = false
+    LocalPlayer.PlayerScripts.Scripts.Game["Breakable VFX"]:Destroy()
+
+
+    LocalPlayer.PlayerScripts.Scripts.Core["Idle Tracking"].Disabled = true
+    if getconnections then
+        for _, v in pairs(getconnections(LocalPlayer.Idled)) do
+            v:Disable()
+        end
+    else
+        LocalPlayer.Idled:Connect(function()
+            virtualUser:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+            task.wait(1)
+            virtualUser:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+        end)
     end
-end)
+    print("[Anti-AFK Activated!]")
 
-for _, v in pairs(workspace.MAP.INTERACT:GetChildren()) do
-    if v.Name ~= "Machines" and v.Name ~= "Items" then
-        v:Destroy()
+
+    local function clearTextures(v)
+        if v:IsA("BasePart") and not v:IsA("MeshPart") then
+            v.Material = "Plastic"
+            v.Reflectance = 0
+            v.Transparency = 1
+        elseif v:IsA("MeshPart") and tostring(v.Parent) == "Orbs" then
+            v.Transparency = 1
+        elseif (v:IsA("Decal") or v:IsA("Texture")) then
+            v.Transparency = 1
+        elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+            v.Lifetime = NumberRange.new(0)
+        elseif v:IsA("Explosion") then
+            v.BlastPressure = 1
+            v.BlastRadius = 1
+        elseif v:IsA("Fire") or v:IsA("SpotLight") or v:IsA("Smoke") or v:IsA("Sparkles") then
+            v.Enabled = false
+        elseif v:IsA("MeshPart") then
+            v.Material = "Plastic"
+            v.Reflectance = 0
+            v.TextureID = 10385902758728957
+            v.Transparency = 1
+        elseif v:IsA("SpecialMesh") then
+            v.TextureId = 0
+        elseif v:IsA("ShirtGraphic") then
+            v.Graphic = 1
+        elseif (v:IsA("Shirt") or v:IsA("Pants")) then
+            v[v.ClassName .. "Template"] = 1
+        end
     end
-end
 
-LocalPlayer.PlayerGui.Notifications:Destroy()
+    for _, v in pairs(game:GetDescendants()) do
+        clearTextures(v)
+    end
 
-hookfunction(getsenv(LocalPlayer.PlayerScripts.Scripts.Game["Breakables Frontend"]).updateBreakable, function()
-    return
-end)
 
-hookfunction(require(Client.WorldFX).RewardBillboard, function()
-    return
-end)
+    -- make player invis
+    for _, v in pairs(game.Players:GetChildren()) do
+        for _, v2 in pairs(v.Character:GetDescendants()) do
+            if v2:IsA("BasePart") or v2:IsA("Decal") then
+                v2.Transparency = 1
+            end
+        end
+    end
+    -- make joining players invis
+    game.Players.DescendantAdded:Connect(function(v)
+        if v:IsA("BasePart") or v:IsA("Decal") then
+            v.Transparency = 1
+        end
+    end)
 
-hookfunction(require(Client.OrbCmds.Orb).RenderParticles, function()
-    return
-end)
+    -- make pets letter invis
+    for _, v in pairs(workspace.__THINGS.Pets:GetDescendants()) do
+        if v.Name == "PetBillboard" then
+            v.Enabled = false
+        end
+    end
 
-hookfunction(require(Client.OrbCmds.Orb).SimulatePhysics, function()
-    return
-end)
+    workspace.__THINGS.Pets.DescendantAdded:Connect(function(v)
+        if v.Name == "PetBillboard" then
+            v.Enabled = false
+        end
+    end)
 
-hookfunction(require(Client.GUIFX.Confetti).Play, function()
-    return
-end)
+    for _, v in pairs(workspace.MAP.INTERACT:GetChildren()) do
+        if v.Name ~= "Machines" and v.Name ~= "Items" then
+            v:Destroy()
+        end
+    end
 
-for _, v in pairs(ReplicatedStorage.Assets:GetChildren()) do
-    if v.Name ~= "Cutscenes" and v.Name ~= "Particles" and v.Name ~= "UI" and v.Name ~= "Models" then
-        v:Destroy()
-    end    
-end
+    LocalPlayer.PlayerGui.Notifications:Destroy()
 
-local worldFXList = {"Confetti", "RewardImage", "QuestGlow", "Damage", "SpinningChests", "RewardItem", "Sparkles", "AnimatePad", "PlayerTeleport", "AnimateChest", "Poof",
-"SmallPuff", "Flash", "Arrow3D", "ArrowPointer3D", "RainbowGlow"}
-
-for x, y in pairs(worldFXList) do
-    hookfunction(require(Client.WorldFX[y]), function()
+    hookfunction(getsenv(LocalPlayer.PlayerScripts.Scripts.Game["Breakables Frontend"]).updateBreakable, function()
         return
     end)
-end
 
-for _, v in pairs(workspace:GetDescendants()) do
-    if v:IsA("Part") or v:IsA("BasePart") then
-        v.Transparency = 1
+    hookfunction(require(Client.WorldFX).RewardBillboard, function()
+        return
+    end)
+
+    hookfunction(require(Client.OrbCmds.Orb).RenderParticles, function()
+        return
+    end)
+
+    hookfunction(require(Client.OrbCmds.Orb).SimulatePhysics, function()
+        return
+    end)
+
+    hookfunction(require(Client.GUIFX.Confetti).Play, function()
+        return
+    end)
+
+    for _, v in pairs(ReplicatedStorage.Assets:GetChildren()) do
+        if v.Name ~= "Cutscenes" and v.Name ~= "Particles" and v.Name ~= "UI" and v.Name ~= "Models" then
+            v:Destroy()
+        end    
+    end
+
+    local worldFXList = {"Confetti", "RewardImage", "QuestGlow", "Damage", "SpinningChests", "RewardItem", "Sparkles", "AnimatePad", "PlayerTeleport", "AnimateChest", "Poof",
+    "SmallPuff", "Flash", "Arrow3D", "ArrowPointer3D", "RainbowGlow"}
+
+    for x, y in pairs(worldFXList) do
+        hookfunction(require(Client.WorldFX[y]), function()
+            return
+        end)
+    end
+
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("Part") or v:IsA("BasePart") then
+            v.Transparency = 1
+        end
+    end
+
+
+    workspace.DescendantAdded:Connect(function(v)
+        clearTextures(v)
+    end)
+
+
+    -- Lower FOV and Set Camera to First-Person
+    game.Workspace.CurrentCamera.FieldOfView = 1
+    LocalPlayer.CameraMode = Enum.CameraMode.LockFirstPerson
+
+    -- Disable Particle Effects
+    for _, v in pairs(game.Workspace:GetDescendants()) do
+        if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Smoke") then
+            v.Enabled = false
+        end
+    end
+
+    -- Disable Shadows
+    game.Lighting.GlobalShadows = false
+
+    -- Lower Lighting Quality
+    game.Lighting.Brightness = 0
+    game.Lighting.OutdoorAmbient = Color3.new(0, 0, 0) -- Set to black for minimal lighting
+    game.Lighting.TimeOfDay = "14:00:00" -- Keep it in daytime for simpler lighting
+
+    -- Disable Textures
+    for _, v in pairs(game.Workspace:GetDescendants()) do
+        if v:IsA("Texture") or v:IsA("Decal") then
+            v:Destroy() -- or set Texture to nil
+        end
+    end
+
+    -- Disconnect Unnecessary Events
+    local connections = getconnections or get_signal_cons
+    for _, connection in pairs(connections(game:GetService("RunService").RenderStepped)) do
+        connection:Disable()
     end
 end
 
-
-workspace.DescendantAdded:Connect(function(v)
-    clearTextures(v)
-end)
-
-
--- Lower FOV and Set Camera to First-Person
-game.Workspace.CurrentCamera.FieldOfView = 1
-LocalPlayer.CameraMode = Enum.CameraMode.LockFirstPerson
-
--- Disable Particle Effects
-for _, v in pairs(game.Workspace:GetDescendants()) do
-    if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Smoke") then
-        v.Enabled = false
-    end
-end
-
--- Disable Shadows
-game.Lighting.GlobalShadows = false
-
--- Lower Lighting Quality
-game.Lighting.Brightness = 0
-game.Lighting.OutdoorAmbient = Color3.new(0, 0, 0) -- Set to black for minimal lighting
-game.Lighting.TimeOfDay = "14:00:00" -- Keep it in daytime for simpler lighting
-
--- Disable Textures
-for _, v in pairs(game.Workspace:GetDescendants()) do
-    if v:IsA("Texture") or v:IsA("Decal") then
-        v:Destroy() -- or set Texture to nil
-    end
-end
-
--- Disconnect Unnecessary Events
-local connections = getconnections or get_signal_cons
-for _, connection in pairs(connections(game:GetService("RunService").RenderStepped)) do
-    connection:Disable()
-end
-
+fullOptimizer()
 
 -- ^^^ Optimizer ^^^
 
@@ -456,18 +461,20 @@ end
 
 local function checkAndConsumeFruits()
     for fruitId, tbl in pairs(inventory.Fruit) do
-        task.wait(0.5)
-        if fruitCmds.GetActiveFruits()[tbl.id] ~= nil then
-            if (#fruitCmds.GetActiveFruits()[tbl.id]["Normal"] < maxFruitQueue) and (tbl._am ~= nil) then
-                -- print("Continue consuming ", tbl.id)
+        if not tbl.sh and fruitCmds.GetActiveFruits()[tbl.id] ~= nil then
+            local fruitConsumedAmount = #fruitCmds.GetActiveFruits()[tbl.id]["Normal"] 
+            if (fruitConsumedAmount < maxFruitQueue) and (tbl._am ~= nil) then
                 if tbl._am < fruitCmds.GetMaxConsume(fruitId) then
                     fruitCmds.Consume(fruitId, tonumber(tbl._am))
+                    task.wait(0.5)
                 else
-                    fruitCmds.Consume(fruitId, fruitCmds.GetMaxConsume(fruitId))
+                    fruitCmds.Consume(fruitId, maxFruitQueue - fruitConsumedAmount)
+                    task.wait(0.5)
                 end
             end
         else
             fruitCmds.Consume(fruitId)
+            task.wait(0.5)
         end
     end
 end
@@ -486,6 +493,18 @@ local function collectHiddenGift()
                 local targetPosition = v2.Position
 
                 humanoid:MoveTo(targetPosition)
+                task.wait(1)
+            end
+        end
+    end
+end
+
+
+local function teleportToFlyingGift()
+    for _, v in pairs(game:GetService("Workspace")["__THINGS"].FlyingGifts:GetChildren()) do
+        for _, v2 in pairs(v:GetChildren()) do
+            if v2.Name == "String" then
+                game:GetService("Workspace")[localPlayerName].HumanoidRootPart.CFrame = v2.CFrame
                 task.wait(1)
             end
         end
@@ -573,10 +592,12 @@ local function consumeBestPotion()
                 if tbl.id == "Golden Dice Potion" then
                     pcall(function() network:WaitForChild("Consumables_Consume"):InvokeServer(itemId, 1) end)
                     task.wait(1)
-                    break
+                elseif tbl.id == "Blazing Dice Potion" then
+                    pcall(function() network:WaitForChild("Consumables_Consume"):InvokeServer(itemId, 1) end)
+                    task.wait(1)
                 end
             end
-            print("Using Gold & Instant Luck 3 Potion")
+            print("Using Gold & Instant Luck 3 Potion & Blazing Dice")
             pcall(function()  
                 local success, _ = network:WaitForChild("Consumables_Consume"):InvokeServer(instantLuck3PotionId, 1)
                 if success then
@@ -598,24 +619,22 @@ local function smartPotionUpgrade()
         if tbl.id == "Lucky Potion" then
             if tbl.tn == 1 and tbl._am ~= nil and tbl._am >= 3 then
                 -- print("Crafted Lucky Tier 2")
-                for i=1, math.floor(tbl._am / 3) do
-                    network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 1)
-                    task.wait(0.5)
-                end
+                network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 1, math.floor(tbl._am / 3))
+                task.wait(0.5)
     
             elseif tbl.tn == 2 and tbl._am ~= nil and tbl._am >= 4 then
                 -- print("Crafted Lucky Tier 3")
-                for i=1, math.floor(tbl._am / 4) do
-                    network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 2)
-                    task.wait(0.5)
-                end
+                network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 2, math.floor(tbl._am / 4))
+                task.wait(0.5)
     
             elseif tbl.tn == 3 and tbl._am ~= nil and tbl._am >= 5 then
                 local stopCraftingTier4Lucky
                 local lucky4Amount = 0
+                -- if more than 150 lucky 4, stop crafting
+                -- else craft more lucky 4's until 150
                 for _, tbl2 in pairs(save.Get().Inventory.Consumable) do
                     if tbl2.id == "Lucky Potion" and tbl2.tn == 4 and tbl2._am ~= nil then
-                        if tbl2._am >= 143 then
+                        if tbl2._am >= 150 then
                             stopCraftingTier4Lucky = true
                             -- print("stop crafting tier 4 lucky")
                             break
@@ -624,19 +643,19 @@ local function smartPotionUpgrade()
                         end
                     end
                 end
+
                 if not stopCraftingTier4Lucky then
                     local amountToCraft
-                    if math.floor(tbl._am / 4) >= (143 - lucky4Amount) then
-                        amountToCraft = (143 - lucky4Amount)
+                    if math.floor(tbl._am / 5) >= (150 - lucky4Amount) then
+                        -- craft straight to 150
+                        amountToCraft = (150 - lucky4Amount)
                     else
-                        amountToCraft = math.floor(tbl._am / 4)
+                        -- craft however available
+                        amountToCraft = math.floor(tbl._am / 5)
                     end
-
-                    for i=1, amountToCraft do
-                        -- print("Crafted Lucky Tier 4")
-                        network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 3)
-                        task.wait(0.5)
-                    end
+                    -- print("Crafted Lucky Tier 4")
+                    network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 3, amountToCraft)
+                    task.wait(0.5)
                 end
     
             elseif tbl.tn == 4 and tbl._am ~= nil and tbl._am >= 5 then
@@ -644,7 +663,7 @@ local function smartPotionUpgrade()
                 local lucky5Amount = 0
                 for _, tbl2 in pairs(save.Get().Inventory.Consumable) do
                     if tbl2.id == "Lucky Potion" and tbl2.tn == 5 and tbl2._am ~= nil then
-                        if tbl2._am >= 19 then
+                        if tbl2._am >= 50 then
                             stopCraftingTier5Lucky = true
                             -- print("stop crafting tier 5 lucky")
                             break
@@ -655,20 +674,75 @@ local function smartPotionUpgrade()
                 end
                 if not stopCraftingTier5Lucky then
                     local amountToCraft
-                    if math.floor(tbl._am / 5) >= (19 - lucky5Amount) then
-                        amountToCraft = (19 - lucky5Amount)
+                    if math.floor(tbl._am / 5) >= (50 - lucky5Amount) then
+                        amountToCraft = (50 - lucky5Amount)
                     else 
                         amountToCraft = math.floor(tbl._am / 5)
                     end
 
-                    for i=1, amountToCraft do
-                        for _, tbl2 in pairs(save.Get().Inventory.Fruit) do
-                            if tbl2.id == "Orange" and tbl2._am ~= nil and tbl2._am >= 12 then
-                                -- print("Crafted Lucky Tier 5")
-                                network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 4)
-                                task.wait(0.5)
-                                break
-                            end
+                    for _, tbl2 in pairs(save.Get().Inventory.Fruit) do
+                        if tbl2.id == "Orange" and not tbl2.sh and tbl2._am ~= nil and tbl2._am >= 12 then  -- check non shiny fruit
+                            -- print("Crafted Lucky Tier 5")
+                            if math.floor(tbl2._am / 12) < amountToCraft then amountToCraft = math.floor(tbl2._am / 12) end
+                            network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 4, amountToCraft)
+                            task.wait(0.5)
+                            break
+                        end
+                    end
+                end
+
+            elseif tbl.tn == 5 and tbl._am ~= nil and tbl._am >= 5 then
+                local stopCraftingTier6Lucky
+                local lucky6Amount = 0
+                for _, tbl2 in pairs(save.Get().Inventory.Consumable) do
+                    if tbl2.id == "Lucky Potion" and tbl2.tn == 6 and tbl2._am ~= nil then
+                        if tbl2._am >= 25 then  -- 25 is to craft 1x tier 7 lucky pot
+                            stopCraftingTier6Lucky = true
+                            -- print("stop crafting tier 6 lucky")
+                            break
+                        else
+                            lucky6Amount = tbl2._am
+                        end
+                    end
+                end
+                if not stopCraftingTier6Lucky then
+                    local amountToCraft
+                    if math.floor(tbl._am / 5) >= (25 - lucky6Amount) then
+                        amountToCraft = (25 - lucky6Amount)
+                    else 
+                        amountToCraft = math.floor(tbl._am / 5)
+                    end
+
+                    for _, tbl2 in pairs(save.Get().Inventory.Fruit) do
+                        if tbl2.id == "Orange" and not tbl2.sh and tbl2._am ~= nil and tbl2._am >= 30 then  -- check non shiny fruit
+                            -- print("Crafted Lucky Tier 6")
+                            if math.floor(tbl2._am / 30) < amountToCraft then amountToCraft = math.floor(tbl2._am / 30) end
+                            network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 5, amountToCraft)
+                            task.wait(0.5)
+                            break
+                        end
+                    end
+                end
+
+            elseif tbl.tn == 6 and tbl._am ~= nil and tbl._am >= 5 then
+                local stopCraftingTier7Lucky
+                local lucky7Amount = 0
+                for _, tbl2 in pairs(save.Get().Inventory.Consumable) do
+                    -- if best potion exists, stop crafting (only need 1)
+                    if tbl2.id == "Lucky Potion" and tbl2.tn == 7 then  -- only for last/best potion
+                        stopCraftingTier7Lucky = true
+                        -- print("stop crafting tier 7 lucky")
+                        break
+                    end
+                end
+                if not stopCraftingTier7Lucky then
+                    for _, tbl2 in pairs(save.Get().Inventory.Fruit) do
+                        -- if enough orange and tier 6, craft 1 tier best potion
+                        if tbl2.id == "Orange" and tbl2.sh and tbl2._am ~= nil and tbl2._am >= 5 then  -- checks for shiny orange
+                            -- print("Crafted Lucky Tier 7")
+                            network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 6, 1)
+                            task.wait(0.5)
+                            break
                         end
                     end
                 end
@@ -679,30 +753,48 @@ local function smartPotionUpgrade()
         if tbl.id == "Coins Potion" then
             if tbl.tn == 1 and tbl._am ~= nil and tbl._am >= 3 then
                 -- print("Crafted Coins Potion 2")
-                for i=1, math.floor(tbl._am / 3) do
-                    network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 5)
-                    task.wait(0.5)
-                end
+                network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 7, math.floor(tbl._am / 3))
+                task.wait(0.5)
     
             elseif tbl.tn == 2 and tbl._am ~= nil and tbl._am >= 4 then
                 -- print("Crafted Coins Potion 3")
-                for i=1, math.floor(tbl._am / 4) do
-                    network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 6)
-                    task.wait(0.5)
-                end
+                network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 8, math.floor(tbl._am / 4))
+                task.wait(0.5)
     
             elseif tbl.tn == 3 and tbl._am ~= nil and tbl._am >= 5 then
                 -- print("Crafted Coins Potion 4")
-                for i=1, math.floor(tbl._am / 5) do
-                    network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 7)
-                    task.wait(0.5)
-                end
+                network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 9, math.floor(tbl._am / 5))
+                task.wait(0.5)
     
             elseif tbl.tn == 4 and tbl._am ~= nil and tbl._am >= 5 then
+                local amountToCraft = math.floor(tbl._am / 5)
                 for _, tbl2 in pairs(save.Get().Inventory.Fruit) do
-                    if tbl2.id == "Banana" and tbl2._am >= 12 then
-                        -- print("Crafted Coins Potion 5 (BEST)")
-                        network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 8)
+                    if tbl2.id == "Banana" and not tbl2.sh and tbl2._am ~= nil and tbl2._am >= 12 then
+                        -- print("Crafted Coins Potion 5")
+                        if math.floor(tbl2._am / 12) < amountToCraft then amountToCraft = math.floor(tbl2._am / 12) end
+                        network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 10, amountToCraft)
+                        task.wait(0.5)
+                    end
+                end
+            
+            elseif tbl.tn == 5 and tbl._am ~= nil and tbl._am >= 5 then
+                local amountToCraft = math.floor(tbl._am / 5)
+                for _, tbl2 in pairs(save.Get().Inventory.Fruit) do
+                    if tbl2.id == "Banana" and not tbl2.sh and tbl2._am ~= nil and tbl2._am >= 30 then
+                        -- print("Crafted Coins Potion 6")
+                        if math.floor(tbl2._am / 30) < amountToCraft then amountToCraft = math.floor(tbl2._am / 30) end
+                        network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 11, amountToCraft)
+                        task.wait(0.5)
+                    end
+                end
+
+            elseif tbl.tn == 6 and tbl._am ~= nil and tbl._am >= 5 then
+                local amountToCraft = math.floor(tbl._am / 5)
+                for _, tbl2 in pairs(save.Get().Inventory.Fruit) do
+                    if tbl2.id == "Banana" and tbl2.sh and tbl2._am ~= nil and tbl2._am >= 5 then
+                        -- print("Crafted Coins Potion 7")
+                        if math.floor(tbl2._am / 5) < amountToCraft then amountToCraft = math.floor(tbl2._am / 5) end
+                        network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 12, amountToCraft)
                         task.wait(0.5)
                     end
                 end
@@ -712,10 +804,29 @@ local function smartPotionUpgrade()
     
         if tbl.id == "Breakables Potion" then
             if tbl.tn == 1 and tbl._am ~= nil and tbl._am >= 3 then
-                -- print("Crafted Breakables Potion 2 (BEST)")
-                for i=1, math.floor(tbl._am / 3) do
-                    network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 10)
-                    task.wait(0.5)
+                -- print("Crafted Breakables Potion 2")
+                network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 14, math.floor(tbl._am / 3))
+                task.wait(0.5)
+            
+            elseif tbl.tn == 2 and tbl._am ~= nil and tbl._am >= 5 then
+                -- print("Crafted Breakables Potion 3")
+                network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 15, math.floor(tbl._am / 5))
+                task.wait(0.5)
+            end
+        end
+
+
+        if tbl.id == "Faster Rolls Potion" then
+            if tbl.tn == 1 and tbl._am ~= nil and tbl._am >= 5 then
+                local amountToCraft = math.floor(tbl._am / 5)
+                for _, tbl2 in pairs(save.Get().Inventory.Fruit) do
+                    if tbl2.id == "Watermelon" and not tbl2.sh and tbl2._am ~= nil and tbl2._am >= 30 then
+                        -- print("Crafted Faster Rolls Potion 2")
+                        if math.floor(tbl2._am / 30) < amountToCraft then amountToCraft = math.floor(tbl2._am / 30) end
+                        network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 17, amountToCraft)
+                        task.wait(0.5)
+                        break
+                    end
                 end
             end
         end
@@ -724,16 +835,24 @@ local function smartPotionUpgrade()
         if tbl.id == "Items Potion" then
             if tbl.tn == 1 and tbl._am ~= nil and tbl._am >= 3 then
                 -- print("Crafted Items Potion 2")
-                for i=1, math.floor(tbl._am / 3) do
-                    network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 13)
-                    task.wait(0.5)
-                end
+                network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 19, math.floor(tbl._am / 3))
+                task.wait(0.5)
     
             elseif tbl.tn == 2 and tbl._am ~= nil and tbl._am >= 4 then
-                -- print("Crafted Items Potion 3 (BEST)")
-                for i=1, math.floor(tbl._am / 4) do
-                    network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 14)
-                    task.wait(0.5)
+                -- print("Crafted Items Potion 3")
+                network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 20, math.floor(tbl._am / 4))
+                task.wait(0.5)
+
+            elseif tbl.tn == 3 and tbl._am ~= nil and tbl._am >= 5 then
+                local amountToCraft = math.floor(tbl._am / 5)
+                for _, tbl2 in pairs(save.Get().Inventory.Fruit) do
+                    if tbl2.id == "Pineapple" and not tbl2.sh and tbl2._am ~= nil and tbl2._am >= 20 then
+                        -- print("Crafted Items Potion 4")
+                        if math.floor(tbl2._am / 20) < amountToCraft then amountToCraft = math.floor(tbl2._am / 20) end
+                        network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 21, amountToCraft)
+                        task.wait(0.5)
+                        break
+                    end
                 end
             end
         end
@@ -794,7 +913,8 @@ local function craft(potion)
         if amounts.instantLuck2Amount >= 3 and amounts.rainbowDiceAmount >= 2 then
             amounts.instantLuck2Amount = amounts.instantLuck2Amount - 3
             amounts.rainbowDiceAmount = amounts.rainbowDiceAmount - 2
-            network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 22)
+            print('making')
+            network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 30, 1)
             task.wait(0.5)
             print("Crafted: Instant Luck 3")
         else
@@ -810,7 +930,7 @@ local function craft(potion)
             end
             amounts.instantLuck2Amount = amounts.instantLuck2Amount - 3
             amounts.rainbowDiceAmount = amounts.rainbowDiceAmount - 2
-            network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 22)
+            network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 30, 1)
             task.wait(0.5)
             print("Crafted: Instant Luck 3")
         end
@@ -827,7 +947,7 @@ local function craft(potion)
             end
             amounts.instantLuck1Amount = amounts.instantLuck1Amount - 3
             amounts.rainbowDiceAmount = amounts.rainbowDiceAmount - 2
-            network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 21)
+            network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 29, 1)
             task.wait(0.5)
             print("Crafted: Instant Luck 2")
         end
@@ -835,7 +955,7 @@ local function craft(potion)
         if amounts.lucky4Amount >= 2 and amounts.rainbowFruitAmount >= 4 then
             amounts.lucky4Amount = amounts.lucky4Amount - 2
             amounts.rainbowFruitAmount = amounts.rainbowFruitAmount - 4
-            network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 19)
+            network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 26, 1)
             task.wait(0.5)
             print("Crafted: Rainbow Dice")
         else
@@ -849,23 +969,58 @@ local function upgradeFruits()
     teleportToMachine("UpgradeFruitsMachine")
     local rainbowFruitAmount
     for _, tbl in pairs(save.Get().Inventory.Fruit) do
-        if tbl.id == "Rainbow" then
+        if not tbl.sh and tbl.id == "Rainbow" then
             rainbowFruitAmount = tbl._am
             break
         end
     end
     
     for fruitId, tbl in pairs(save.Get().Inventory.Fruit) do
-        if tbl._am ~= nil and tbl._am >= 425 and rainbowFruitAmount <= 2000 then  -- keep 400, use 25 to make rainbow fruit
+        -- make up to 2000 rainbow fruits
+        if tbl._am ~= nil and tbl._am >= 425 and rainbowFruitAmount < 2000 then  -- keep 400, use 25 to make rainbow fruit
+            local amountToCraft = (2000 - rainbowFruitAmount) * 25
+            if amountToCraft > (tbl._am - 400) then
+                amountToCraft = tbl._am - 400
+            end
             local args = {
                 [1] = {
-                    [fruitId] = (tbl._am - 400)
-                }
+                    [fruitId] = amountToCraft
+                },
+                [2] = false
             }
+            rainbowFruitAmount = rainbowFruitAmount + (amountToCraft / 25)
             network:WaitForChild("UpgradeFruitsMachine_Activate"):InvokeServer(unpack(args))
-            task.wait(1)
+            task.wait(2)
         end
     end
+    
+    -- REMEMBER TO ADD, ONLY MAKE SHINY FRUIT IF UNLOCK 18 SHINY
+    local shinyFruitsAmount = {}
+    for _, tbl in pairs(save.Get().Inventory.Fruit) do
+        if tbl.sh then
+            shinyFruitsAmount[tbl.id] = tbl._am or 0
+        end
+    end
+    
+    for fruitId, tbl in pairs(save.Get().Inventory.Fruit) do
+        -- make up to 100 shiny fruits
+        for fruitName, fruitAmount in pairs(shinyFruitsAmount) do
+            if fruitName == tbl.id and not tbl.sh and tbl._am ~= nil and tbl._am >= 450 and fruitAmount < 50 then  -- keep 432 cuz 450-18
+                local amountToCraft = (50 - fruitAmount) * 18
+                if amountToCraft > (tbl._am - 400) then
+                    amountToCraft = tbl._am - 400
+                end
+                local args = {
+                    [1] = {
+                        [fruitId] = amountToCraft
+                    },
+                    [2] = true
+                }
+                network:WaitForChild("UpgradeFruitsMachine_Activate"):InvokeServer(unpack(args))
+                task.wait(2)
+            end
+        end
+    end    
 end
 
 
@@ -933,7 +1088,7 @@ require(Client.Network).Fired("Merchant_Updated"):Connect(function(...)
             end
         end
         
-        pcall(print, string.format("Offer %d: Item: %s, Tier: %d, Stock: %d, Price ID: %s, Cost: %s", offerIndex, itemId, tier, stock, priceId, cost))
+        -- pcall(print, string.format("Offer %d: Item: %s, Tier: %d, Stock: %d, Price ID: %s, Cost: %s", offerIndex, itemId, tier, stock, priceId, cost))
     end
 end)
 
@@ -1073,9 +1228,9 @@ local function getBestDifficultyPet()
             bestDifficulty = petDifficulty
 
             if petDifficulty >= 1000000 then
-                bestDifficultyDisplay = "BEST PET: " .. (petDifficulty / 1000000) .. "M" 
+                bestDifficultyDisplay = "BEST PET: " .. math.floor(petDifficulty / 1000000) .. "M" 
             elseif petDifficulty >= 100000 then
-                bestDifficultyDisplay = "BEST PET: " .. (petDifficulty / 100000) .. "K" 
+                bestDifficultyDisplay = "BEST PET: " .. math.floor(petDifficulty / 100000) .. "K" 
             else
                 bestDifficultyDisplay = "BEST PET: " .. petDifficulty
             end
@@ -1129,6 +1284,8 @@ local fruitBoost = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventor
 local potionsUpgrade = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit["Lucky Potion"])
 local antiAfkDelayStart = tick()
 local antiAfkDelay = 60
+local webhookSendDelayStart = tick()
+local webhookSendDelay = 60
 
 -- background stuff
 task.spawn(function()
@@ -1159,23 +1316,29 @@ task.spawn(function()
             game:GetService("Players").LocalPlayer.PlayerGui.BonusRoll.Enabled = false
         end
 
+        if game:GetService("Players").LocalPlayer.PlayerGui.DailyRoll.Enabled then
+            game:GetService("Players").LocalPlayer.PlayerGui.DailyRoll.Enabled = false
+        end
+
         -- check for huges and send webhook
-        for petId, tbl in save.Get().Inventory.Pet do
-            local sentBefore = false
-            for _, hugeName in pairs(doNotResend) do
-                if tbl.id == hugeName then
-                    sentBefore = true
-                    break
+        if (tick() - webhookSendDelayStart) >= webhookSendDelay then
+            for petId, tbl in save.Get().Inventory.Pet do
+                local sentBefore = false
+                for _, hugeName in pairs(doNotResend) do
+                    if tbl.id == hugeName then
+                        sentBefore = true
+                        break
+                    end
                 end
-            end
-            if not sentBefore and (string.find(tbl.id:lower(), "huge") or string.find(tbl.id:lower(), "banana") or string.find(tbl.id:lower(), "hippomelon") or 
-            string.find(tbl.id:lower(), "sun angelus") or string.find(tbl.id:lower(), "pentangelus") or string.find(tbl.id:lower(), "arcane cat") or
-            string.find(tbl.id:lower(), "diamond dragon") or string.find(tbl.id:lower(), "m-2 prototype") or string.find(tbl.id:lower(), "angelus") or 
-            string.find(tbl.id:lower(), "night terror cat") or string.find(tbl.id:lower(), "electric dragon")) then
-                
-                table.insert(doNotResend, tbl.id)
-                local quantity = tbl._am or 1
-                sendWebhook("Pet Found: " .. tbl.id .. "\nQuantity: " .. quantity)
+                if not sentBefore and (string.find(tbl.id:lower(), "huge") or string.find(tbl.id:lower(), "banana") or string.find(tbl.id:lower(), "hippomelon") or 
+                string.find(tbl.id:lower(), "sun angelus") or string.find(tbl.id:lower(), "pentangelus") or string.find(tbl.id:lower(), "arcane cat") or
+                string.find(tbl.id:lower(), "diamond dragon") or string.find(tbl.id:lower(), "m-2 prototype") or string.find(tbl.id:lower(), "angelus") or 
+                string.find(tbl.id:lower(), "night terror cat") or string.find(tbl.id:lower(), "electric dragon")) then
+                    
+                    table.insert(doNotResend, tbl.id)
+                    local quantity = tbl._am or 1
+                    sendWebhook("Pet Found: " .. tbl.id .. "\nQuantity: " .. quantity)
+                end
             end
         end
     end
@@ -1194,7 +1357,7 @@ end)
 task.spawn(function()
     while true do
         task.wait()
-        if not require(ReplicatedStorage.Library.Client.EggCmds).IsRolling() and save.Get().DiceCombos["Rainbow"] ~= 80 then
+        if not require(Client.EggCmds).IsRolling() and save.Get().DiceCombos["Rainbow"] ~= 80 then
             network:WaitForChild("Eggs_Roll"):InvokeServer()
             task.wait()
             
@@ -1226,11 +1389,16 @@ local petDigCoins = require(Root["Faster Egg Open"]["Faster Egg Open 2"]["Instan
 local potionVending = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit["Lucky Potion"]["Potion Vending"])
 local potionWizard = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit["Lucky Potion"]["Lucky Potion Tier 2"]["Potion Crafting"]["Crafting More Potion Recipes"]["Potion Wizard"])
 local fruitMachine = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit["More Fruit"]["Finding Fruit"]["Rainbow Fruit"]["Fruit Machine"])
+local merchantUpgrade = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit["Lucky Potion"]["Coins Potion"]["Coins Potion Tier 2"]["Coins Potion Tier 3"].Merchant)
+
+
+-- collect forever pack free
+game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("ForeverPacks: Claim Free"):InvokeServer("Default")
+
 
 -- background stuff
 while true do
     task.wait()
-    
     -- if upgradeCmds.IsUnlocked(advancedIndexShop) then
     --     buyIndexShop()
     -- end
@@ -1246,6 +1414,8 @@ while true do
 
     pcall(collectHiddenGift)
 
+    pcall(teleportToFlyingGift)
+
     pcall(teleportToDig)
 
     if upgradeCmds.IsUnlocked(potionVending) and save.Get()["VendingStocks"].PotionVendingMachine > 0 then
@@ -1259,6 +1429,18 @@ while true do
     if upgradeCmds.IsUnlocked(fruitMachine) and (tick() - upgradeFruitTimeStart) >= upgradeFruitDelay then
         upgradeFruitTimeStart = tick()
         pcall(upgradeFruits)
+    end
+
+    if upgradeCmds.IsUnlocked(merchantUpgrade) then
+        if len(save.Get().CustomMerchantPurchases.StandardMerchant.Purchased) < 6 then
+            teleportToMachine("StandardMerchant")
+            for i=1, 6 do
+                for _=1, 5 do
+                    game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("CustomMerchants_Purchase"):InvokeServer("StandardMerchant", i)
+                    task.wait(0.5)
+                end
+            end
+        end
     end
 
     if upgradeCmds.IsUnlocked(potionWizard) then
@@ -1281,3 +1463,6 @@ end
 
 
 -- game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
+
+
+
