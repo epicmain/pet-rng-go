@@ -542,7 +542,7 @@ end
 
 local function teleportToMachine(machineName)    
     -- print("Teleporting To", machineName)
-    workspace[localPlayerName].HumanoidRootPart.CFrame = workspace.MAP.INTERACT.Machines[machineName].PadGlow.CFrame + Vector3.new(-15, -10, 0)
+    workspace[localPlayerName].HumanoidRootPart.CFrame = workspace.MAP.INTERACT.Machines[machineName].PadGlow.CFrame + Vector3.new(-20, -10, 0)
     task.wait(1)
 end
 
@@ -1420,6 +1420,5 @@ while true do
     getBestDifficultyPet()
     wait(1) -- Update every second (you can adjust the wait time)
 end
-
 
 
