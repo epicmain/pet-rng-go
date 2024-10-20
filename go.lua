@@ -1274,7 +1274,7 @@ overlayFrame.BackgroundColor3 = Color3.new(0, 0, 0) -- Black background
 local toggleLabel = Instance.new("TextLabel", overlayFrame)
 toggleLabel.Size = UDim2.new(0, 300, 0, 30) -- Width: 300px, Height: 30px
 toggleLabel.Position = UDim2.new(0.5, -150, 0, 10) -- Centered horizontally, positioned at the top
-toggleLabel.Text = 'Press "O" to toggle overlay'
+toggleLabel.Text = 'Right-click or press "O" to toggle overlay'
 toggleLabel.TextColor3 = Color3.new(1, 1, 1) -- White text
 toggleLabel.BackgroundTransparency = 1 -- Make label background transparent
 toggleLabel.TextScaled = true
@@ -1399,7 +1399,7 @@ local function getBestDifficultyPet()
     bestPetLabel.Text = bestDifficultyDisplay
 end
 
-game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
+-- game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
 -- Update the GUI periodically
 while true do
     local currentTotalRolls = save.Get().TotalRolls
@@ -1422,43 +1422,6 @@ while true do
 end
 
 -- ===============================================  GUI  ===============================================
-
-
-
-
--- REMEMBER TO MAKE AN INVENTORY SEARCHER THAT SEARCHES EVERYTHING THEN RETURN EVERYTHING SO I CAN JUST USE "." TO GET TO IT
-
-
-
--- find graphic intensive stuff here -> game:GetService("Players").LocalPlayer.PlayerScripts.Scripts
-
-
--- game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
-
-
-
-
-
--- game.DescendantAdded:Connect(function(v)
---     if v:IsA("LocalScript") or v:IsA("ModuleScript") then
---         print(v.Name)
---     end
--- end)
-
--- game.DescendantRemoving:Connect(function(v)
---     local fullPath = v:GetFullName()
---     if v:IsA("LocalScript") or v:IsA("ScreenGui") or v:IsA("SoundService") or v:IsA("StatsItem") or v:IsA("Folder") or v:IsA("ModuleScript") then
---         print(fullPath)
---     end
--- end)
-
--- game.DescendantRemoving:Connect(function(v)
---     local fullPath = v:GetFullName()
---     if not string.find(fullPath, "ClientLog") then
---         print(fullPath)
---     end
--- end)
-
 
 
 
