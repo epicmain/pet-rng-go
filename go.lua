@@ -1274,7 +1274,7 @@ overlayFrame.BackgroundColor3 = Color3.new(0, 0, 0) -- Black background
 local toggleLabel = Instance.new("TextLabel", overlayFrame)
 toggleLabel.Size = UDim2.new(0, 300, 0, 30) -- Width: 300px, Height: 30px
 toggleLabel.Position = UDim2.new(0.5, -150, 0, 10) -- Centered horizontally, positioned at the top
-toggleLabel.Text = 'Right-click or press "O" to toggle overlay'
+toggleLabel.Text = 'Press "O" to toggle overlay'
 toggleLabel.TextColor3 = Color3.new(1, 1, 1) -- White text
 toggleLabel.BackgroundTransparency = 1 -- Make label background transparent
 toggleLabel.TextScaled = true
@@ -1420,10 +1420,6 @@ while true do
     getBestDifficultyPet()
     wait(1) -- Update every second (you can adjust the wait time)
 end
-
--- ===============================================  GUI  ===============================================
-
-
 
 
 
