@@ -116,22 +116,6 @@ require(Client.FriendCmds).GetEffectiveFriendsOnline = function(...)
 end
 
 
--- Function to set all lights to NoLight
-local function setAllLightsToNoLight()
-    for _, v in ipairs(game:GetDescendants()) do
-        -- Check if the object is a light
-        if v:IsA("PointLight") or v:IsA("SpotLight") or v:IsA("SurfaceLight") then
-            -- Set the light to NoLight by setting its brightness to 0
-            v.Brightness = 0
-            v.Enabled = false
-        end
-    end
-end
-
--- Call the function
-setAllLightsToNoLight()
-
-
 -- VVV Optimizer VVV
 
 local function fullOptimizer()
@@ -177,22 +161,17 @@ local function fullOptimizer()
     network.XPBalls_BulkCreate:Destroy()
     Library.Types.XPBalls:Destroy()
 
-    LocalPlayer.PlayerScripts.Scripts.Game["Breakable VFX"]:Destroy()
 
+    for i, v in getconnections(game:GetService("Players").LocalPlayer.Idled) do v:Disable() end
 
-    LocalPlayer.PlayerScripts.Scripts.Core["Idle Tracking"].Disabled = true
-    if getconnections then
-        for _, v in pairs(getconnections(LocalPlayer.Idled)) do
-            v:Disable()
-        end
-    else
-        LocalPlayer.Idled:Connect(function()
-            virtualUser:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-            task.wait(1)
-            virtualUser:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-        end)
-    end
+    game:GetService("Players").LocalPlayer.Idled:Connect(function()
+        game:GetService("VirtualUser"):Button2Down(Vector2.new(0,0), game:GetService("Workspace").CurrentCamera.CFrame)
+        task.wait(1)
+        game:GetService("VirtualUser"):Button2Up(Vector2.new(0,0), game:GetService("Workspace").CurrentCamera.CFrame)
+    end)
     print("[Anti-AFK Activated!]")
+
+    
 
 
     local function clearTextures(v)
@@ -229,6 +208,37 @@ local function fullOptimizer()
         clearTextures(v)
     end
 
+
+    -- Delete/Disable scripts
+    for _, v in pairs(game:GetService("Players")[localPlayerName].PlayerGui:GetChildren()) do
+        if v.Enabled then
+            v.Enabled = false
+        end
+    end
+    
+    -- leave Breakables Frontend, Flying Gifts, Hidden Gifts and Relics
+    game:GetService("Players")[localPlayerName].PlayerScripts.RbxCharacterSounds:Destroy()
+    task.wait(0.5)
+    game:GetService("Players")[localPlayerName].PlayerScripts.PlayerModule:Destroy()
+    
+    for _, v in pairs(game:GetService("Players")[localPlayerName].PlayerScripts:GetChildren()) do  -- avoid Scripts
+        if v.Name ~= "Scripts" then
+            v:Destroy()
+        end
+    end
+    
+    for _, v in pairs(game:GetService("Players")[localPlayerName].PlayerScripts.Scripts:GetChildren()) do
+        if v.Name ~= "Game" then
+            v:Destroy()
+        end
+    end
+
+    for _, v in pairs(game:GetService("Players")[localPlayerName].PlayerScripts.Scripts.Game:GetChildren()) do
+        if v.Name ~= "Breakables Frontend" and v.Name ~= "Flying Gifts" and v.Name ~= "Hidden Gifts" and v.Name ~= "Relics" then
+            v:Destroy()
+        end
+    end
+    
 
     -- make player invis
     for _, v in pairs(game.Players:GetChildren()) do
@@ -342,49 +352,27 @@ local function fullOptimizer()
     for _, connection in pairs(connections(game:GetService("RunService").RenderStepped)) do
         connection:Disable()
     end
-end
 
-
-local parentObject = game:GetService("Players").LocalPlayer.PlayerGui -- Replace with your actual object
-
-for _, children in pairs(parentObject:GetChildren()) do
-    if children.Name ~= "Main" and children.Name ~= "TouchGui" then
-        children:Destroy()
-    elseif children.Name == "Main" then
-        for _, children2 in pairs(children:GetChildren()) do
-            if children2.Name ~= "Boosts" then
-                children2:Destroy()
+    local function setAllLightsToNoLight()
+        for _, v in ipairs(game:GetDescendants()) do
+            -- Check if the object is a light
+            if v:IsA("PointLight") or v:IsA("SpotLight") or v:IsA("SurfaceLight") then
+                -- Set the light to NoLight by setting its brightness to 0
+                v.Brightness = 0
+                v.Enabled = false
             end
         end
     end
+
+    setAllLightsToNoLight()
 end
 
-game:GetService("Players").LocalPlayer.PlayerGui.Main.Enabled = false
-
-local parentObject = game:GetService("Players").LocalPlayer.PlayerScripts.Scripts.GUIs -- Replace with your actual object
-
-for _, children in pairs(parentObject:GetChildren()) do
-    if children.Name ~= "Boosts Panel V3" then
-        children:Destroy()
-    end
-end
-
-game:GetService("Players").LocalPlayer.PlayerScripts.Scripts.Game.Opening["Rolling Egg Opening"]:Destroy()
-
-for _, v in pairs(workspace.MAP.INTERACT.Machines:GetChildren()) do
-    for _, v2 in pairs(v:GetChildren()) do
-        if v2.Name ~= "PadGlow" then
-            v2:Destroy()
-        end
-    end
-end
-
-game:GetService("ReplicatedStorage").Network["Eggs_ConsumableVFX"]:Destroy()
-game:GetService("ReplicatedStorage").Network.Pets_ReplicateChanges:Destroy()
-
-game:GetService("Players").LocalPlayer.PlayerScripts.Scripts.Game["Machine Animations"]:Destroy()
 
 fullOptimizer()
+
+pcall(function()
+    game:GetService("CoreGui"):ClearAllChildren()
+end)
 
 -- ^^^ Optimizer ^^^
 
@@ -554,7 +542,7 @@ end
 
 local function teleportToMachine(machineName)    
     -- print("Teleporting To", machineName)
-    workspace[localPlayerName].HumanoidRootPart.CFrame = workspace.MAP.INTERACT.Machines[machineName].PadGlow.CFrame + Vector3.new(0, -10, 0)
+    workspace[localPlayerName].HumanoidRootPart.CFrame = workspace.MAP.INTERACT.Machines[machineName].PadGlow.CFrame + Vector3.new(-15, -10, 0)
     task.wait(1)
 end
 
@@ -1125,11 +1113,154 @@ require(Client.Network).Fired("Merchant_Updated"):Connect(function(...)
 end)
 
 
-pcall(function()
-    game:GetService("CoreGui"):ClearAllChildren()
+if require(Client.HoverboardCmds).IsEquipped() then
+    require(Client.HoverboardCmds).RequestUnequip()
+end
+
+
+local breakables = require(Root["Faster Egg Open"]["Faster Egg Open 2"]["Instant Egg Open"]["Golden Dice"]["Small Coin Piles"])
+task.spawn(function()
+    while true do
+        task.wait()
+        pcall(petTargetChestAndBreakables)
+        pcall(tapChestAndBreakables)
+
+        if not require(Client.EggCmds).IsRolling() and save.Get().DiceCombos["Rainbow"] ~= 80 then
+            network.Eggs_Roll:InvokeServer()
+            
+        elseif save.Get().DiceCombos["Rainbow"] == 80 then
+            print("Rainbow READY")
+            local instantLuck3PotionFound
+            for itemId, tbl in pairs(save.Get().Inventory.Consumable) do
+                if tbl.id == "Instant Luck Potion" and tbl.tn == 3 then
+                    instantLuck3PotionFound = true
+                    instantLuck3PotionId = itemId
+                    pcall(consumeBestPotion)  -- use every best potion + instant luck 3
+                    network.Eggs_Roll:InvokeServer()
+                    break
+                end
+            end
+            if not instantLuck3PotionFound then
+                print("No Instant Luck 3 Potions Detected")
+                network.Eggs_Roll:InvokeServer()
+            end
+        end
+    end
 end)
+
+local advancedIndexShop = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Trading["Pet Index"]["Index Shop"]["Advanced Index Shop"])
+local coinPresents = require(Root["Faster Egg Open"]["Faster Egg Open 2"]["Instant Egg Open"]["Golden Dice"]["Small Coin Piles"]["Large Coin Piles"]["Coin Crates"]["Coin Presents"])
+local petDigCoins = require(Root["Faster Egg Open"]["Faster Egg Open 2"]["Instant Egg Open"]["Auto Roll"].Luckier["Even Luckier"]["Egg 2"]["Egg 3"]["Pet Dig Coins"])
+local potionVending = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit["Lucky Potion"]["Potion Vending"])
+local potionWizard = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit["Lucky Potion"]["Lucky Potion Tier 2"]["Potion Crafting"]["Crafting More Potion Recipes"]["Potion Wizard"])
+local fruitMachine = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit["More Fruit"]["Finding Fruit"]["Rainbow Fruit"]["Fruit Machine"])
+local merchantUpgrade = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit["Lucky Potion"]["Coins Potion"]["Coins Potion Tier 2"]["Coins Potion Tier 3"].Merchant)
+local fruitBoost = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit)
+local potionsUpgrade = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit["Lucky Potion"])
+
+local antiAfkDelayStart = tick()
+local antiAfkDelay = 60
+local webhookSendDelayStart = tick()
+local webhookSendDelay = 60
+
+-- collect forever pack free
+game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("ForeverPacks: Claim Free"):InvokeServer("Default")
+-- background stuff
+task.spawn(function()
+    while true do
+        task.wait()
+        traverseModules(Root)
+        
+        pcall(checkAndConsumeFruits)
+
+        pcall(consumeBestPotion)
+        
+        if (tick() - antiAfkDelayStart) >= antiAfkDelay then
+            network:WaitForChild("Idle Tracking: Stop Timer"):FireServer()
+            antiAfkDelayStart = tick()
+        end
+
+        -- check for huges and send webhook
+        if (tick() - webhookSendDelayStart) >= webhookSendDelay then
+            for petId, tbl in save.Get().Inventory.Pet do
+                local sentBefore = false
+                for _, hugeName in pairs(doNotResend) do
+                    if tbl.id == hugeName then
+                        sentBefore = true
+                        break
+                    end
+                end
+                if not sentBefore and (string.find(tbl.id:lower(), "huge") or string.find(tbl.id:lower(), "banana") or string.find(tbl.id:lower(), "hippomelon") or 
+                string.find(tbl.id:lower(), "sun angelus") or string.find(tbl.id:lower(), "pentangelus") or string.find(tbl.id:lower(), "arcane cat") or
+                string.find(tbl.id:lower(), "diamond dragon") or string.find(tbl.id:lower(), "m-2 prototype") or string.find(tbl.id:lower(), "angelus") or 
+                string.find(tbl.id:lower(), "night terror cat") or string.find(tbl.id:lower(), "electric dragon")) then
+                    
+                    table.insert(doNotResend, tbl.id)
+                    local quantity = tbl._am or 1
+                    sendWebhook("Pet Found: " .. tbl.id .. "\nQuantity: " .. quantity)
+                end
+            end
+            webhookSendDelayStart = tick()
+        end
+
+        -- if upgradeCmds.IsUnlocked(advancedIndexShop) then
+        --     buyIndexShop()
+        -- end
+
+        if require(ReplicatedStorage.Library.Client.LoginStreakCmds).CanClaim() then
+            network:WaitForChild("Login Streaks: Bonus Roll Request"):InvokeServer()
+        end
+
+        if require(ReplicatedStorage.Library.Client.BonusRollCmds).HasAvailable() then
+            network["Bonus Rolls: Claim"]:InvokeServer()
+            task.wait(1)
+        end
+
+        pcall(collectHiddenGift)
+
+        pcall(teleportToFlyingGift)
+
+        pcall(teleportToDig)
+
+        if upgradeCmds.IsUnlocked(potionVending) and save.Get()["VendingStocks"].PotionVendingMachine > 0 then
+            teleportToMachine("PotionVendingMachine")
+            for i=1, save.Get()["VendingStocks"].PotionVendingMachine do
+                network:WaitForChild("VendingMachines_Purchase"):InvokeServer("PotionVendingMachine")
+                task.wait(0.5)
+            end
+        end
+
+        if upgradeCmds.IsUnlocked(fruitMachine) and (tick() - upgradeFruitTimeStart) >= upgradeFruitDelay then
+            upgradeFruitTimeStart = tick()
+            pcall(upgradeFruits)
+        end
+
+        if upgradeCmds.IsUnlocked(merchantUpgrade) then
+            if len(save.Get().CustomMerchantPurchases.StandardMerchant.Purchased) < 6 then
+                teleportToMachine("StandardMerchant")
+                for i=1, 6 do
+                    for _=1, 5 do
+                        game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("CustomMerchants_Purchase"):InvokeServer("StandardMerchant", i)
+                        task.wait(0.5)
+                    end
+                end
+            end
+        end
+
+        if upgradeCmds.IsUnlocked(potionWizard) then
+            local potionCraftingMagnitude = (workspace[localPlayerName].HumanoidRootPart.Position - workspace.MAP.INTERACT.Machines.PotionCraftingMachine.PadGlow.Position).Magnitude
+            if potionCraftingMagnitude > 30 then
+                task.wait(1)
+                teleportToMachine("PotionCraftingMachine")
+            end
+            pcall(craft, "instantLuck3")
+            pcall(smartPotionUpgrade)
+        end
+    end
+end)
+
+
 -- ===============================================  GUI  ===============================================
-local mouse = LocalPlayer:GetMouse() -- Get the player's mouse
 local gui = Instance.new("ScreenGui", LocalPlayer.PlayerGui)
 gui.IgnoreGuiInset = true -- Allows GUI to cover the screen
 
@@ -1143,7 +1274,7 @@ overlayFrame.BackgroundColor3 = Color3.new(0, 0, 0) -- Black background
 local toggleLabel = Instance.new("TextLabel", overlayFrame)
 toggleLabel.Size = UDim2.new(0, 300, 0, 30) -- Width: 300px, Height: 30px
 toggleLabel.Position = UDim2.new(0.5, -150, 0, 10) -- Centered horizontally, positioned at the top
-toggleLabel.Text = 'Right-click or press "O" to toggle overlay'
+toggleLabel.Text = 'Press "O" to toggle overlay'
 toggleLabel.TextColor3 = Color3.new(1, 1, 1) -- White text
 toggleLabel.BackgroundTransparency = 1 -- Make label background transparent
 toggleLabel.TextScaled = true
@@ -1231,11 +1362,6 @@ local function toggleOverlay()
     end
 end
 
--- Detect right-click using the mouse
-mouse.Button2Down:Connect(function()
-    toggleOverlay()
-end)
-
 -- Detect key press for "O"
 local userInputService = game:GetService("UserInputService")
 userInputService.InputBegan:Connect(function(input, gameProcessed)
@@ -1273,178 +1399,68 @@ local function getBestDifficultyPet()
     bestPetLabel.Text = bestDifficultyDisplay
 end
 
-
+game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
 -- Update the GUI periodically
-task.spawn(function()
-    while true do
-        local currentTotalRolls = save.Get().TotalRolls
-        local currentRolls = currentTotalRolls - startTotalRolls
+while true do
+    local currentTotalRolls = save.Get().TotalRolls
+    local currentRolls = currentTotalRolls - startTotalRolls
 
-        local currentInventoryNotification = save.Get().InventoryNotifications - startInventoryNotifications
+    local currentInventoryNotification = save.Get().InventoryNotifications - startInventoryNotifications
 
-        -- Updating the Username label
-        usernameLabel.Text = "Username: " .. localPlayerName
+    -- Updating the Username label
+    usernameLabel.Text = "Username: " .. localPlayerName
 
-        currentRollsLabel.Text = "Current Rolls: (+" .. currentRolls .. ")"
-        totalRollsLabel.Text = "Total Rolls: " .. currentTotalRolls
-        inventoryLabel.Text = "Current Inventory: (+" .. currentInventoryNotification .. ")"
+    currentRollsLabel.Text = "Current Rolls: (+" .. currentRolls .. ")"
+    totalRollsLabel.Text = "Total Rolls: " .. currentTotalRolls
+    inventoryLabel.Text = "Current Inventory: (+" .. currentInventoryNotification .. ")"
 
-        -- Adding the Instant Luck Potion 3 amount
-        instantLuckLabel.Text = "Instant 3: " .. usedInstantLuckPotion3Amount
+    -- Adding the Instant Luck Potion 3 amount
+    instantLuckLabel.Text = "Instant 3: " .. usedInstantLuckPotion3Amount
 
-        getBestDifficultyPet()
-        wait(1) -- Update every second (you can adjust the wait time)
-    end
-end)
-
+    getBestDifficultyPet()
+    wait(1) -- Update every second (you can adjust the wait time)
+end
 
 -- ===============================================  GUI  ===============================================
 
 
 
 
-
-if require(Client.HoverboardCmds).IsEquipped() then
-    require(Client.HoverboardCmds).RequestUnequip()
-end
+-- REMEMBER TO MAKE AN INVENTORY SEARCHER THAT SEARCHES EVERYTHING THEN RETURN EVERYTHING SO I CAN JUST USE "." TO GET TO IT
 
 
-local breakables = require(Root["Faster Egg Open"]["Faster Egg Open 2"]["Instant Egg Open"]["Golden Dice"]["Small Coin Piles"])
-task.spawn(function()
-    while true do
-        task.wait()
-        pcall(petTargetChestAndBreakables)
-        pcall(tapChestAndBreakables)
 
-        if not require(Client.EggCmds).IsRolling() and save.Get().DiceCombos["Rainbow"] ~= 80 then
-            network.Eggs_Roll:InvokeServer()
-            
-        elseif save.Get().DiceCombos["Rainbow"] == 80 then
-            print("Rainbow READY")
-            local instantLuck3PotionFound
-            for itemId, tbl in pairs(save.Get().Inventory.Consumable) do
-                if tbl.id == "Instant Luck Potion" and tbl.tn == 3 then
-                    instantLuck3PotionFound = true
-                    instantLuck3PotionId = itemId
-                    pcall(consumeBestPotion)  -- use every best potion + instant luck 3
-                    network.Eggs_Roll:InvokeServer()
-                    break
-                end
-            end
-            if not instantLuck3PotionFound then
-                print("No Instant Luck 3 Potions Detected")
-                network.Eggs_Roll:InvokeServer()
-            end
-        end
-    end
-end)
+-- find graphic intensive stuff here -> game:GetService("Players").LocalPlayer.PlayerScripts.Scripts
 
-local advancedIndexShop = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Trading["Pet Index"]["Index Shop"]["Advanced Index Shop"])
-local coinPresents = require(Root["Faster Egg Open"]["Faster Egg Open 2"]["Instant Egg Open"]["Golden Dice"]["Small Coin Piles"]["Large Coin Piles"]["Coin Crates"]["Coin Presents"])
-local petDigCoins = require(Root["Faster Egg Open"]["Faster Egg Open 2"]["Instant Egg Open"]["Auto Roll"].Luckier["Even Luckier"]["Egg 2"]["Egg 3"]["Pet Dig Coins"])
-local potionVending = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit["Lucky Potion"]["Potion Vending"])
-local potionWizard = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit["Lucky Potion"]["Lucky Potion Tier 2"]["Potion Crafting"]["Crafting More Potion Recipes"]["Potion Wizard"])
-local fruitMachine = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit["More Fruit"]["Finding Fruit"]["Rainbow Fruit"]["Fruit Machine"])
-local merchantUpgrade = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit["Lucky Potion"]["Coins Potion"]["Coins Potion Tier 2"]["Coins Potion Tier 3"].Merchant)
-local fruitBoost = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit)
-local potionsUpgrade = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit["Lucky Potion"])
 
-local antiAfkDelayStart = tick()
-local antiAfkDelay = 60
-local webhookSendDelayStart = tick()
-local webhookSendDelay = 60
+-- game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
 
--- collect forever pack free
-game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("ForeverPacks: Claim Free"):InvokeServer("Default")
 
--- background stuff
-while true do
-    task.wait()
-    traverseModules(Root)
-    
-    pcall(checkAndConsumeFruits)
 
-    pcall(consumeBestPotion)
-    
-    if (tick() - antiAfkDelayStart) >= antiAfkDelay then
-        network:WaitForChild("Idle Tracking: Stop Timer"):FireServer()
-        antiAfkDelayStart = tick()
-    end
 
-    -- check for huges and send webhook
-    if (tick() - webhookSendDelayStart) >= webhookSendDelay then
-        for petId, tbl in save.Get().Inventory.Pet do
-            local sentBefore = false
-            for _, hugeName in pairs(doNotResend) do
-                if tbl.id == hugeName then
-                    sentBefore = true
-                    break
-                end
-            end
-            if not sentBefore and (string.find(tbl.id:lower(), "huge") or string.find(tbl.id:lower(), "banana") or string.find(tbl.id:lower(), "hippomelon") or 
-            string.find(tbl.id:lower(), "sun angelus") or string.find(tbl.id:lower(), "pentangelus") or string.find(tbl.id:lower(), "arcane cat") or
-            string.find(tbl.id:lower(), "diamond dragon") or string.find(tbl.id:lower(), "m-2 prototype") or string.find(tbl.id:lower(), "angelus") or 
-            string.find(tbl.id:lower(), "night terror cat") or string.find(tbl.id:lower(), "electric dragon")) then
-                
-                table.insert(doNotResend, tbl.id)
-                local quantity = tbl._am or 1
-                sendWebhook("Pet Found: " .. tbl.id .. "\nQuantity: " .. quantity)
-            end
-        end
-        webhookSendDelayStart = tick()
-    end
 
-    -- if upgradeCmds.IsUnlocked(advancedIndexShop) then
-    --     buyIndexShop()
-    -- end
+-- game.DescendantAdded:Connect(function(v)
+--     if v:IsA("LocalScript") or v:IsA("ModuleScript") then
+--         print(v.Name)
+--     end
+-- end)
 
-    if require(ReplicatedStorage.Library.Client.LoginStreakCmds).CanClaim() then
-        network:WaitForChild("Login Streaks: Bonus Roll Request"):InvokeServer()
-    end
+-- game.DescendantRemoving:Connect(function(v)
+--     local fullPath = v:GetFullName()
+--     if v:IsA("LocalScript") or v:IsA("ScreenGui") or v:IsA("SoundService") or v:IsA("StatsItem") or v:IsA("Folder") or v:IsA("ModuleScript") then
+--         print(fullPath)
+--     end
+-- end)
 
-    if require(ReplicatedStorage.Library.Client.BonusRollCmds).HasAvailable() then
-        network["Bonus Rolls: Claim"]:InvokeServer()
-        task.wait(1)
-    end
+-- game.DescendantRemoving:Connect(function(v)
+--     local fullPath = v:GetFullName()
+--     if not string.find(fullPath, "ClientLog") then
+--         print(fullPath)
+--     end
+-- end)
 
-    pcall(collectHiddenGift)
 
-    pcall(teleportToFlyingGift)
 
-    pcall(teleportToDig)
 
-    if upgradeCmds.IsUnlocked(potionVending) and save.Get()["VendingStocks"].PotionVendingMachine > 0 then
-        teleportToMachine("PotionVendingMachine")
-        for i=1, save.Get()["VendingStocks"].PotionVendingMachine do
-            network:WaitForChild("VendingMachines_Purchase"):InvokeServer("PotionVendingMachine")
-            task.wait(0.5)
-        end
-    end
 
-    if upgradeCmds.IsUnlocked(fruitMachine) and (tick() - upgradeFruitTimeStart) >= upgradeFruitDelay then
-        upgradeFruitTimeStart = tick()
-        pcall(upgradeFruits)
-    end
 
-    if upgradeCmds.IsUnlocked(merchantUpgrade) then
-        if len(save.Get().CustomMerchantPurchases.StandardMerchant.Purchased) < 6 then
-            teleportToMachine("StandardMerchant")
-            for i=1, 6 do
-                for _=1, 5 do
-                    game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("CustomMerchants_Purchase"):InvokeServer("StandardMerchant", i)
-                    task.wait(0.5)
-                end
-            end
-        end
-    end
-
-    if upgradeCmds.IsUnlocked(potionWizard) then
-        local potionCraftingMagnitude = (workspace[localPlayerName].HumanoidRootPart.Position - workspace.MAP.INTERACT.Machines.PotionCraftingMachine.PadGlow.Position).Magnitude
-        if potionCraftingMagnitude > 30 then
-            task.wait(1)
-            teleportToMachine("PotionCraftingMachine")
-        end
-        pcall(craft, "instantLuck3")
-        pcall(smartPotionUpgrade)
-    end
-end
