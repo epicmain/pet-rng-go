@@ -923,7 +923,7 @@ local antiAfkDelayStart = tick()
 local antiAfkDelay = 60
 local webhookSendDelayStart = tick()
 local webhookSendDelay = 60
-game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
+-- game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
 
 -- collect forever pack free
 network["ForeverPacks: Claim Free"]:InvokeServer("Default")
@@ -983,7 +983,6 @@ task.spawn(function()
         end
 
         if require(Client.HoverboardCmds).IsEquipped() then
-            print("wtf")
             game.ReplicatedStorage.Network.Hoverboard_RequestUnequip:FireServer()
         end
 
