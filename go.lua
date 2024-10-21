@@ -109,9 +109,9 @@ if workspace:FindFirstChild("TRADING") then
     end
 end
 
-pcall(function()
-    game:GetService("CoreGui"):ClearAllChildren()
-end)
+-- pcall(function()
+--     game:GetService("CoreGui"):ClearAllChildren()
+-- end)
 
 -- loadstring(game:HttpGet("https://raw.githubusercontent.com/whatsbasement/rb-opt/refs/heads/main/pet%20go%20opti.lua"))()
 -- print("[Optimize Done!]")
@@ -142,9 +142,9 @@ require(Client.FriendCmds).GetEffectiveFriendsOnline = function(...)
 end
 
 
-pcall(function()
-    game:GetService("CoreGui"):ClearAllChildren()
-end)
+-- pcall(function()
+--     game:GetService("CoreGui"):ClearAllChildren()
+-- end)
 
 
 local function findChest()
@@ -813,7 +813,7 @@ local function sendWebhook(content)
     saveCache()
 
     local messageContent = {
-        ["content"] = "<@" .. getgenv.petsGoConfig.DISCORD_ID .. ">\n```" .. content .. "\nAccount Name: " .. localPlayerName .. "```",
+        ["content"] = "<@" .. getgenv().petsGoConfig.DISCORD_ID .. ">\n```" .. content .. "\nAccount Name: " .. localPlayerName .. "```",
         ["username"] = "What's Bot",
         ["avatar_url"] = botProfilePic
     }
@@ -823,7 +823,7 @@ local function sendWebhook(content)
     if requestFunction then
         pcall(function()
             requestFunction({
-                Url = getgenv.petsGoConfig.WEBHOOK_URL,
+                Url = getgenv().petsGoConfig.WEBHOOK_URL,
                 Method = "POST",
                 Headers = { ["Content-Type"] = "application/json" },
                 Body = jsonData
@@ -841,7 +841,7 @@ local function mailPet()
             game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Locking_SetLocked"):InvokeServer(petId, false)
             task.wait(2)
             local args = {
-                [1] = getgenv.petsGoConfig.USERNAME_TO_MAIL,
+                [1] = getgenv().petsGoConfig.USERNAME_TO_MAIL,
                 [2] = tbl.id .. " for you",
                 [3] = "Pet",
                 [4] = petId,
@@ -892,11 +892,6 @@ require(Client.Network).Fired("Merchant_Updated"):Connect(function(...)
         -- pcall(print, string.format("Offer %d: Item: %s, Tier: %d, Stock: %d, Price ID: %s, Cost: %s", offerIndex, itemId, tier, stock, priceId, cost))
     end
 end)
-
-
-if require(Client.HoverboardCmds).IsEquipped() then
-    network.Hoverboard_RequestUnequip:FireServer()
-end
 
 
 local breakables = require(Root["Faster Egg Open"]["Faster Egg Open 2"]["Instant Egg Open"]["Golden Dice"]["Small Coin Piles"])
@@ -989,7 +984,7 @@ task.spawn(function()
                 
                 if not sentBefore then
                     local petDifficulty = require(Library.Directory.Pets)[tbl.id].difficulty
-                    if petDifficulty >= getgenv.().petsGoConfig.WEBHOOK_ODDS then
+                    if petDifficulty >= getgenv().petsGoConfig.WEBHOOK_ODDS then
                         if petDifficulty >= 1000000000 then
                             hugeFound = true
                         end
@@ -1003,7 +998,7 @@ task.spawn(function()
             webhookSendDelayStart = tick()
         end
 
-        if getgenv.petsGoConfig.MAIL_PET and (tick() - mailPetDelayStart) >= mailPetDelay then
+        if getgenv().petsGoConfig.MAIL_PET and (tick() - mailPetDelayStart) >= mailPetDelay then
             mailPet()
             mailPetDelayStart = tick()
         end
@@ -1015,6 +1010,10 @@ task.spawn(function()
         if require(ReplicatedStorage.Library.Client.BonusRollCmds).HasAvailable() then
             network["Bonus Rolls: Claim"]:InvokeServer()
             task.wait(1)
+        end
+
+        if require(Client.HoverboardCmds).IsEquipped() then
+            network.Hoverboard_RequestUnequip:FireServer()
         end
 
         pcall(collectHiddenGift)
