@@ -6,7 +6,7 @@ local Client = Library.Client
 local network = ReplicatedStorage.Network
 local LocalPlayer = game.Players.LocalPlayer
 local usedInstantLuckPotion3Amount = 0
-
+local hugeFound = false
 
 local save = require(Client.Save)
 local upgradeCmds = require(Client.UpgradeCmds)
@@ -17,15 +17,15 @@ local inventory = save.Get().Inventory
 local maxFruitQueue = fruitCmds.ComputeFruitQueueLimit()
 
 local localPlayerName = LocalPlayer.Name
-local instantLuck3PotionId
 local upgradeFruitTimeStart = tick()
 local upgradeFruitDelay = 60
 
 -- discord
 local doNotResend = {}
-local discordId = "973180636959490058"
 local httpService = game:GetService("HttpService")
-local webhookURL = "https://discord.com/api/webhooks/1293110746204340325/dZizvbUU4LtGv9P-1Qmywgdv7tWFNNXU9WxEsGwo9HDBcs7mKNnqdIOK9n69QcMFVJ5L"
+local botProfilePic = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQeohpvtXa0yu6PeaFaw9-Pd6ryrJl3sdzlDg&s"
+local cacheFileName = "sentContentCache.json"
+local sentContentCache = isfile(cacheFileName) and httpService:JSONDecode(readfile(cacheFileName)) or {}
 
 -- gui display
 local bestDifficulty = 0
@@ -42,11 +42,11 @@ orb.CombineDistance = 400
 
 while not upgradeCmds.IsUnlocked(require(Root)) do
     task.wait(1)
-    network:WaitForChild("Eggs_Roll"):InvokeServer()
+    network["Eggs_Roll"]:InvokeServer()
     task.wait(1)
-    network:WaitForChild("Tutorial_ClickedUpgrades"):FireServer()
+    network["Tutorial_ClickedUpgrades"]:FireServer()
     task.wait(1)
-    network:WaitForChild("Upgrades_Purchase"):InvokeServer("Root")
+    network["Upgrades_Purchase"]:InvokeServer("Root")
 end
 
 
@@ -72,6 +72,30 @@ local function findRelics()
     end
 end
 
+-- leave Breakables Frontend, Flying Gifts, Hidden Gifts and Relics
+    game:GetService("Players")[localPlayerName].PlayerScripts.RbxCharacterSounds:Destroy()
+    task.wait(0.5)
+    game:GetService("Players")[localPlayerName].PlayerScripts.PlayerModule:Destroy()
+    
+    for _, v in pairs(game:GetService("Players")[localPlayerName].PlayerScripts:GetChildren()) do  -- avoid Scripts
+        if v.Name ~= "Scripts" then
+            v:Destroy()
+        end
+    end
+    
+    for _, v in pairs(game:GetService("Players")[localPlayerName].PlayerScripts.Scripts:GetChildren()) do
+        if v.Name ~= "Game" then
+            v:Destroy()
+        end
+    end
+
+    for _, v in pairs(game:GetService("Players")[localPlayerName].PlayerScripts.Scripts.Game:GetChildren()) do
+        if v.Name ~= "Breakables Frontend" and v.Name ~= "Flying Gifts" and v.Name ~= "Hidden Gifts" and v.Name ~= "Relics" then
+            v:Destroy()
+        end
+    end
+    print('delete script')
+
 
 local moreRelics = require(Root["Faster Egg Open"]["Faster Egg Open 2"]["Instant Egg Open"]["Golden Dice"]["Small Coin Piles"]["Large Coin Piles"]["More Breakables"]["Even More Breakables"].Relics["More Relics"])
 if upgradeCmds.IsUnlocked(moreRelics) then
@@ -89,8 +113,10 @@ pcall(function()
     game:GetService("CoreGui"):ClearAllChildren()
 end)
 
+-- loadstring(game:HttpGet("https://raw.githubusercontent.com/whatsbasement/rb-opt/refs/heads/main/pet%20go%20opti.lua"))()
+-- print("[Optimize Done!]")
+
 workspace.OUTER:Destroy()
-network["Move Server"]:Destroy()
 game:GetService("Lighting"):ClearAllChildren()
 workspace[localPlayerName].HumanoidRootPart.Anchored = true
 
@@ -116,265 +142,9 @@ require(Client.FriendCmds).GetEffectiveFriendsOnline = function(...)
 end
 
 
--- VVV Optimizer VVV
-
-local function fullOptimizer()
-    -- turn off settings
-
-    local settingsCmds = require(Client.SettingsCmds)
-
-    network:WaitForChild("Slider Setting"):InvokeServer("SFX", 0)
-    network:WaitForChild("Slider Setting"):InvokeServer("Music", 0)
-
-    local toggleSettings = {
-        "Notifications",
-        "ItemNotifications",
-        "GlobalHatchMessages",
-        "ServerHatchMessages",
-        "GlobalNameDisplay",
-        "FireworkShow",
-        "ShowOtherPets",
-        "PetSFX",
-        "PetAuras",
-        "Vibrations"
-    }
-
-    for _, settingNames in pairs(toggleSettings) do
-        if settingsCmds.Get(settingNames) == "Off" then
-            -- turn off and on for it to work
-            network:WaitForChild("Toggle Setting"):InvokeServer(settingNames)
-            task.wait(1)
-            network:WaitForChild("Toggle Setting"):InvokeServer(settingNames)
-        else
-            network:WaitForChild("Toggle Setting"):InvokeServer(settingNames)
-        end
-    end
-
-    for _, v in workspace.MAP:GetChildren() do
-        if v.Name ~= "SPAWNS" and v.Name ~= "INTERACT" then
-            v:Destroy()
-        end
-    end
-
-    -- disable annoying xp balls
-    Client.XPBallCmds:Destroy()
-    network.XPBalls_BulkCreate:Destroy()
-    Library.Types.XPBalls:Destroy()
-
-
-    for i, v in getconnections(game:GetService("Players").LocalPlayer.Idled) do v:Disable() end
-
-    game:GetService("Players").LocalPlayer.Idled:Connect(function()
-        game:GetService("VirtualUser"):Button2Down(Vector2.new(0,0), game:GetService("Workspace").CurrentCamera.CFrame)
-        task.wait(1)
-        game:GetService("VirtualUser"):Button2Up(Vector2.new(0,0), game:GetService("Workspace").CurrentCamera.CFrame)
-    end)
-    print("[Anti-AFK Activated!]")
-
-    
-
-
-    local function clearTextures(v)
-        if v:IsA("BasePart") and not v:IsA("MeshPart") then
-            v.Material = "Plastic"
-            v.Reflectance = 0
-            v.Transparency = 1
-        elseif v:IsA("MeshPart") and tostring(v.Parent) == "Orbs" then
-            v.Transparency = 1
-        elseif (v:IsA("Decal") or v:IsA("Texture")) then
-            v.Transparency = 1
-        elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
-            v.Lifetime = NumberRange.new(0)
-        elseif v:IsA("Explosion") then
-            v.BlastPressure = 1
-            v.BlastRadius = 1
-        elseif v:IsA("Fire") or v:IsA("SpotLight") or v:IsA("Smoke") or v:IsA("Sparkles") then
-            v.Enabled = false
-        elseif v:IsA("MeshPart") then
-            v.Material = "Plastic"
-            v.Reflectance = 0
-            v.TextureID = 10385902758728957
-            v.Transparency = 1
-        elseif v:IsA("SpecialMesh") then
-            v.TextureId = 0
-        elseif v:IsA("ShirtGraphic") then
-            v.Graphic = 1
-        elseif (v:IsA("Shirt") or v:IsA("Pants")) then
-            v[v.ClassName .. "Template"] = 1
-        end
-    end
-
-    for _, v in pairs(game:GetDescendants()) do
-        clearTextures(v)
-    end
-
-
-    -- Delete/Disable scripts
-    for _, v in pairs(game:GetService("Players")[localPlayerName].PlayerGui:GetChildren()) do
-        if v.Enabled then
-            v.Enabled = false
-        end
-    end
-    
-    -- leave Breakables Frontend, Flying Gifts, Hidden Gifts and Relics
-    game:GetService("Players")[localPlayerName].PlayerScripts.RbxCharacterSounds:Destroy()
-    task.wait(0.5)
-    game:GetService("Players")[localPlayerName].PlayerScripts.PlayerModule:Destroy()
-    
-    for _, v in pairs(game:GetService("Players")[localPlayerName].PlayerScripts:GetChildren()) do  -- avoid Scripts
-        if v.Name ~= "Scripts" then
-            v:Destroy()
-        end
-    end
-    
-    for _, v in pairs(game:GetService("Players")[localPlayerName].PlayerScripts.Scripts:GetChildren()) do
-        if v.Name ~= "Game" then
-            v:Destroy()
-        end
-    end
-
-    for _, v in pairs(game:GetService("Players")[localPlayerName].PlayerScripts.Scripts.Game:GetChildren()) do
-        if v.Name ~= "Breakables Frontend" and v.Name ~= "Flying Gifts" and v.Name ~= "Hidden Gifts" and v.Name ~= "Relics" then
-            v:Destroy()
-        end
-    end
-    
-
-    -- make player invis
-    for _, v in pairs(game.Players:GetChildren()) do
-        for _, v2 in pairs(v.Character:GetDescendants()) do
-            if v2:IsA("BasePart") or v2:IsA("Decal") then
-                v2.Transparency = 1
-            end
-        end
-    end
-    -- make joining players invis
-    game.Players.DescendantAdded:Connect(function(v)
-        if v:IsA("BasePart") or v:IsA("Decal") then
-            v.Transparency = 1
-        end
-    end)
-
-    -- make pets letter invis
-    for _, v in pairs(workspace.__THINGS.Pets:GetDescendants()) do
-        if v.Name == "PetBillboard" then
-            v.Enabled = false
-        end
-    end
-
-    workspace.__THINGS.Pets.DescendantAdded:Connect(function(v)
-        if v.Name == "PetBillboard" then
-            v.Enabled = false
-        end
-    end)
-
-    for _, v in pairs(workspace.MAP.INTERACT:GetChildren()) do
-        if v.Name ~= "Machines" and v.Name ~= "Items" then
-            v:Destroy()
-        end
-    end
-
-    hookfunction(getsenv(LocalPlayer.PlayerScripts.Scripts.Game["Breakables Frontend"]).updateBreakable, function()
-        return
-    end)
-
-    hookfunction(require(Client.WorldFX).RewardBillboard, function()
-        return
-    end)
-
-    hookfunction(require(Client.OrbCmds.Orb).RenderParticles, function()
-        return
-    end)
-
-    hookfunction(require(Client.OrbCmds.Orb).SimulatePhysics, function()
-        return
-    end)
-
-    hookfunction(require(Client.GUIFX.Confetti).Play, function()
-        return
-    end)
-
-    for _, v in pairs(ReplicatedStorage.Assets:GetChildren()) do
-        if v.Name ~= "Cutscenes" and v.Name ~= "Particles" and v.Name ~= "UI" and v.Name ~= "Models" then
-            v:Destroy()
-        end    
-    end
-
-    local worldFXList = {"Confetti", "RewardImage", "QuestGlow", "Damage", "SpinningChests", "RewardItem", "Sparkles", "AnimatePad", "PlayerTeleport", "AnimateChest", "Poof",
-    "SmallPuff", "Flash", "Arrow3D", "ArrowPointer3D", "RainbowGlow"}
-
-    for x, y in pairs(worldFXList) do
-        hookfunction(require(Client.WorldFX[y]), function()
-            return
-        end)
-    end
-
-    for _, v in pairs(workspace:GetDescendants()) do
-        if v:IsA("Part") or v:IsA("BasePart") then
-            v.Transparency = 1
-        end
-    end
-
-
-    workspace.DescendantAdded:Connect(function(v)
-        clearTextures(v)
-    end)
-
-
-    -- Lower FOV and Set Camera to First-Person
-    game.Workspace.CurrentCamera.FieldOfView = 1
-    LocalPlayer.CameraMode = Enum.CameraMode.LockFirstPerson
-
-    -- Disable Particle Effects
-    for _, v in pairs(game.Workspace:GetDescendants()) do
-        if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Smoke") then
-            v.Enabled = false
-        end
-    end
-
-    -- Disable Shadows
-    game.Lighting.GlobalShadows = false
-
-    -- Lower Lighting Quality
-    game.Lighting.Brightness = 0
-    game.Lighting.OutdoorAmbient = Color3.new(0, 0, 0) -- Set to black for minimal lighting
-    game.Lighting.TimeOfDay = "14:00:00" -- Keep it in daytime for simpler lighting
-
-    -- Disable Textures
-    for _, v in pairs(game.Workspace:GetDescendants()) do
-        if v:IsA("Texture") or v:IsA("Decal") then
-            v:Destroy() -- or set Texture to nil
-        end
-    end
-
-    -- Disconnect Unnecessary Events
-    local connections = getconnections or get_signal_cons
-    for _, connection in pairs(connections(game:GetService("RunService").RenderStepped)) do
-        connection:Disable()
-    end
-
-    local function setAllLightsToNoLight()
-        for _, v in ipairs(game:GetDescendants()) do
-            -- Check if the object is a light
-            if v:IsA("PointLight") or v:IsA("SpotLight") or v:IsA("SurfaceLight") then
-                -- Set the light to NoLight by setting its brightness to 0
-                v.Brightness = 0
-                v.Enabled = false
-            end
-        end
-    end
-
-    setAllLightsToNoLight()
-end
-
-
-fullOptimizer()
-
 pcall(function()
     game:GetService("CoreGui"):ClearAllChildren()
 end)
-
--- ^^^ Optimizer ^^^
 
 
 local function findChest()
@@ -435,7 +205,7 @@ local function petTargetChestAndBreakables()
         end
     end
 
-    network:WaitForChild("Breakables_JoinPetBulk"):FireServer(unpack(args))
+    network["Breakables_JoinPetBulk"]:FireServer(unpack(args))
 end
 
 
@@ -547,88 +317,77 @@ local function teleportToMachine(machineName)
 end
 
 
--- local function buyIndexShop()
---     for i=1, 3 do
---         for i=1, 6 do
---             task.wait(0.5)
---             network:WaitForChild("Merchant_RequestPurchase"):InvokeServer("AdvancedIndexMerchant", i)
---         end
---     end
--- end
-
-
 local function consumeBestPotion()
-    local cocktailConsumed
-    local potionNames = {"Effects_Breakables Potion", "Effects_Coins Potion", "Effects_Faster Rolls Potion", "Effects_Items Potion", "Effects_Lucky Potion"}
-    -- local dicePotion = {"Effects_Golden Dice Potion", "Effects_Rainbow Dice Potion", "Effects_Instant Luck Potion", "Effects_The Cocktail"}
+    local potionNames = {"Faster Rolls Potion", "Breakables Potion", "Lucky Potion", "Items Potion", "Coins Potion"}
     
     for _, potionName in pairs(potionNames) do
-        local hasBeenConsumed
-        for _, v in game:GetService("Players")[localPlayerName].PlayerGui.Main.Boosts.Inner:GetChildren() do
-            if potionName == v.Name then
-                hasBeenConsumed = true
-                break
+        local highestPotionTier = 0
+        local highestPotionTierId
+        for potionId, tbl in pairs(require(game:GetService("ReplicatedStorage").Library.Client.Save).Get().Inventory.Consumable) do
+            if potionName == tbl.id and tbl.tn > highestPotionTier then
+                highestPotionTier = tbl.tn
+                highestPotionTierId = potionId
             end
         end
-        if not hasBeenConsumed then
-            local highestTierPotion = 0
-            local highestTierPotionId
-            for itemId, tbl in pairs(save.Get().Inventory.Consumable) do
-                -- sub removes
-                if tbl.id == potionName:sub(9) and tbl.tn > highestTierPotion then
-                    highestTierPotion = tbl.tn
-                    highestTierPotionId = itemId
-                    -- print("Consumed:", highestTierPotion)
-                end
+
+        local potionDir = game:GetService("ReplicatedStorage")["__DIRECTORY"].Effects.Timed["Effect | " .. potionName]
+        local bestConsumedPotionTier = require(game:GetService("ReplicatedStorage").Library.Client.EffectCmds).GetBest(require(potionDir))
+        
+        if bestConsumedPotionTier < highestPotionTier then
+            print("Consumed " .. potionName .. " Tier " .. highestPotionTier)
+            pcall(function() network["Consumables_Consume"]:InvokeServer(highestPotionTierId, 1) end)
+            task.wait(1)
+        end
+    end
+end
+
+
+
+local function consumeInstantLuck3Combo(instantLuck3PotionId)
+    local potionNames = {"Golden Dice Potion", "Blazing Dice Potion", "The Cocktail"}
+    local potionsFound = {
+        ["Golden Dice Potion"] = nil,
+        ["Blazing Dice Potion"] = nil,
+        ["The Cocktail"] = nil
+    }
+
+    -- Check for golden/blazing dice potion
+    for _, potionName in pairs(potionNames) do
+        for potionId, tbl in pairs(require(game:GetService("ReplicatedStorage").Library.Client.Save).Get().Inventory.Consumable) do
+            if potionName == tbl.id then
+                potionsFound[tbl.id] = potionId
+                print(tbl.id, potionId)
             end
-            pcall(function() network:WaitForChild("Consumables_Consume"):InvokeServer(highestTierPotionId, 1) end)
-            task.wait(0.5)
         end
     end
 
-    if instantLuck3PotionId then
-        -- check if cocktail been consumed
-        for _, v in game:GetService("Players")[localPlayerName].PlayerGui.Main.Boosts.Inner:GetChildren() do
-            if "Effects_The Cocktail" == v.Name then
-                cocktailConsumed = true
-                break
+    -- if found both golden/blazing potion
+    if potionsFound["Golden Dice Potion"] ~= nil and potionsFound["Blazing Dice Potion"] ~= nil then
+        -- check if cocktail already used
+        local cocktailDir = game:GetService("ReplicatedStorage")["__DIRECTORY"].Effects.Timed["Effect | The Cocktail"]
+        if require(game:GetService("ReplicatedStorage").Library.Client.EffectCmds).GetBest(require(cocktailDir)) == 0 then
+            if potionsFound["The Cocktail"] then
+                pcall(function() network["Consumables_Consume"]:InvokeServer(potionsFound["The Cocktail"], 1) end)  -- consume cocktail 
+                task.wait(1)
+            else
+                print("No cocktail found")
+                return
             end
+        else
+            print("Cocktail consumed")
         end
 
-        if not cocktailConsumed then
-            for itemId, tbl in pairs(save.Get().Inventory.Consumable) do
-                -- sub removes
-                if tbl.id == ("Effects_The Cocktail"):sub(9) then
-                    pcall(function() network:WaitForChild("Consumables_Consume"):InvokeServer(itemId, 1) end)
-                    cocktailConsumed = true
-                    task.wait(1)
-                    break
-                end
-            end
-        end
-
-        if cocktailConsumed then
-            for itemId, tbl in pairs(save.Get().Inventory.Consumable) do
-                if tbl.id == "Golden Dice Potion" then
-                    pcall(function() network:WaitForChild("Consumables_Consume"):InvokeServer(itemId, 1) end)
-                    task.wait(1)
-                elseif tbl.id == "Blazing Dice Potion" then
-                    pcall(function() network:WaitForChild("Consumables_Consume"):InvokeServer(itemId, 1) end)
-                    task.wait(1)
-                end
-            end
-            print("Using Gold & Instant Luck 3 Potion & Blazing Dice")
-            pcall(function()  
-                local success, _ = network:WaitForChild("Consumables_Consume"):InvokeServer(instantLuck3PotionId, 1)
-                if success then
-                    usedInstantLuckPotion3Amount = usedInstantLuckPotion3Amount + 1
-                end
-            end)
-            task.wait(0.5)
-            pcall(function() network:WaitForChild("Consumables_Consume"):InvokeServer(instantLuck3PotionId, 1) end)
-            task.wait(0.5)
-        end
-        instantLuck3PotionId = nil
+        print(potionsFound["Golden Dice Potion"])
+        pcall(function() network["Consumables_Consume"]:InvokeServer(potionsFound["Golden Dice Potion"], 1) end)  -- consume golden 
+        task.wait(1)
+        pcall(function() network["Consumables_Consume"]:InvokeServer(potionsFound["Blazing Dice Potion"], 1) end)  -- consume blazing
+        task.wait(1)
+        pcall(function() network["Consumables_Consume"]:InvokeServer(potionsFound["The Cocktail"], 1) end)  -- consume blazing
+        task.wait(1)
+        pcall(function() network["Consumables_Consume"]:InvokeServer(instantLuck3PotionId, 1) end)
+        task.wait(1)
+    else
+        print("No Golden Dice or Blazing Dice Found")
     end
 end
 
@@ -639,12 +398,12 @@ local function smartPotionUpgrade()
         if tbl.id == "Lucky Potion" then
             if tbl.tn == 1 and tbl._am ~= nil and tbl._am >= 3 then
                 -- print("Crafted Lucky Tier 2")
-                network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 1, math.floor(tbl._am / 3))
+                network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 1, math.floor(tbl._am / 3))
                 task.wait(0.5)
     
             elseif tbl.tn == 2 and tbl._am ~= nil and tbl._am >= 4 then
                 -- print("Crafted Lucky Tier 3")
-                network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 2, math.floor(tbl._am / 4))
+                network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 2, math.floor(tbl._am / 4))
                 task.wait(0.5)
     
             elseif tbl.tn == 3 and tbl._am ~= nil and tbl._am >= 5 then
@@ -674,7 +433,7 @@ local function smartPotionUpgrade()
                         amountToCraft = math.floor(tbl._am / 5)
                     end
                     -- print("Crafted Lucky Tier 4")
-                    network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 3, amountToCraft)
+                    network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 3, amountToCraft)
                     task.wait(0.5)
                 end
     
@@ -704,7 +463,7 @@ local function smartPotionUpgrade()
                         if tbl2.id == "Orange" and not tbl2.sh and tbl2._am ~= nil and tbl2._am >= 12 then  -- check non shiny fruit
                             -- print("Crafted Lucky Tier 5")
                             if math.floor(tbl2._am / 12) < amountToCraft then amountToCraft = math.floor(tbl2._am / 12) end
-                            network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 4, amountToCraft)
+                            network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 4, amountToCraft)
                             task.wait(0.5)
                             break
                         end
@@ -737,7 +496,7 @@ local function smartPotionUpgrade()
                         if tbl2.id == "Orange" and not tbl2.sh and tbl2._am ~= nil and tbl2._am >= 30 then  -- check non shiny fruit
                             -- print("Crafted Lucky Tier 6")
                             if math.floor(tbl2._am / 30) < amountToCraft then amountToCraft = math.floor(tbl2._am / 30) end
-                            network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 5, amountToCraft)
+                            network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 5, amountToCraft)
                             task.wait(0.5)
                             break
                         end
@@ -760,7 +519,7 @@ local function smartPotionUpgrade()
                         -- if enough orange and tier 6, craft 1 tier best potion
                         if tbl2.id == "Orange" and tbl2.sh and tbl2._am ~= nil and tbl2._am >= 5 then  -- checks for shiny orange
                             -- print("Crafted Lucky Tier 7")
-                            network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 6, 1)
+                            network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 6, 1)
                             task.wait(0.5)
                             break
                         end
@@ -773,17 +532,17 @@ local function smartPotionUpgrade()
         if tbl.id == "Coins Potion" then
             if tbl.tn == 1 and tbl._am ~= nil and tbl._am >= 3 then
                 -- print("Crafted Coins Potion 2")
-                network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 7, math.floor(tbl._am / 3))
+                network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 7, math.floor(tbl._am / 3))
                 task.wait(0.5)
     
             elseif tbl.tn == 2 and tbl._am ~= nil and tbl._am >= 4 then
                 -- print("Crafted Coins Potion 3")
-                network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 8, math.floor(tbl._am / 4))
+                network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 8, math.floor(tbl._am / 4))
                 task.wait(0.5)
     
             elseif tbl.tn == 3 and tbl._am ~= nil and tbl._am >= 5 then
                 -- print("Crafted Coins Potion 4")
-                network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 9, math.floor(tbl._am / 5))
+                network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 9, math.floor(tbl._am / 5))
                 task.wait(0.5)
     
             elseif tbl.tn == 4 and tbl._am ~= nil and tbl._am >= 5 then
@@ -792,7 +551,7 @@ local function smartPotionUpgrade()
                     if tbl2.id == "Banana" and not tbl2.sh and tbl2._am ~= nil and tbl2._am >= 12 then
                         -- print("Crafted Coins Potion 5")
                         if math.floor(tbl2._am / 12) < amountToCraft then amountToCraft = math.floor(tbl2._am / 12) end
-                        network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 10, amountToCraft)
+                        network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 10, amountToCraft)
                         task.wait(0.5)
                     end
                 end
@@ -803,7 +562,7 @@ local function smartPotionUpgrade()
                     if tbl2.id == "Banana" and not tbl2.sh and tbl2._am ~= nil and tbl2._am >= 30 then
                         -- print("Crafted Coins Potion 6")
                         if math.floor(tbl2._am / 30) < amountToCraft then amountToCraft = math.floor(tbl2._am / 30) end
-                        network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 11, amountToCraft)
+                        network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 11, amountToCraft)
                         task.wait(0.5)
                     end
                 end
@@ -814,7 +573,7 @@ local function smartPotionUpgrade()
                     if tbl2.id == "Banana" and tbl2.sh and tbl2._am ~= nil and tbl2._am >= 5 then
                         -- print("Crafted Coins Potion 7")
                         if math.floor(tbl2._am / 5) < amountToCraft then amountToCraft = math.floor(tbl2._am / 5) end
-                        network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 12, amountToCraft)
+                        network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 12, amountToCraft)
                         task.wait(0.5)
                     end
                 end
@@ -825,12 +584,12 @@ local function smartPotionUpgrade()
         if tbl.id == "Breakables Potion" then
             if tbl.tn == 1 and tbl._am ~= nil and tbl._am >= 3 then
                 -- print("Crafted Breakables Potion 2")
-                network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 14, math.floor(tbl._am / 3))
+                network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 14, math.floor(tbl._am / 3))
                 task.wait(0.5)
             
             elseif tbl.tn == 2 and tbl._am ~= nil and tbl._am >= 5 then
                 -- print("Crafted Breakables Potion 3")
-                network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 15, math.floor(tbl._am / 5))
+                network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 15, math.floor(tbl._am / 5))
                 task.wait(0.5)
             end
         end
@@ -843,7 +602,7 @@ local function smartPotionUpgrade()
                     if tbl2.id == "Watermelon" and not tbl2.sh and tbl2._am ~= nil and tbl2._am >= 30 then
                         -- print("Crafted Faster Rolls Potion 2")
                         if math.floor(tbl2._am / 30) < amountToCraft then amountToCraft = math.floor(tbl2._am / 30) end
-                        network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 17, amountToCraft)
+                        network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 17, amountToCraft)
                         task.wait(0.5)
                         break
                     end
@@ -855,12 +614,12 @@ local function smartPotionUpgrade()
         if tbl.id == "Items Potion" then
             if tbl.tn == 1 and tbl._am ~= nil and tbl._am >= 3 then
                 -- print("Crafted Items Potion 2")
-                network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 19, math.floor(tbl._am / 3))
+                network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 19, math.floor(tbl._am / 3))
                 task.wait(0.5)
     
             elseif tbl.tn == 2 and tbl._am ~= nil and tbl._am >= 4 then
                 -- print("Crafted Items Potion 3")
-                network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 20, math.floor(tbl._am / 4))
+                network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 20, math.floor(tbl._am / 4))
                 task.wait(0.5)
 
             elseif tbl.tn == 3 and tbl._am ~= nil and tbl._am >= 5 then
@@ -869,7 +628,7 @@ local function smartPotionUpgrade()
                     if tbl2.id == "Pineapple" and not tbl2.sh and tbl2._am ~= nil and tbl2._am >= 20 then
                         -- print("Crafted Items Potion 4")
                         if math.floor(tbl2._am / 20) < amountToCraft then amountToCraft = math.floor(tbl2._am / 20) end
-                        network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 21, amountToCraft)
+                        network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 21, amountToCraft)
                         task.wait(0.5)
                         break
                     end
@@ -934,7 +693,7 @@ local function craft(potion)
             amounts.instantLuck2Amount = amounts.instantLuck2Amount - 3
             amounts.rainbowDiceAmount = amounts.rainbowDiceAmount - 2
             print('making')
-            network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 30, 1)
+            network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 30, 1)
             task.wait(0.5)
             print("Crafted: Instant Luck 3")
         else
@@ -950,7 +709,7 @@ local function craft(potion)
             end
             amounts.instantLuck2Amount = amounts.instantLuck2Amount - 3
             amounts.rainbowDiceAmount = amounts.rainbowDiceAmount - 2
-            network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 30, 1)
+            network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 30, 1)
             task.wait(0.5)
             print("Crafted: Instant Luck 3")
         end
@@ -967,7 +726,7 @@ local function craft(potion)
             end
             amounts.instantLuck1Amount = amounts.instantLuck1Amount - 3
             amounts.rainbowDiceAmount = amounts.rainbowDiceAmount - 2
-            network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 29, 1)
+            network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 29, 1)
             task.wait(0.5)
             print("Crafted: Instant Luck 2")
         end
@@ -975,7 +734,7 @@ local function craft(potion)
         if amounts.lucky4Amount >= 2 and amounts.rainbowFruitAmount >= 4 then
             amounts.lucky4Amount = amounts.lucky4Amount - 2
             amounts.rainbowFruitAmount = amounts.rainbowFruitAmount - 4
-            network:WaitForChild("CraftingMachine_Craft"):InvokeServer("PotionCraftingMachine", 26, 1)
+            network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 26, 1)
             task.wait(0.5)
             print("Crafted: Rainbow Dice")
         else
@@ -1009,7 +768,7 @@ local function upgradeFruits()
                 [2] = false
             }
             rainbowFruitAmount = rainbowFruitAmount + (amountToCraft / 25)
-            network:WaitForChild("UpgradeFruitsMachine_Activate"):InvokeServer(unpack(args))
+            network["UpgradeFruitsMachine_Activate"]:InvokeServer(unpack(args))
             task.wait(2)
         end
     end
@@ -1036,7 +795,7 @@ local function upgradeFruits()
                     },
                     [2] = true
                 }
-                network:WaitForChild("UpgradeFruitsMachine_Activate"):InvokeServer(unpack(args))
+                network["UpgradeFruitsMachine_Activate"]:InvokeServer(unpack(args))
                 task.wait(2)
             end
         end
@@ -1044,34 +803,56 @@ local function upgradeFruits()
 end
 
 
-local function sendWebhook(content)
-    local messageContent = {
-        ["content"] = "<@" .. discordId .. ">" .. "\n```" .. content .. "\nAccount Name: " .. localPlayerName .. "```",
-        ["username"] = "Ello What's Bot",
-    }
+local function saveCache() writefile(cacheFileName, httpService:JSONEncode(sentContentCache)) end
+local function isContentSent(content) return table.find(sentContentCache, content) end
 
+local function sendWebhook(content)
+    if isContentSent(content) then return end
+    table.insert(sentContentCache, content)
+    if #sentContentCache > 10 then table.remove(sentContentCache, 1) end
+    saveCache()
+
+    local messageContent = {
+        ["content"] = "<@" .. getgenv.petsGoConfig.DISCORD_ID .. ">\n```" .. content .. "\nAccount Name: " .. localPlayerName .. "```",
+        ["username"] = "What's Bot",
+        ["avatar_url"] = botProfilePic
+    }
+    
     local jsonData = httpService:JSONEncode(messageContent)
     local requestFunction = syn and syn.request or request or http_request or http and http.request
-
     if requestFunction then
-        local success, response = pcall(function()
-            return requestFunction({
-                Url = webhookURL,
+        pcall(function()
+            requestFunction({
+                Url = getgenv.petsGoConfig.WEBHOOK_URL,
                 Method = "POST",
-                Headers = {
-                    ["Content-Type"] = "application/json",
-                },
-                Body = jsonData,
+                Headers = { ["Content-Type"] = "application/json" },
+                Body = jsonData
             })
         end)
+    end
+end
 
-        if success then
-            print("Message successfully sent to Discord!")
-        else
-            warn("Failed to send message: " .. response)
+
+local function mailPet()
+    for petId, tbl in require(game:GetService("ReplicatedStorage").Library.Client.Save).Get().Inventory.Pet do
+        local petDifficulty = require(game.ReplicatedStorage.Library.Directory.Pets)[tbl.id].difficulty
+        if petDifficulty >= getgenv().petsGoConfig.MAIL_PET_ODDS then
+            -- unlock pet before sending
+            game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Locking_SetLocked"):InvokeServer(petId, false)
+            task.wait(2)
+            local args = {
+                [1] = getgenv.petsGoConfig.USERNAME_TO_MAIL,
+                [2] = tbl.id .. " for you",
+                [3] = "Pet",
+                [4] = petId,
+                [5] = 1
+            }
+            
+            print("Sent " .. tbl.id)
+            game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Mailbox: Send"):InvokeServer(unpack(args))
+            task.wait(5)
+            break
         end
-    else
-        warn("Your executor does not support HTTP requests.")
     end
 end
 
@@ -1114,7 +895,7 @@ end)
 
 
 if require(Client.HoverboardCmds).IsEquipped() then
-    require(Client.HoverboardCmds).RequestUnequip()
+    network.Hoverboard_RequestUnequip:FireServer()
 end
 
 
@@ -1125,28 +906,39 @@ task.spawn(function()
         pcall(petTargetChestAndBreakables)
         pcall(tapChestAndBreakables)
 
-        if not require(Client.EggCmds).IsRolling() and save.Get().DiceCombos["Rainbow"] ~= 80 then
+        local rainbowCountdown = save.Get().DiceCombos["Rainbow"]
+        if rainbowCountdown ~= 79 then
             network.Eggs_Roll:InvokeServer()
             
-        elseif save.Get().DiceCombos["Rainbow"] == 80 then
+        elseif rainbowCountdown == 79 then
             print("Rainbow READY")
+            task.wait(1)
             local instantLuck3PotionFound
             for itemId, tbl in pairs(save.Get().Inventory.Consumable) do
                 if tbl.id == "Instant Luck Potion" and tbl.tn == 3 then
                     instantLuck3PotionFound = true
-                    instantLuck3PotionId = itemId
-                    pcall(consumeBestPotion)  -- use every best potion + instant luck 3
+                    pcall(consumeBestPotion)  -- use every best potion before luck 3
+                    consumeInstantLuck3Combo(itemId)
                     network.Eggs_Roll:InvokeServer()
                     break
                 end
             end
-            if not instantLuck3PotionFound then
+            if not instantLuck3PotionFound then  -- this is required due to it being stuck at rainbowCountdown
                 print("No Instant Luck 3 Potions Detected")
+                for itemId, tbl in pairs(save.Get().Inventory.Consumable) do
+                    if tbl.id == "Golden Dice Potion" then
+                        print("consumed golden dice potion")
+                        pcall(function() network["Consumables_Consume"]:InvokeServer(itemId, 1) end)
+                        task.wait(1)
+                        break
+                    end
+                end
                 network.Eggs_Roll:InvokeServer()
             end
         end
     end
 end)
+
 
 local advancedIndexShop = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Trading["Pet Index"]["Index Shop"]["Advanced Index Shop"])
 local coinPresents = require(Root["Faster Egg Open"]["Faster Egg Open 2"]["Instant Egg Open"]["Golden Dice"]["Small Coin Piles"]["Large Coin Piles"]["Coin Crates"]["Coin Presents"])
@@ -1158,13 +950,17 @@ local merchantUpgrade = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inv
 local fruitBoost = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit)
 local potionsUpgrade = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit["Lucky Potion"])
 
+local mailPetDelayStart = tick()
+local mailPetDelay = 60
+
 local antiAfkDelayStart = tick()
 local antiAfkDelay = 60
 local webhookSendDelayStart = tick()
 local webhookSendDelay = 60
+game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
 
 -- collect forever pack free
-game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("ForeverPacks: Claim Free"):InvokeServer("Default")
+network["ForeverPacks: Claim Free"]:InvokeServer("Default")
 -- background stuff
 task.spawn(function()
     while true do
@@ -1176,39 +972,44 @@ task.spawn(function()
         pcall(consumeBestPotion)
         
         if (tick() - antiAfkDelayStart) >= antiAfkDelay then
-            network:WaitForChild("Idle Tracking: Stop Timer"):FireServer()
+            network["Idle Tracking: Stop Timer"]:FireServer()
             antiAfkDelayStart = tick()
         end
 
-        -- check for huges and send webhook
+        
         if (tick() - webhookSendDelayStart) >= webhookSendDelay then
             for petId, tbl in save.Get().Inventory.Pet do
                 local sentBefore = false
-                for _, hugeName in pairs(doNotResend) do
-                    if tbl.id == hugeName then
+                for _, petName in pairs(doNotResend) do
+                    if tbl.id == petName then
                         sentBefore = true
                         break
                     end
                 end
-                if not sentBefore and (string.find(tbl.id:lower(), "huge") or string.find(tbl.id:lower(), "banana") or string.find(tbl.id:lower(), "hippomelon") or 
-                string.find(tbl.id:lower(), "sun angelus") or string.find(tbl.id:lower(), "pentangelus") or string.find(tbl.id:lower(), "arcane cat") or
-                string.find(tbl.id:lower(), "diamond dragon") or string.find(tbl.id:lower(), "m-2 prototype") or string.find(tbl.id:lower(), "angelus") or 
-                string.find(tbl.id:lower(), "night terror cat") or string.find(tbl.id:lower(), "electric dragon")) then
-                    
-                    table.insert(doNotResend, tbl.id)
-                    local quantity = tbl._am or 1
-                    sendWebhook("Pet Found: " .. tbl.id .. "\nQuantity: " .. quantity)
+                
+                if not sentBefore then
+                    local petDifficulty = require(Library.Directory.Pets)[tbl.id].difficulty
+                    if petDifficulty >= getgenv.().petsGoConfig.WEBHOOK_ODDS then
+                        if petDifficulty >= 1000000000 then
+                            hugeFound = true
+                        end
+                        table.insert(doNotResend, tbl.id)
+                        local quantity = tbl._am or 1
+                        print("Pet Found: " .. tbl.id .. "\nQuantity: " .. quantity)
+                        sendWebhook("Pet Found: " .. tbl.id .. "\nQuantity: " .. quantity)
+                    end
                 end
             end
             webhookSendDelayStart = tick()
         end
 
-        -- if upgradeCmds.IsUnlocked(advancedIndexShop) then
-        --     buyIndexShop()
-        -- end
+        if getgenv.petsGoConfig.MAIL_PET and (tick() - mailPetDelayStart) >= mailPetDelay then
+            mailPet()
+            mailPetDelayStart = tick()
+        end
 
         if require(ReplicatedStorage.Library.Client.LoginStreakCmds).CanClaim() then
-            network:WaitForChild("Login Streaks: Bonus Roll Request"):InvokeServer()
+            network["Login Streaks: Bonus Roll Request"]:InvokeServer()
         end
 
         if require(ReplicatedStorage.Library.Client.BonusRollCmds).HasAvailable() then
@@ -1225,7 +1026,7 @@ task.spawn(function()
         if upgradeCmds.IsUnlocked(potionVending) and save.Get()["VendingStocks"].PotionVendingMachine > 0 then
             teleportToMachine("PotionVendingMachine")
             for i=1, save.Get()["VendingStocks"].PotionVendingMachine do
-                network:WaitForChild("VendingMachines_Purchase"):InvokeServer("PotionVendingMachine")
+                network["VendingMachines_Purchase"]:InvokeServer("PotionVendingMachine")
                 task.wait(0.5)
             end
         end
@@ -1240,7 +1041,7 @@ task.spawn(function()
                 teleportToMachine("StandardMerchant")
                 for i=1, 6 do
                     for _=1, 5 do
-                        game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("CustomMerchants_Purchase"):InvokeServer("StandardMerchant", i)
+                        network["CustomMerchants_Purchase"]:InvokeServer("StandardMerchant", i)
                         task.wait(0.5)
                     end
                 end
@@ -1261,164 +1062,173 @@ end)
 
 
 -- ===============================================  GUI  ===============================================
-local gui = Instance.new("ScreenGui", LocalPlayer.PlayerGui)
-gui.IgnoreGuiInset = true -- Allows GUI to cover the screen
+local function activateGui()
+    local gui = Instance.new("ScreenGui", LocalPlayer.PlayerGui)
+    gui.IgnoreGuiInset = true -- Allows GUI to cover the screen
 
--- Create a black Frame to cover the whole screen
-local overlayFrame = Instance.new("Frame", gui)
-overlayFrame.Size = UDim2.new(1, 0, 1, 0) -- Full width and height
-overlayFrame.Position = UDim2.new(0, 0, 0, 0) -- Top left corner
-overlayFrame.BackgroundColor3 = Color3.new(0, 0, 0) -- Black background
+    -- Create a black Frame to cover the whole screen
+    local overlayFrame = Instance.new("Frame", gui)
+    overlayFrame.Size = UDim2.new(1, 0, 1, 0) -- Full width and height
+    overlayFrame.Position = UDim2.new(0, 0, 0, 0) -- Top left corner
+    overlayFrame.BackgroundColor3 = Color3.new(0, 0, 0) -- Black background
 
--- Create a TextLabel for the toggle message
-local toggleLabel = Instance.new("TextLabel", overlayFrame)
-toggleLabel.Size = UDim2.new(0, 300, 0, 30) -- Width: 300px, Height: 30px
-toggleLabel.Position = UDim2.new(0.5, -150, 0, 10) -- Centered horizontally, positioned at the top
-toggleLabel.Text = 'Press "O" to toggle overlay'
-toggleLabel.TextColor3 = Color3.new(1, 1, 1) -- White text
-toggleLabel.BackgroundTransparency = 1 -- Make label background transparent
-toggleLabel.TextScaled = true
-toggleLabel.TextSize = 14 -- Set a smaller text size for one line
+    -- Create a TextLabel for the toggle message
+    local toggleLabel = Instance.new("TextLabel", overlayFrame)
+    toggleLabel.Size = UDim2.new(0, 300, 0, 30) -- Width: 300px, Height: 30px
+    toggleLabel.Position = UDim2.new(0.5, -150, 0, 10) -- Centered horizontally, positioned at the top
+    toggleLabel.Text = 'Press "O" to toggle overlay'
+    toggleLabel.TextColor3 = Color3.new(1, 1, 1) -- White text
+    toggleLabel.BackgroundTransparency = 1 -- Make label background transparent
+    toggleLabel.TextScaled = true
+    toggleLabel.TextSize = 14 -- Set a smaller text size for one line
 
--- Create a TextLabel for the player's username
-local usernameLabel = Instance.new("TextLabel", overlayFrame)
-usernameLabel.Size = UDim2.new(0, 600, 0, 70) -- Width: 600px, Height: 70px
-usernameLabel.Position = UDim2.new(0.5, -300, 0.5, -155) -- Positioned above BEST PET
-usernameLabel.TextColor3 = Color3.new(1, 1, 1) -- White text
-usernameLabel.BackgroundTransparency = 1 -- Make label background transparent
-usernameLabel.TextScaled = true
-usernameLabel.TextSize = 36 -- Set a larger text size
+    -- Create a TextLabel for the player's username
+    local usernameLabel = Instance.new("TextLabel", overlayFrame)
+    usernameLabel.Size = UDim2.new(0, 600, 0, 70) -- Width: 600px, Height: 70px
+    usernameLabel.Position = UDim2.new(0.5, -300, 0.5, -155) -- Positioned above BEST PET
+    usernameLabel.TextColor3 = Color3.new(1, 1, 1) -- White text
+    usernameLabel.BackgroundTransparency = 1 -- Make label background transparent
+    usernameLabel.TextScaled = true
+    usernameLabel.TextSize = 36 -- Set a larger text size
 
--- Create a TextLabel for the best difficulty message
-local bestPetLabel = Instance.new("TextLabel", overlayFrame)
-bestPetLabel.Size = UDim2.new(0, 600, 0, 70) -- Width: 600px, Height: 70px
-bestPetLabel.Position = UDim2.new(0.5, -300, 0.5, -85) -- Adjusted to align properly
-bestPetLabel.TextColor3 = Color3.new(1, 1, 1) -- White text
-bestPetLabel.BackgroundTransparency = 1 -- Make label background transparent
-bestPetLabel.TextScaled = true
-bestPetLabel.TextSize = 36 -- Set a larger text size
+    -- Create a TextLabel for the best difficulty message
+    local bestPetLabel = Instance.new("TextLabel", overlayFrame)
+    bestPetLabel.Size = UDim2.new(0, 600, 0, 70) -- Width: 600px, Height: 70px
+    bestPetLabel.Position = UDim2.new(0.5, -300, 0.5, -85) -- Adjusted to align properly
+    bestPetLabel.TextColor3 = Color3.new(1, 1, 1) -- White text
+    bestPetLabel.BackgroundTransparency = 1 -- Make label background transparent
+    bestPetLabel.TextScaled = true
+    bestPetLabel.TextSize = 36 -- Set a larger text size
 
--- Create a TextLabel for Current Rolls
-local currentRollsLabel = Instance.new("TextLabel", overlayFrame)
-currentRollsLabel.Size = UDim2.new(0, 600, 0, 70) -- Width: 600px, Height: 70px
-currentRollsLabel.Position = UDim2.new(0.5, -300, 0.5, -15) -- Positioned below BEST PET
-currentRollsLabel.TextColor3 = Color3.new(1, 1, 1) -- White text
-currentRollsLabel.BackgroundTransparency = 1 -- Make label background transparent
-currentRollsLabel.TextScaled = true
-currentRollsLabel.TextSize = 36 -- Same text size as BEST PET
+    -- Create a TextLabel for Current Rolls
+    local currentRollsLabel = Instance.new("TextLabel", overlayFrame)
+    currentRollsLabel.Size = UDim2.new(0, 600, 0, 70) -- Width: 600px, Height: 70px
+    currentRollsLabel.Position = UDim2.new(0.5, -300, 0.5, -15) -- Positioned below BEST PET
+    currentRollsLabel.TextColor3 = Color3.new(1, 1, 1) -- White text
+    currentRollsLabel.BackgroundTransparency = 1 -- Make label background transparent
+    currentRollsLabel.TextScaled = true
+    currentRollsLabel.TextSize = 36 -- Same text size as BEST PET
 
--- Create a TextLabel for Total Rolls
-local totalRollsLabel = Instance.new("TextLabel", overlayFrame)
-totalRollsLabel.Size = UDim2.new(0, 600, 0, 70) -- Width: 600px, Height: 70px
-totalRollsLabel.Position = UDim2.new(0.5, -300, 0.5, 55) -- Positioned below Current Rolls
-totalRollsLabel.TextColor3 = Color3.new(1, 1, 1) -- White text
-totalRollsLabel.BackgroundTransparency = 1 -- Make label background transparent
-totalRollsLabel.TextScaled = true
-totalRollsLabel.TextSize = 36 -- Same text size as BEST PET
+    -- Create a TextLabel for Total Rolls
+    local totalRollsLabel = Instance.new("TextLabel", overlayFrame)
+    totalRollsLabel.Size = UDim2.new(0, 600, 0, 70) -- Width: 600px, Height: 70px
+    totalRollsLabel.Position = UDim2.new(0.5, -300, 0.5, 55) -- Positioned below Current Rolls
+    totalRollsLabel.TextColor3 = Color3.new(1, 1, 1) -- White text
+    totalRollsLabel.BackgroundTransparency = 1 -- Make label background transparent
+    totalRollsLabel.TextScaled = true
+    totalRollsLabel.TextSize = 36 -- Same text size as BEST PET
 
--- Create a TextLabel for Current Inventory
-local inventoryLabel = Instance.new("TextLabel", overlayFrame)
-inventoryLabel.Size = UDim2.new(0, 600, 0, 70) -- Width: 600px, Height: 70px
-inventoryLabel.Position = UDim2.new(0.5, -300, 0.5, 125) -- Positioned below Total Rolls
-inventoryLabel.TextColor3 = Color3.new(1, 1, 1) -- White text
-inventoryLabel.BackgroundTransparency = 1 -- Make label background transparent
-inventoryLabel.TextScaled = true
-inventoryLabel.TextSize = 36 -- Same text size as BEST PET
+    -- Create a TextLabel for Current Inventory
+    local inventoryLabel = Instance.new("TextLabel", overlayFrame)
+    inventoryLabel.Size = UDim2.new(0, 600, 0, 70) -- Width: 600px, Height: 70px
+    inventoryLabel.Position = UDim2.new(0.5, -300, 0.5, 125) -- Positioned below Total Rolls
+    inventoryLabel.TextColor3 = Color3.new(1, 1, 1) -- White text
+    inventoryLabel.BackgroundTransparency = 1 -- Make label background transparent
+    inventoryLabel.TextScaled = true
+    inventoryLabel.TextSize = 36 -- Same text size as BEST PET
 
--- Create a TextLabel for Instant 3 potion usage
-local instantLuckLabel = Instance.new("TextLabel", overlayFrame)
-instantLuckLabel.Size = UDim2.new(0, 600, 0, 70) -- Width: 600px, Height: 70px
-instantLuckLabel.Position = UDim2.new(0.5, -300, 0.5, 195) -- Positioned below Current Inventory
-instantLuckLabel.TextColor3 = Color3.new(1, 1, 1) -- White text
-instantLuckLabel.BackgroundTransparency = 1 -- Make label background transparent
-instantLuckLabel.TextScaled = true
-instantLuckLabel.TextSize = 36 -- Same text size as other labels
+    -- Create a TextLabel for Instant 3 potion usage
+    local instantLuckLabel = Instance.new("TextLabel", overlayFrame)
+    instantLuckLabel.Size = UDim2.new(0, 600, 0, 70) -- Width: 600px, Height: 70px
+    instantLuckLabel.Position = UDim2.new(0.5, -300, 0.5, 195) -- Positioned below Current Inventory
+    instantLuckLabel.TextColor3 = Color3.new(1, 1, 1) -- White text
+    instantLuckLabel.BackgroundTransparency = 1 -- Make label background transparent
+    instantLuckLabel.TextScaled = true
+    instantLuckLabel.TextSize = 36 -- Same text size as other labels
 
-local RunService = game:GetService("RunService")
+    local RunService = game:GetService("RunService")
 
--- Set initial state to visible
-local overlayVisible = true
+    -- Set initial state to visible
+    local overlayVisible = true
 
--- Function to toggle 3D rendering
-local function toggleRendering(state)
-    pcall(function()
-        RunService:Set3dRenderingEnabled(state)
-    end)
-end
-
--- Set initial rendering state
-toggleRendering(false) -- Set 3D rendering to false when GUI is activated
-
--- Function to toggle overlay visibility
-local function toggleOverlay()
-    overlayVisible = not overlayVisible -- Toggle visibility
-    gui.Enabled = overlayVisible -- Show or hide the overlay
-    
-    -- Toggle 3D rendering based on overlay visibility
-    if overlayVisible then
-        toggleRendering(false) -- Set 3D rendering to false when overlay is active
-    else
-        toggleRendering(true) -- Set 3D rendering to true when overlay is inactive
+    -- Function to toggle 3D rendering
+    local function toggleRendering(state)
+        pcall(function()
+            RunService:Set3dRenderingEnabled(state)
+        end)
     end
-end
 
--- Detect key press for "O"
-local userInputService = game:GetService("UserInputService")
-userInputService.InputBegan:Connect(function(input, gameProcessed)
-    if input.KeyCode == Enum.KeyCode.O and not gameProcessed then
-        toggleOverlay()
-    end
-end)
+    -- Set initial rendering state
+    toggleRendering(false) -- Set 3D rendering to false when GUI is activated
 
--- Variables for best difficulty
-local bestDifficulty = 0
-local bestDifficultyDisplay = ""
-
-local startTotalRolls = save.Get().TotalRolls
-local startInventoryNotifications = save.Get().InventoryNotifications
-
--- Function to get the best difficulty pet and update the display
-local function getBestDifficultyPet()
-    -- Get best pet to display in GUI
-    for petId, tbl in require(Client.PlayerPet).GetAll() do
-        local petDifficulty = require(Library.Directory.Pets)[tbl.item._data.id].difficulty
-        if petDifficulty > bestDifficulty then
-            bestDifficulty = petDifficulty
-
-            if petDifficulty >= 1000000 then
-                bestDifficultyDisplay = "BEST PET: " .. math.floor(petDifficulty / 1000000) .. "M" 
-            elseif petDifficulty >= 100000 then
-                bestDifficultyDisplay = "BEST PET: " .. math.floor(petDifficulty / 100000) .. "K" 
-            else
-                bestDifficultyDisplay = "BEST PET: " .. petDifficulty
-            end
+    -- Function to toggle overlay visibility
+    local function toggleOverlay()
+        overlayVisible = not overlayVisible -- Toggle visibility
+        gui.Enabled = overlayVisible -- Show or hide the overlay
+        
+        -- Toggle 3D rendering based on overlay visibility
+        if overlayVisible then
+            toggleRendering(false) -- Set 3D rendering to false when overlay is active
+        else
+            toggleRendering(true) -- Set 3D rendering to true when overlay is inactive
         end
     end
 
-    -- Update the GUI label
-    bestPetLabel.Text = bestDifficultyDisplay
+    -- Detect key press for "O"
+    local userInputService = game:GetService("UserInputService")
+    userInputService.InputBegan:Connect(function(input, gameProcessed)
+        if input.KeyCode == Enum.KeyCode.O and not gameProcessed then
+            toggleOverlay()
+        end
+    end)
+
+    -- Variables for best difficulty
+    local bestDifficulty = 0
+    local bestDifficultyDisplay = ""
+
+    local startTotalRolls = save.Get().TotalRolls
+    local startInventoryNotifications = save.Get().InventoryNotifications
+
+    -- Function to get the best difficulty pet and update the display
+    local function getBestDifficultyPet()
+        -- Get best pet to display in GUI
+        for petId, tbl in require(Client.PlayerPet).GetAll() do
+            local petDifficulty = require(Library.Directory.Pets)[tbl.item._data.id].difficulty
+            if petDifficulty > bestDifficulty then
+                bestDifficulty = petDifficulty
+
+                if petDifficulty >= 1000000 then
+                    bestDifficultyDisplay = "BEST PET: " .. math.floor(petDifficulty / 1000000) .. "M" 
+                elseif petDifficulty >= 100000 then
+                    bestDifficultyDisplay = "BEST PET: " .. math.floor(petDifficulty / 100000) .. "K" 
+                else
+                    bestDifficultyDisplay = "BEST PET: " .. petDifficulty
+                end
+            end
+        end
+
+        -- Update the GUI label
+        bestPetLabel.Text = bestDifficultyDisplay
+    end
+
+    -- Update the GUI periodically
+    while true do
+        local currentTotalRolls = save.Get().TotalRolls
+        local currentRolls = currentTotalRolls - startTotalRolls
+        local currentInventoryNotification = save.Get().InventoryNotifications - startInventoryNotifications
+
+        -- Check if a huge pet is found
+        if hugeFound then
+            overlayFrame.BackgroundColor3 = Color3.new(0, 1, 0) -- Change to green if huge pet is found
+        end
+
+        -- Updating the Username label
+        usernameLabel.Text = "Username: " .. localPlayerName
+
+        currentRollsLabel.Text = "Current Rolls: (+" .. currentRolls .. ")"
+        totalRollsLabel.Text = "Total Rolls: " .. currentTotalRolls
+        inventoryLabel.Text = "Current Inventory: (+" .. currentInventoryNotification .. ")"
+
+        -- Adding the Instant Luck Potion 3 amount
+        instantLuckLabel.Text = "Instant 3: " .. usedInstantLuckPotion3Amount
+
+        getBestDifficultyPet()
+        wait(1) -- Update every second (you can adjust the wait time)
+    end
 end
 
--- game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
--- Update the GUI periodically
-while true do
-    local currentTotalRolls = save.Get().TotalRolls
-    local currentRolls = currentTotalRolls - startTotalRolls
+-- activateGui()
 
-    local currentInventoryNotification = save.Get().InventoryNotifications - startInventoryNotifications
-
-    -- Updating the Username label
-    usernameLabel.Text = "Username: " .. localPlayerName
-
-    currentRollsLabel.Text = "Current Rolls: (+" .. currentRolls .. ")"
-    totalRollsLabel.Text = "Total Rolls: " .. currentTotalRolls
-    inventoryLabel.Text = "Current Inventory: (+" .. currentInventoryNotification .. ")"
-
-    -- Adding the Instant Luck Potion 3 amount
-    instantLuckLabel.Text = "Instant 3: " .. usedInstantLuckPotion3Amount
-
-    getBestDifficultyPet()
-    wait(1) -- Update every second (you can adjust the wait time)
-end
+-- ===============================================  GUI  ===============================================
 
 
