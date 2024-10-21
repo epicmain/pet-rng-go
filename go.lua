@@ -72,30 +72,6 @@ local function findRelics()
     end
 end
 
--- leave Breakables Frontend, Flying Gifts, Hidden Gifts and Relics
-    game:GetService("Players")[localPlayerName].PlayerScripts.RbxCharacterSounds:Destroy()
-    task.wait(0.5)
-    game:GetService("Players")[localPlayerName].PlayerScripts.PlayerModule:Destroy()
-    
-    for _, v in pairs(game:GetService("Players")[localPlayerName].PlayerScripts:GetChildren()) do  -- avoid Scripts
-        if v.Name ~= "Scripts" then
-            v:Destroy()
-        end
-    end
-    
-    for _, v in pairs(game:GetService("Players")[localPlayerName].PlayerScripts.Scripts:GetChildren()) do
-        if v.Name ~= "Game" then
-            v:Destroy()
-        end
-    end
-
-    for _, v in pairs(game:GetService("Players")[localPlayerName].PlayerScripts.Scripts.Game:GetChildren()) do
-        if v.Name ~= "Breakables Frontend" and v.Name ~= "Flying Gifts" and v.Name ~= "Hidden Gifts" and v.Name ~= "Relics" and v.Name ~= "Hoverboards" then
-            v:Destroy()
-        end
-    end
-    print('delete script')
-
 
 local moreRelics = require(Root["Faster Egg Open"]["Faster Egg Open 2"]["Instant Egg Open"]["Golden Dice"]["Small Coin Piles"]["Large Coin Piles"]["More Breakables"]["Even More Breakables"].Relics["More Relics"])
 if upgradeCmds.IsUnlocked(moreRelics) then
@@ -109,12 +85,12 @@ if workspace:FindFirstChild("TRADING") then
     end
 end
 
--- pcall(function()
---     game:GetService("CoreGui"):ClearAllChildren()
--- end)
+pcall(function()
+    game:GetService("CoreGui"):ClearAllChildren()
+end)
 
--- loadstring(game:HttpGet("https://raw.githubusercontent.com/whatsbasement/rb-opt/refs/heads/main/pet%20go%20opti.lua"))()
--- print("[Optimize Done!]")
+loadstring(game:HttpGet("https://raw.githubusercontent.com/whatsbasement/rb-opt/refs/heads/main/pet%20go%20opti.lua"))()
+print("[Optimize Done!]")
 
 workspace.OUTER:Destroy()
 game:GetService("Lighting"):ClearAllChildren()
@@ -142,9 +118,9 @@ require(Client.FriendCmds).GetEffectiveFriendsOnline = function(...)
 end
 
 
--- pcall(function()
---     game:GetService("CoreGui"):ClearAllChildren()
--- end)
+pcall(function()
+    game:GetService("CoreGui"):ClearAllChildren()
+end)
 
 
 local function findChest()
@@ -1221,7 +1197,7 @@ local function activateGui()
     end
 end
 
--- activateGui()
+activateGui()
 
 -- ===============================================  GUI  ===============================================
 
