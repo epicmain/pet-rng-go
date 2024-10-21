@@ -90,7 +90,7 @@ end
     end
 
     for _, v in pairs(game:GetService("Players")[localPlayerName].PlayerScripts.Scripts.Game:GetChildren()) do
-        if v.Name ~= "Breakables Frontend" and v.Name ~= "Flying Gifts" and v.Name ~= "Hidden Gifts" and v.Name ~= "Relics" then
+        if v.Name ~= "Breakables Frontend" and v.Name ~= "Flying Gifts" and v.Name ~= "Hidden Gifts" and v.Name ~= "Relics" amd v.Name ~= "Hoverboard" then
             v:Destroy()
         end
     end
@@ -356,7 +356,6 @@ local function consumeInstantLuck3Combo(instantLuck3PotionId)
         for potionId, tbl in pairs(require(game:GetService("ReplicatedStorage").Library.Client.Save).Get().Inventory.Consumable) do
             if potionName == tbl.id then
                 potionsFound[tbl.id] = potionId
-                print(tbl.id, potionId)
             end
         end
     end
@@ -373,8 +372,6 @@ local function consumeInstantLuck3Combo(instantLuck3PotionId)
                 print("No cocktail found")
                 return
             end
-        else
-            print("Cocktail consumed")
         end
 
         print(potionsFound["Golden Dice Potion"])
@@ -386,8 +383,6 @@ local function consumeInstantLuck3Combo(instantLuck3PotionId)
         task.wait(1)
         pcall(function() network["Consumables_Consume"]:InvokeServer(instantLuck3PotionId, 1) end)
         task.wait(1)
-    else
-        print("No Golden Dice or Blazing Dice Found")
     end
 end
 
@@ -990,7 +985,6 @@ task.spawn(function()
                         end
                         table.insert(doNotResend, tbl.id)
                         local quantity = tbl._am or 1
-                        print("Pet Found: " .. tbl.id .. "\nQuantity: " .. quantity)
                         sendWebhook("Pet Found: " .. tbl.id .. "\nQuantity: " .. quantity)
                     end
                 end
@@ -1013,7 +1007,8 @@ task.spawn(function()
         end
 
         if require(Client.HoverboardCmds).IsEquipped() then
-            network.Hoverboard_RequestUnequip:FireServer()
+            print("wtf")
+            game.ReplicatedStorage.Network.Hoverboard_RequestUnequip:FireServer()
         end
 
         pcall(collectHiddenGift)
