@@ -140,6 +140,15 @@ workspace.DescendantAdded:Connect(function(v)
     clearTextures(v)
 end)
 
+for i, v in getconnections(game:GetService("Players").LocalPlayer.Idled) do v:Disable() end
+
+game:GetService("Players").LocalPlayer.Idled:Connect(function()
+    game:GetService("VirtualUser"):Button2Down(Vector2.new(0,0), game:GetService("Workspace").CurrentCamera.CFrame)
+    task.wait(1)
+    game:GetService("VirtualUser"):Button2Up(Vector2.new(0,0), game:GetService("Workspace").CurrentCamera.CFrame)
+end)
+print("[Anti-AFK Activated!]")
+
 loadstring(game:HttpGet("https://raw.githubusercontent.com/whatsbasement/rb-opt/refs/heads/main/test%20opti.lua"))()
 print("[Optimize Done!]")
 
