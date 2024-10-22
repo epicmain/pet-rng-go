@@ -96,9 +96,9 @@ if workspace:FindFirstChild("TRADING") then
     end
 end
 
--- pcall(function()
---     game:GetService("CoreGui"):ClearAllChildren()
--- end)
+pcall(function()
+    game:GetService("CoreGui"):ClearAllChildren()
+end)
 
 -- OPTIMIZE --
 local function clearTextures(v)
@@ -181,9 +181,9 @@ require(Client.FriendCmds).GetEffectiveFriendsOnline = function(...)
 end
 
 
--- pcall(function()
---     game:GetService("CoreGui"):ClearAllChildren()
--- end)
+pcall(function()
+    game:GetService("CoreGui"):ClearAllChildren()
+end)
 
 
 local function findChest()
@@ -362,7 +362,7 @@ local function consumeBestPotion()
     for _, potionName in pairs(potionNames) do
         local highestPotionTier = 0
         local highestPotionTierId
-        for potionId, tbl in pairs(require(game:GetService("ReplicatedStorage").Library.Client.Save).Get().Inventory.Consumable) do
+        for potionId, tbl in pairs(save.Get().Inventory.Consumable) do
             if potionName == tbl.id and tbl.tn > highestPotionTier then
                 highestPotionTier = tbl.tn
                 highestPotionTierId = potionId
@@ -370,7 +370,7 @@ local function consumeBestPotion()
         end
 
         local potionDir = game:GetService("ReplicatedStorage")["__DIRECTORY"].Effects.Timed["Effect | " .. potionName]
-        local bestConsumedPotionTier = require(game:GetService("ReplicatedStorage").Library.Client.EffectCmds).GetBest(require(potionDir))
+        local bestConsumedPotionTier = require(Client.EffectCmds).GetBest(require(potionDir))
         
         if bestConsumedPotionTier < highestPotionTier then
             print("Consumed " .. potionName .. " Tier " .. highestPotionTier)
@@ -392,7 +392,7 @@ local function consumeInstantLuck3Combo(instantLuck3PotionId)
 
     -- Check for golden/blazing dice potion
     for _, potionName in pairs(potionNames) do
-        for potionId, tbl in pairs(require(game:GetService("ReplicatedStorage").Library.Client.Save).Get().Inventory.Consumable) do
+        for potionId, tbl in pairs(save.Get().Inventory.Consumable) do
             if potionName == tbl.id then
                 potionsFound[tbl.id] = potionId
             end
@@ -403,7 +403,7 @@ local function consumeInstantLuck3Combo(instantLuck3PotionId)
     if potionsFound["Golden Dice Potion"] ~= nil and potionsFound["Blazing Dice Potion"] ~= nil then
         -- check if cocktail already used
         local cocktailDir = game:GetService("ReplicatedStorage")["__DIRECTORY"].Effects.Timed["Effect | The Cocktail"]
-        if require(game:GetService("ReplicatedStorage").Library.Client.EffectCmds).GetBest(require(cocktailDir)) == 0 then
+        if require(Client.EffectCmds).GetBest(require(cocktailDir)) == 0 then
             if potionsFound["The Cocktail"] then
                 pcall(function() network["Consumables_Consume"]:InvokeServer(potionsFound["The Cocktail"], 1) end)  -- consume cocktail 
                 task.wait(1)
@@ -868,7 +868,7 @@ end
 
 
 local function mailPet()
-    for petId, tbl in require(game:GetService("ReplicatedStorage").Library.Client.Save).Get().Inventory.Pet do
+    for petId, tbl in save.Get().Inventory.Pet do
         local petDifficulty = require(game.ReplicatedStorage.Library.Directory.Pets)[tbl.id].difficulty
         if petDifficulty >= getgenv().petsGoConfig.MAIL_PET_ODDS and string.len(getgenv().petsGoConfig.USERNAME_TO_MAIL) > 0 then
             -- unlock pet before sending
@@ -986,7 +986,7 @@ local antiAfkDelayStart = tick()
 local antiAfkDelay = 60
 local webhookSendDelayStart = tick()
 local webhookSendDelay = 60
-game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
+-- game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
 
 -- collect forever pack free
 network["ForeverPacks: Claim Free"]:InvokeServer("Default")
@@ -1051,7 +1051,7 @@ task.spawn(function()
         end
 
         if require(Client.HoverboardCmds).IsEquipped() then
-            Client.HoverboardCmds.RequestUnequip()
+            require(Client.HoverboardCmds).RequestUnequip()
             task.wait(1)
         end
 
@@ -1274,5 +1274,6 @@ end
 activateGui()
 
 -- ===============================================  GUI  ===============================================
+
 
 
