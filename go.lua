@@ -91,7 +91,7 @@ end
 if workspace:FindFirstChild("TRADING") then
     while true do
         network["Travel to Main World"]:InvokeServer()
-        task.wait(5)
+        task.wait(10)
     end
 end
 
@@ -99,7 +99,7 @@ pcall(function()
     game:GetService("CoreGui"):ClearAllChildren()
 end)
 
-loadstring(game:HttpGet("https://raw.githubusercontent.com/whatsbasement/rb-opt/refs/heads/main/pet%20go%20opti.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/whatsbasement/rb-opt/refs/heads/main/test%20opti.lua"))()
 print("[Optimize Done!]")
 
 workspace.OUTER:Destroy()
@@ -360,13 +360,13 @@ local function consumeInstantLuck3Combo(instantLuck3PotionId)
             end
         end
 
-        print(potionsFound["Golden Dice Potion"])
         pcall(function() network["Consumables_Consume"]:InvokeServer(potionsFound["Golden Dice Potion"], 1) end)  -- consume golden 
         task.wait(1)
         pcall(function() network["Consumables_Consume"]:InvokeServer(potionsFound["Blazing Dice Potion"], 1) end)  -- consume blazing
         task.wait(1)
         pcall(function() network["Consumables_Consume"]:InvokeServer(potionsFound["The Cocktail"], 1) end)  -- consume blazing
         task.wait(1)
+        usedInstantLuckPotion3Amount = usedInstantLuckPotion3Amount + 1
         pcall(function() network["Consumables_Consume"]:InvokeServer(instantLuck3PotionId, 1) end)
         task.wait(1)
     end
@@ -933,7 +933,7 @@ local antiAfkDelayStart = tick()
 local antiAfkDelay = 60
 local webhookSendDelayStart = tick()
 local webhookSendDelay = 60
--- game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
+game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
 
 -- collect forever pack free
 network["ForeverPacks: Claim Free"]:InvokeServer("Default")
@@ -941,7 +941,7 @@ network["ForeverPacks: Claim Free"]:InvokeServer("Default")
 task.spawn(function()
     while true do
         task.wait()
-        traverseModules(Root)
+        pcall(traverseModules, Root)
         
         pcall(checkAndConsumeFruits)
 
@@ -983,17 +983,19 @@ task.spawn(function()
             mailPetDelayStart = tick()
         end
 
-        if require(ReplicatedStorage.Library.Client.LoginStreakCmds).CanClaim() then
-            network["Login Streaks: Bonus Roll Request"]:InvokeServer()
+        if require(Client.LoginStreakCmds).CanClaim() then
+            require(Client.LoginStreakCmds).RequestBonusRoll()
+            task.wait(1)
         end
 
-        if require(ReplicatedStorage.Library.Client.BonusRollCmds).HasAvailable() then
-            network["Bonus Rolls: Claim"]:InvokeServer()
+        if require(Client.BonusRollCmds).HasAvailable() then
+            require(Client.BonusRollCmds).RequestBonusRoll()
             task.wait(1)
         end
 
         if require(Client.HoverboardCmds).IsEquipped() then
-            game.ReplicatedStorage.Network.Hoverboard_RequestUnequip:FireServer()
+            Client.HoverboardCmds.RequestUnequip()
+            task.wait(1)
         end
 
         pcall(collectHiddenGift)
