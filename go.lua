@@ -96,7 +96,7 @@ if workspace:FindFirstChild("TRADING") then
 end
 
 pcall(function()
-    -- game:GetService("CoreGui"):ClearAllChildren()
+    game:GetService("CoreGui"):ClearAllChildren()
 end)
 
 -- OPTIMIZE --
@@ -181,7 +181,7 @@ end
 
 
 pcall(function()
-    -- game:GetService("CoreGui"):ClearAllChildren()
+    game:GetService("CoreGui"):ClearAllChildren()
 end)
 
 
@@ -983,7 +983,7 @@ local antiAfkDelayStart = tick()
 local antiAfkDelay = 60
 local webhookSendDelayStart = tick()
 local webhookSendDelay = 60
-game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
+-- game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
 
 -- collect forever pack free
 network["ForeverPacks: Claim Free"]:InvokeServer("Default")
