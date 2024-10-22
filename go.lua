@@ -99,11 +99,54 @@ pcall(function()
     game:GetService("CoreGui"):ClearAllChildren()
 end)
 
+-- OPTIMIZE --
+local function clearTextures(v)
+    if v:IsA("BasePart") and not v:IsA("MeshPart") then
+        v.Material = "Plastic"
+        v.Reflectance = 0
+        v.Transparency = 1
+    elseif v:IsA("MeshPart") and tostring(v.Parent) == "Orbs" then
+        v.Transparency = 1
+    elseif (v:IsA("Decal") or v:IsA("Texture")) then
+        v.Transparency = 1
+    elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+        v.Lifetime = NumberRange.new(0)
+    elseif v:IsA("Explosion") then
+        v.BlastPressure = 1
+        v.BlastRadius = 1
+    elseif v:IsA("Fire") or v:IsA("SpotLight") or v:IsA("Smoke") or v:IsA("Sparkles") then
+        v.Enabled = false
+    elseif v:IsA("MeshPart") then
+        v.Material = "Plastic"
+        v.Reflectance = 0
+        v.TextureID = 10385902758728957
+        v.Transparency = 1
+    elseif v:IsA("SpecialMesh") then
+        v.TextureId = 0
+    elseif v:IsA("ShirtGraphic") then
+        v.Graphic = 1
+    elseif (v:IsA("Shirt") or v:IsA("Pants")) then
+        v[v.ClassName .. "Template"] = 1
+    elseif v.Name == "PetBillboard" then
+        v.Enabled = false
+    end
+end
+
+for _, v in pairs(game:GetDescendants()) do
+    clearTextures(v)
+end
+
+workspace.DescendantAdded:Connect(function(v)
+    clearTextures(v)
+end)
+
 loadstring(game:HttpGet("https://raw.githubusercontent.com/whatsbasement/rb-opt/refs/heads/main/test%20opti.lua"))()
 print("[Optimize Done!]")
 
 workspace.OUTER:Destroy()
 game:GetService("Lighting"):ClearAllChildren()
+-- OPTIMIZE --
+
 workspace[localPlayerName].HumanoidRootPart.Anchored = true
 
 local platform = Instance.new("Part")
