@@ -1,12 +1,11 @@
 getgenv().petsGoConfig = {
     WEBHOOK_URL = "https://discord.com/api/webhooks/1293110746204340325/dZizvbUU4LtGv9P-1Qmywgdv7tWFNNXU9WxEsGwo9HDBcs7mKNnqdIOK9n69QcMFVJ5L",
     DISCORD_ID = "973180636959490058",
-    WEBHOOK_ODDS = 200000000, -- Minimum Pet Odds To Trigger Webhook
+    WEBHOOK_ODDS = 100000000, -- Minimum Pet Odds To Trigger Webhook
     MAIL_PET = false,  -- Mail Pet
     MAIL_PET_ODDS = 10000000,  -- Minimum Pet Odds To Mail
-    USERNAME_TO_MAIL = "" -- Mail Pet To Username
+    USERNAME_TO_MAIL = "seashellunicorn248" -- Mail Pet To Username
 }
-
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local workspace = game:GetService("Workspace")
@@ -400,7 +399,8 @@ local function consumeInstantLuck3Combo(instantLuck3PotionId)
     end
 
     -- if found both golden/blazing potion
-    if potionsFound["Golden Dice Potion"] ~= nil and potionsFound["Blazing Dice Potion"] ~= nil then
+    -- and potionsFound["Blazing Dice Potion"] ~= nil
+    if potionsFound["Golden Dice Potion"] ~= nil then
         -- check if cocktail already used
         local cocktailDir = game:GetService("ReplicatedStorage")["__DIRECTORY"].Effects.Timed["Effect | The Cocktail"]
         if require(Client.EffectCmds).GetBest(require(cocktailDir)) == 0 then
@@ -420,6 +420,7 @@ local function consumeInstantLuck3Combo(instantLuck3PotionId)
         pcall(function() network["Consumables_Consume"]:InvokeServer(potionsFound["The Cocktail"], 1) end)  -- consume blazing
         task.wait(1)
         usedInstantLuckPotion3Amount = usedInstantLuckPotion3Amount + 1
+        print("Using instant luck 3")
         pcall(function() network["Consumables_Consume"]:InvokeServer(instantLuck3PotionId, 1) end)
         task.wait(1)
     end
@@ -726,10 +727,9 @@ local function craft(potion)
         if amounts.instantLuck2Amount >= 3 and amounts.rainbowDiceAmount >= 2 then
             amounts.instantLuck2Amount = amounts.instantLuck2Amount - 3
             amounts.rainbowDiceAmount = amounts.rainbowDiceAmount - 2
-            print('making')
             network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 30, 1)
             task.wait(0.5)
-            print("Crafted: Instant Luck 3")
+            -- print("Crafted: Instant Luck 3")
         else
             while amounts.instantLuck2Amount < 3 or amounts.rainbowDiceAmount < 2 do
                 task.wait() -- Default wait before trying again
@@ -745,7 +745,7 @@ local function craft(potion)
             amounts.rainbowDiceAmount = amounts.rainbowDiceAmount - 2
             network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 30, 1)
             task.wait(0.5)
-            print("Crafted: Instant Luck 3")
+            -- print("Crafted: Instant Luck 3")
         end
     elseif potion == "instantLuck2" then
         if amounts.instantLuck1Amount < 3 then
@@ -762,7 +762,7 @@ local function craft(potion)
             amounts.rainbowDiceAmount = amounts.rainbowDiceAmount - 2
             network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 29, 1)
             task.wait(0.5)
-            print("Crafted: Instant Luck 2")
+            -- print("Crafted: Instant Luck 2")
         end
     elseif potion == "rainbowDice" then
         if amounts.lucky4Amount >= 2 and amounts.rainbowFruitAmount >= 4 then
@@ -770,7 +770,7 @@ local function craft(potion)
             amounts.rainbowFruitAmount = amounts.rainbowFruitAmount - 4
             network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 26, 1)
             task.wait(0.5)
-            print("Crafted: Rainbow Dice")
+            -- print("Crafted: Rainbow Dice")
         else
             error("Not enough materials to craft Rainbow Dice, quitting process.")
         end
@@ -870,8 +870,8 @@ end
 local function mailPet()
     for petId, tbl in save.Get().Inventory.Pet do
         local petDifficulty = require(game.ReplicatedStorage.Library.Directory.Pets)[tbl.id].difficulty
-        if petDifficulty >= getgenv().petsGoConfig.MAIL_PET_ODDS and string.len(getgenv().petsGoConfig.USERNAME_TO_MAIL) > 0 then
-            -- unlock pet before sending
+        if petDifficulty >= getgenv().petsGoConfig.MAIL_PET_ODDS and string.len(getgenv().petsGoConfig.USERNAME_TO_MAIL) > 1 then
+            -- unlock pet before sendings
             game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Locking_SetLocked"):InvokeServer(petId, false)
             task.wait(2)
             local args = {
@@ -882,7 +882,6 @@ local function mailPet()
                 [5] = 1
             }
             
-            print("Sent " .. tbl.id)
             game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Mailbox: Send"):InvokeServer(unpack(args))
             task.wait(5)
             break
@@ -1023,7 +1022,7 @@ task.spawn(function()
                             if petDifficulty >= 1000000000 then
                                 hugeFound = true
                             end
-                            if string.len(getgenv().petsGoConfig.WEBHOOK_ODDS) > 0 and string.len(getgenv().petsGoConfig.WEBHOOK_URL) > 0 then
+                            if string.len(getgenv().petsGoConfig.WEBHOOK_ODDS) > 1 and string.len(getgenv().petsGoConfig.WEBHOOK_URL) > 1 then
                                 table.insert(doNotResend, tbl.id)
                                 local quantity = tbl._am or 1
                                 sendWebhook("Pet Found: " .. tbl.id .. "\nQuantity: " .. quantity)
@@ -1035,25 +1034,29 @@ task.spawn(function()
             end
         end)
 
-        if getgenv().petsGoConfig.MAIL_PET and (tick() - mailPetDelayStart) >= mailPetDelay then
-            mailPet()
-            mailPetDelayStart = tick()
-        end
+        pcall(function()
+            if getgenv().petsGoConfig.MAIL_PET and (tick() - mailPetDelayStart) >= mailPetDelay then
+                mailPet()
+                mailPetDelayStart = tick()
+            end
+        end)
 
-        if require(Client.LoginStreakCmds).CanClaim() then
-            require(Client.LoginStreakCmds).RequestBonusRoll()
-            task.wait(1)
-        end
+        pcall(function()
+            if require(Client.LoginStreakCmds).CanClaim() then
+                require(Client.LoginStreakCmds).RequestBonusRoll()
+                task.wait(1)
+            end
 
-        if require(Client.BonusRollCmds).HasAvailable() then
-            require(Client.BonusRollCmds).RequestBonusRoll()
-            task.wait(1)
-        end
+            if require(Client.BonusRollCmds).HasAvailable() then
+                require(Client.BonusRollCmds).RequestBonusRoll()
+                task.wait(1)
+            end
 
-        if require(Client.HoverboardCmds).IsEquipped() then
-            require(Client.HoverboardCmds).RequestUnequip()
-            task.wait(1)
-        end
+            if require(Client.HoverboardCmds).IsEquipped() then
+                require(Client.HoverboardCmds).RequestUnequip()
+                task.wait(1)
+            end
+        end)
 
         for _, v in pairs(game:GetService("Players")[localPlayerName].PlayerGui:GetChildren()) do
             if v.Enabled and v.Name ~= "ScreenGui" then
@@ -1066,41 +1069,49 @@ task.spawn(function()
         pcall(teleportToFlyingGift)
 
         pcall(teleportToDig)
-
-        if upgradeCmds.IsUnlocked(potionVending) and save.Get()["VendingStocks"].PotionVendingMachine > 0 then
-            teleportToMachine("PotionVendingMachine")
-            for i=1, save.Get()["VendingStocks"].PotionVendingMachine do
-                network["VendingMachines_Purchase"]:InvokeServer("PotionVendingMachine")
-                task.wait(0.5)
+        
+        pcall(function()
+            if upgradeCmds.IsUnlocked(potionVending) and save.Get()["VendingStocks"].PotionVendingMachine > 0 then
+                teleportToMachine("PotionVendingMachine")
+                for i=1, save.Get()["VendingStocks"].PotionVendingMachine do
+                    network["VendingMachines_Purchase"]:InvokeServer("PotionVendingMachine")
+                    task.wait(0.5)
+                end
             end
-        end
+        end)    
 
-        if upgradeCmds.IsUnlocked(fruitMachine) and (tick() - upgradeFruitTimeStart) >= upgradeFruitDelay then
-            upgradeFruitTimeStart = tick()
-            pcall(upgradeFruits)
-        end
+        pcall(function()
+            if upgradeCmds.IsUnlocked(fruitMachine) and (tick() - upgradeFruitTimeStart) >= upgradeFruitDelay then
+                upgradeFruitTimeStart = tick()
+                pcall(upgradeFruits)
+            end
+        end)   
 
-        if upgradeCmds.IsUnlocked(merchantUpgrade) then
-            if len(save.Get().CustomMerchantPurchases.StandardMerchant.Purchased) < 6 then
-                teleportToMachine("StandardMerchant")
-                for i=1, 6 do
-                    for _=1, 5 do
-                        network["CustomMerchants_Purchase"]:InvokeServer("StandardMerchant", i)
-                        task.wait(0.5)
+        pcall(function()
+            if upgradeCmds.IsUnlocked(merchantUpgrade) then
+                if len(save.Get().CustomMerchantPurchases.StandardMerchant.Purchased) < 6 then
+                    teleportToMachine("StandardMerchant")
+                    for i=1, 6 do
+                        for _=1, 5 do
+                            network["CustomMerchants_Purchase"]:InvokeServer("StandardMerchant", i)
+                            task.wait(0.5)
+                        end
                     end
                 end
             end
-        end
+        end)   
 
-        if upgradeCmds.IsUnlocked(potionWizard) then
-            local potionCraftingMagnitude = (workspace[localPlayerName].HumanoidRootPart.Position - workspace.MAP.INTERACT.Machines.PotionCraftingMachine.PadGlow.Position).Magnitude
-            if potionCraftingMagnitude > 30 then
-                task.wait(1)
-                teleportToMachine("PotionCraftingMachine")
+        pcall(function()
+            if upgradeCmds.IsUnlocked(potionWizard) then
+                local potionCraftingMagnitude = (workspace[localPlayerName].HumanoidRootPart.Position - workspace.MAP.INTERACT.Machines.PotionCraftingMachine.PadGlow.Position).Magnitude
+                if potionCraftingMagnitude > 30 then
+                    task.wait(1)
+                    teleportToMachine("PotionCraftingMachine")
+                end
+                pcall(craft, "instantLuck3")
+                pcall(smartPotionUpgrade)
             end
-            pcall(craft, "instantLuck3")
-            pcall(smartPotionUpgrade)
-        end
+        end)   
     end
 end)
 
@@ -1274,6 +1285,5 @@ end
 activateGui()
 
 -- ===============================================  GUI  ===============================================
-
 
 
