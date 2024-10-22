@@ -73,7 +73,7 @@ local function findRelics()
         if not save.Get()["Relics"][tostring(i)] then
             require(Client.Network).Invoke("Relic_Found", i)
             task.wait()
-            -- print(i)
+            print(i)
         end
     end
     if len(save.Get()["Relics"]) < 39 then
@@ -237,7 +237,9 @@ local function petTargetChestAndBreakables()
         elseif fruitCrateNum then
             args[1][petId] = fruitCrateNum
         else
-            args[1][petId] = normal[normalIndex]
+            pcall(function()
+                args[1][petId] = normal[normalIndex]
+            end)
         end
     end
 
@@ -278,7 +280,7 @@ local function traverseModules(module)
         elseif upgradeCmds.CanAfford(child.Name) then
             -- if child.Name ~= "Trading Booths" and child.Name ~= "More Pet Details" and child.Name ~= "Hoverboard" and child.Name ~= "Faster Pets" then
             upgradeCmds.Unlock(child.Name)
-            -- print("Bought affordable upgrade: " .. child.Name)
+            print("Bought affordable upgrade: " .. child.Name)
             -- end
         end
     end
@@ -340,8 +342,8 @@ end
 
 local function teleportToDig()
     for _, v in workspace["__THINGS"].Digging:GetChildren() do
-        workspace[localPlayerName].HumanoidRootPart.CFrame = v.CFrame
         task.wait(2)
+        workspace[localPlayerName].HumanoidRootPart.CFrame = v.CFrame
     end
 end
 
@@ -370,7 +372,7 @@ local function consumeBestPotion()
         local bestConsumedPotionTier = require(Client.EffectCmds).GetBest(require(potionDir))
         
         if bestConsumedPotionTier < highestPotionTier then
-            -- print("Consumed " .. potionName .. " Tier " .. highestPotionTier)
+            print("Consumed " .. potionName .. " Tier " .. highestPotionTier)
             pcall(function() network["Consumables_Consume"]:InvokeServer(highestPotionTierId, 1) end)
             task.wait(1)
         end
@@ -403,23 +405,23 @@ local function consumeInstantLuck3Combo(instantLuck3PotionId)
         local cocktailDir = game:GetService("ReplicatedStorage")["__DIRECTORY"].Effects.Timed["Effect | The Cocktail"]
         if require(Client.EffectCmds).GetBest(require(cocktailDir)) == 0 then
             if potionsFound["The Cocktail"] then
-                network["Consumables_Consume"]:InvokeServer(potionsFound["The Cocktail"], 1)  -- consume cocktail 
+                pcall(function() network["Consumables_Consume"]:InvokeServer(potionsFound["The Cocktail"], 1) end)  -- consume cocktail 
                 task.wait(1)
             else
-                -- print("No cocktail found")
+                print("No cocktail found")
                 return
             end
         end
 
-        network["Consumables_Consume"]:InvokeServer(potionsFound["Golden Dice Potion"], 1)  -- consume golden 
+        pcall(function() network["Consumables_Consume"]:InvokeServer(potionsFound["Golden Dice Potion"], 1) end)  -- consume golden 
         task.wait(1)
-        network["Consumables_Consume"]:InvokeServer(potionsFound["Blazing Dice Potion"], 1)  -- consume blazing
+        pcall(function() network["Consumables_Consume"]:InvokeServer(potionsFound["Blazing Dice Potion"], 1) end)  -- consume blazing
         task.wait(1)
-        network["Consumables_Consume"]:InvokeServer(potionsFound["The Cocktail"], 1)  -- consume blazing
+        pcall(function() network["Consumables_Consume"]:InvokeServer(potionsFound["The Cocktail"], 1) end)  -- consume blazing
         task.wait(1)
         usedInstantLuckPotion3Amount = usedInstantLuckPotion3Amount + 1
-        -- print("Using instant luck 3")
-        network["Consumables_Consume"]:InvokeServer(instantLuck3PotionId, 1)
+        print("Using instant luck 3")
+        pcall(function() network["Consumables_Consume"]:InvokeServer(instantLuck3PotionId, 1) end)
         task.wait(1)
     end
 end
@@ -435,7 +437,7 @@ local function smartPotionUpgrade()
                 task.wait(0.5)
     
             elseif tbl.tn == 2 and tbl._am ~= nil and tbl._am >= 4 then
-                print("Crafted Lucky Tier 3")
+                -- print("Crafted Lucky Tier 3")
                 network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 2, math.floor(tbl._am / 4))
                 task.wait(0.5)
     
@@ -899,7 +901,7 @@ require(Client.Network).Fired("Merchant_Updated"):Connect(function(...)
         end
     end    
 
-    -- print("Offers for AdvancedIndexMerchant:")
+    print("Offers for AdvancedIndexMerchant:")
     for offerIndex, offer in pairs(args[1]["AdvancedIndexMerchant"].Offers) do
         local itemId = offer.ItemData.data.id
         local tier = offer.ItemData.data.tn
@@ -912,15 +914,15 @@ require(Client.Network).Fired("Merchant_Updated"):Connect(function(...)
                 for i=1, stock do
                     network["Merchant_RequestPurchase"]:InvokeServer("AdvancedIndexMerchant", tonumber(offerIndex))
                     task.wait(1)
-                    -- print("Bought:", itemId .. ", Item Number:", offerIndex)
+                    print("Bought:", itemId .. ", Item Number:", offerIndex)
                 end
             else
                 -- check if always not enough index or too much index tokens. then adjust script
-                -- print("Can't Afford Index Item")
+                print("Can't Afford Index Item")
             end
         end
         
-        -- pcall(print, string.format("Offer %d: Item: %s, Tier: %d, Stock: %d, Price ID: %s, Cost: %s", offerIndex, itemId, tier, stock, priceId, cost))
+        pcall(print, string.format("Offer %d: Item: %s, Tier: %d, Stock: %d, Price ID: %s, Cost: %s", offerIndex, itemId, tier, stock, priceId, cost))
     end
 end)
 
@@ -937,23 +939,23 @@ task.spawn(function()
             network.Eggs_Roll:InvokeServer()
             
         elseif rainbowCountdown == 79 then
-            -- print("Rainbow READY")
+            print("Rainbow READY")
             task.wait(1)
             local instantLuck3PotionFound
             for itemId, tbl in pairs(save.Get().Inventory.Consumable) do
                 if tbl.id == "Instant Luck Potion" and tbl.tn == 3 then
                     instantLuck3PotionFound = true
-                    consumeBestPotion()  -- use every best potion before luck 3
+                    pcall(consumeBestPotion)  -- use every best potion before luck 3
                     consumeInstantLuck3Combo(itemId)
                     network.Eggs_Roll:InvokeServer()
                     break
                 end
             end
             if not instantLuck3PotionFound then  -- this is required due to it being stuck at rainbowCountdown
-                -- print("No Instant Luck 3 Potions Detected")
+                print("No Instant Luck 3 Potions Detected")
                 for itemId, tbl in pairs(save.Get().Inventory.Consumable) do
                     if tbl.id == "Golden Dice Potion" then
-                        -- print("consumed golden dice potion")
+                        print("consumed golden dice potion")
                         pcall(function() network["Consumables_Consume"]:InvokeServer(itemId, 1) end)
                         task.wait(1)
                         break
@@ -990,22 +992,21 @@ network["ForeverPacks: Claim Free"]:InvokeServer("Default")
 -- background stuff
 task.spawn(function()
     while true do
-        task.wait(1)
-        -- print("background loop")
-        traverseModules(Root)
+        task.wait()
+        print("background loop")
+        pcall(traverseModules, Root)
         
-        checkAndConsumeFruits()
+        pcall(checkAndConsumeFruits)
 
-        consumeBestPotion()
+        pcall(consumeBestPotion)
         
         if (tick() - antiAfkDelayStart) >= antiAfkDelay then
             network["Idle Tracking: Stop Timer"]:FireServer()
             antiAfkDelayStart = tick()
         end
 
-        
-        if (tick() - webhookSendDelayStart) >= webhookSendDelay then
-            pcall(function()
+        pcall(function()
+            if (tick() - webhookSendDelayStart) >= webhookSendDelay then
                 for petId, tbl in save.Get().Inventory.Pet do
                     local sentBefore = false
                     for _, petName in pairs(doNotResend) do
@@ -1030,9 +1031,8 @@ task.spawn(function()
                     end
                 end
                 webhookSendDelayStart = tick()
-            end)
-        end
-        
+            end
+        end)
 
         pcall(function()
             if getgenv().petsGoConfig.MAIL_PET and (tick() - mailPetDelayStart) >= mailPetDelay then
@@ -1040,63 +1040,78 @@ task.spawn(function()
                 mailPetDelayStart = tick()
             end
         end)
-        
 
-        if require(Client.LoginStreakCmds).CanClaim() then
-            require(Client.LoginStreakCmds).RequestBonusRoll()
-            task.wait(1)
-        end
+        pcall(function()
+            if require(Client.LoginStreakCmds).CanClaim() then
+                require(Client.LoginStreakCmds).RequestBonusRoll()
+                task.wait(1)
+            end
 
-        if require(Client.BonusRollCmds).HasAvailable() then
-            require(Client.BonusRollCmds).RequestBonusRoll()
-            task.wait(1)
-        end
+            if require(Client.BonusRollCmds).HasAvailable() then
+                require(Client.BonusRollCmds).RequestBonusRoll()
+                task.wait(1)
+            end
 
-        if require(Client.HoverboardCmds).IsEquipped() then
-            require(Client.HoverboardCmds).RequestUnequip()
-            task.wait(1)
-        end
+            if require(Client.HoverboardCmds).IsEquipped() then
+                require(Client.HoverboardCmds).RequestUnequip()
+                task.wait(1)
+            end
+        end)
 
-        collectHiddenGift()
-
-        teleportToFlyingGift()
-
-        teleportToDig()
-        
-        if upgradeCmds.IsUnlocked(potionVending) and save.Get()["VendingStocks"].PotionVendingMachine > 0 then
-            teleportToMachine("PotionVendingMachine")
-            for i=1, save.Get()["VendingStocks"].PotionVendingMachine do
-                network["VendingMachines_Purchase"]:InvokeServer("PotionVendingMachine")
-                task.wait(0.5)
+        for _, v in pairs(game:GetService("Players")[localPlayerName].PlayerGui:GetChildren()) do
+            if v.Enabled and v.Name ~= "ScreenGui" then
+                v.Enabled = false
             end
         end
 
-        if upgradeCmds.IsUnlocked(fruitMachine) and (tick() - upgradeFruitTimeStart) >= upgradeFruitDelay then
-            upgradeFruitTimeStart = tick()
-            pcall(upgradeFruits)
-        end
+        pcall(collectHiddenGift)
 
-        if upgradeCmds.IsUnlocked(merchantUpgrade) then
-            if len(save.Get().CustomMerchantPurchases.StandardMerchant.Purchased) < 6 then
-                teleportToMachine("StandardMerchant")
-                for i=1, 6 do
-                    for _=1, 5 do
-                        network["CustomMerchants_Purchase"]:InvokeServer("StandardMerchant", i)
-                        task.wait(0.5)
+        pcall(teleportToFlyingGift)
+
+        pcall(teleportToDig)
+        
+        pcall(function()
+            if upgradeCmds.IsUnlocked(potionVending) and save.Get()["VendingStocks"].PotionVendingMachine > 0 then
+                teleportToMachine("PotionVendingMachine")
+                for i=1, save.Get()["VendingStocks"].PotionVendingMachine do
+                    network["VendingMachines_Purchase"]:InvokeServer("PotionVendingMachine")
+                    task.wait(0.5)
+                end
+            end
+        end)    
+
+        pcall(function()
+            if upgradeCmds.IsUnlocked(fruitMachine) and (tick() - upgradeFruitTimeStart) >= upgradeFruitDelay then
+                upgradeFruitTimeStart = tick()
+                pcall(upgradeFruits)
+            end
+        end)   
+
+        pcall(function()
+            if upgradeCmds.IsUnlocked(merchantUpgrade) then
+                if len(save.Get().CustomMerchantPurchases.StandardMerchant.Purchased) < 6 then
+                    teleportToMachine("StandardMerchant")
+                    for i=1, 6 do
+                        for _=1, 5 do
+                            network["CustomMerchants_Purchase"]:InvokeServer("StandardMerchant", i)
+                            task.wait(0.5)
+                        end
                     end
                 end
             end
-        end
+        end)   
 
-        if upgradeCmds.IsUnlocked(potionWizard) then
-            local potionCraftingMagnitude = (workspace[localPlayerName].HumanoidRootPart.Position - workspace.MAP.INTERACT.Machines.PotionCraftingMachine.PadGlow.Position).Magnitude
-            if potionCraftingMagnitude > 30 then
-                task.wait(1)
-                teleportToMachine("PotionCraftingMachine")
+        pcall(function()
+            if upgradeCmds.IsUnlocked(potionWizard) then
+                local potionCraftingMagnitude = (workspace[localPlayerName].HumanoidRootPart.Position - workspace.MAP.INTERACT.Machines.PotionCraftingMachine.PadGlow.Position).Magnitude
+                if potionCraftingMagnitude > 30 then
+                    task.wait(1)
+                    teleportToMachine("PotionCraftingMachine")
+                end
+                pcall(craft, "instantLuck3")
+                pcall(smartPotionUpgrade)
             end
-            pcall(craft, "instantLuck3")
-            pcall(smartPotionUpgrade)
-        end
+        end)   
     end
 end)
 
@@ -1205,12 +1220,12 @@ local function activateGui()
     end
 
     -- Detect key press for "O"
-    -- local userInputService = game:GetService("UserInputService")
-    -- userInputService.InputBegan:Connect(function(input, gameProcessed)
-    --     if input.KeyCode == Enum.KeyCode.O and not gameProcessed then
-    --         toggleOverlay()
-    --     end
-    -- end)
+    local userInputService = game:GetService("UserInputService")
+    userInputService.InputBegan:Connect(function(input, gameProcessed)
+        if input.KeyCode == Enum.KeyCode.O and not gameProcessed then
+            toggleOverlay()
+        end
+    end)
 
     -- Variables for best difficulty
     local bestDifficulty = 0
@@ -1222,8 +1237,8 @@ local function activateGui()
     -- Function to get the best difficulty pet and update the display
     local function getBestDifficultyPet()
         -- Get best pet to display in GUI
-        for petId, tbl in save.Get().Inventory.Pet do
-            local petDifficulty = require(Library.Directory.Pets)[tbl.id].difficulty
+        for petId, tbl in require(Client.PlayerPet).GetAll() do
+            local petDifficulty = require(Library.Directory.Pets)[tbl.item._data.id].difficulty
             if petDifficulty > bestDifficulty then
                 bestDifficulty = petDifficulty
 
@@ -1263,13 +1278,6 @@ local function activateGui()
         instantLuckLabel.Text = "Instant 3: " .. usedInstantLuckPotion3Amount
 
         getBestDifficultyPet()
-
-        -- turn off other gui
-        for _, v in pairs(game:GetService("Players")[localPlayerName].PlayerGui:GetChildren()) do
-            if v.Enabled and v.Name ~= "ScreenGui" then
-                v.Enabled = false
-            end
-        end
         wait(1) -- Update every second (you can adjust the wait time)
     end
 end
@@ -1277,5 +1285,4 @@ end
 activateGui()
 
 -- ===============================================  GUI  ===============================================
-
 
