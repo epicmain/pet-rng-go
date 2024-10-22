@@ -73,7 +73,7 @@ local function findRelics()
         if not save.Get()["Relics"][tostring(i)] then
             require(Client.Network).Invoke("Relic_Found", i)
             task.wait()
-            print(i)
+            -- print(i)
         end
     end
     if len(save.Get()["Relics"]) < 39 then
@@ -278,7 +278,7 @@ local function traverseModules(module)
         elseif upgradeCmds.CanAfford(child.Name) then
             -- if child.Name ~= "Trading Booths" and child.Name ~= "More Pet Details" and child.Name ~= "Hoverboard" and child.Name ~= "Faster Pets" then
             upgradeCmds.Unlock(child.Name)
-            print("Bought affordable upgrade: " .. child.Name)
+            -- print("Bought affordable upgrade: " .. child.Name)
             -- end
         end
     end
@@ -370,7 +370,7 @@ local function consumeBestPotion()
         local bestConsumedPotionTier = require(Client.EffectCmds).GetBest(require(potionDir))
         
         if bestConsumedPotionTier < highestPotionTier then
-            print("Consumed " .. potionName .. " Tier " .. highestPotionTier)
+            -- print("Consumed " .. potionName .. " Tier " .. highestPotionTier)
             pcall(function() network["Consumables_Consume"]:InvokeServer(highestPotionTierId, 1) end)
             task.wait(1)
         end
@@ -406,7 +406,7 @@ local function consumeInstantLuck3Combo(instantLuck3PotionId)
                 network["Consumables_Consume"]:InvokeServer(potionsFound["The Cocktail"], 1)  -- consume cocktail 
                 task.wait(1)
             else
-                print("No cocktail found")
+                -- print("No cocktail found")
                 return
             end
         end
@@ -418,7 +418,7 @@ local function consumeInstantLuck3Combo(instantLuck3PotionId)
         network["Consumables_Consume"]:InvokeServer(potionsFound["The Cocktail"], 1)  -- consume blazing
         task.wait(1)
         usedInstantLuckPotion3Amount = usedInstantLuckPotion3Amount + 1
-        print("Using instant luck 3")
+        -- print("Using instant luck 3")
         network["Consumables_Consume"]:InvokeServer(instantLuck3PotionId, 1)
         task.wait(1)
     end
@@ -435,7 +435,7 @@ local function smartPotionUpgrade()
                 task.wait(0.5)
     
             elseif tbl.tn == 2 and tbl._am ~= nil and tbl._am >= 4 then
-                -- print("Crafted Lucky Tier 3")
+                print("Crafted Lucky Tier 3")
                 network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 2, math.floor(tbl._am / 4))
                 task.wait(0.5)
     
@@ -899,7 +899,7 @@ require(Client.Network).Fired("Merchant_Updated"):Connect(function(...)
         end
     end    
 
-    print("Offers for AdvancedIndexMerchant:")
+    -- print("Offers for AdvancedIndexMerchant:")
     for offerIndex, offer in pairs(args[1]["AdvancedIndexMerchant"].Offers) do
         local itemId = offer.ItemData.data.id
         local tier = offer.ItemData.data.tn
@@ -912,15 +912,15 @@ require(Client.Network).Fired("Merchant_Updated"):Connect(function(...)
                 for i=1, stock do
                     network["Merchant_RequestPurchase"]:InvokeServer("AdvancedIndexMerchant", tonumber(offerIndex))
                     task.wait(1)
-                    print("Bought:", itemId .. ", Item Number:", offerIndex)
+                    -- print("Bought:", itemId .. ", Item Number:", offerIndex)
                 end
             else
                 -- check if always not enough index or too much index tokens. then adjust script
-                print("Can't Afford Index Item")
+                -- print("Can't Afford Index Item")
             end
         end
         
-        pcall(print, string.format("Offer %d: Item: %s, Tier: %d, Stock: %d, Price ID: %s, Cost: %s", offerIndex, itemId, tier, stock, priceId, cost))
+        -- pcall(print, string.format("Offer %d: Item: %s, Tier: %d, Stock: %d, Price ID: %s, Cost: %s", offerIndex, itemId, tier, stock, priceId, cost))
     end
 end)
 
@@ -937,7 +937,7 @@ task.spawn(function()
             network.Eggs_Roll:InvokeServer()
             
         elseif rainbowCountdown == 79 then
-            print("Rainbow READY")
+            -- print("Rainbow READY")
             task.wait(1)
             local instantLuck3PotionFound
             for itemId, tbl in pairs(save.Get().Inventory.Consumable) do
@@ -950,10 +950,10 @@ task.spawn(function()
                 end
             end
             if not instantLuck3PotionFound then  -- this is required due to it being stuck at rainbowCountdown
-                print("No Instant Luck 3 Potions Detected")
+                -- print("No Instant Luck 3 Potions Detected")
                 for itemId, tbl in pairs(save.Get().Inventory.Consumable) do
                     if tbl.id == "Golden Dice Potion" then
-                        print("consumed golden dice potion")
+                        -- print("consumed golden dice potion")
                         pcall(function() network["Consumables_Consume"]:InvokeServer(itemId, 1) end)
                         task.wait(1)
                         break
@@ -991,7 +991,7 @@ network["ForeverPacks: Claim Free"]:InvokeServer("Default")
 task.spawn(function()
     while true do
         task.wait()
-        print("background loop")
+        -- print("background loop")
         traverseModules(Root)
         
         checkAndConsumeFruits()
