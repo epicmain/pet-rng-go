@@ -933,7 +933,7 @@ local antiAfkDelayStart = tick()
 local antiAfkDelay = 60
 local webhookSendDelayStart = tick()
 local webhookSendDelay = 60
-game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
+-- game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
 
 -- collect forever pack free
 network["ForeverPacks: Claim Free"]:InvokeServer("Default")
@@ -996,6 +996,12 @@ task.spawn(function()
         if require(Client.HoverboardCmds).IsEquipped() then
             Client.HoverboardCmds.RequestUnequip()
             task.wait(1)
+        end
+
+        for _, v in pairs(game:GetService("Players")[localPlayerName].PlayerGui:GetChildren()) do
+            if v.Enabled and v.Name ~= "ScreenGui" then
+                v.Enabled = false
+            end
         end
 
         pcall(collectHiddenGift)
