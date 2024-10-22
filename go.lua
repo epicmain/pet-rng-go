@@ -4,8 +4,9 @@ getgenv().petsGoConfig = {
     WEBHOOK_ODDS = 200000000, -- Minimum Pet Odds To Trigger Webhook
     MAIL_PET = false,  -- Mail Pet
     MAIL_PET_ODDS = 10000000,  -- Minimum Pet Odds To Mail
-    USERNAME_TO_MAIL = "adobepearl1" -- Mail Pet To Username
+    USERNAME_TO_MAIL = "" -- Mail Pet To Username
 }
+
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local workspace = game:GetService("Workspace")
@@ -95,9 +96,9 @@ if workspace:FindFirstChild("TRADING") then
     end
 end
 
-pcall(function()
-    game:GetService("CoreGui"):ClearAllChildren()
-end)
+-- pcall(function()
+--     game:GetService("CoreGui"):ClearAllChildren()
+-- end)
 
 -- OPTIMIZE --
 local function clearTextures(v)
@@ -149,7 +150,7 @@ game:GetService("Players").LocalPlayer.Idled:Connect(function()
 end)
 print("[Anti-AFK Activated!]")
 
-loadstring(game:HttpGet("https://raw.githubusercontent.com/whatsbasement/rb-opt/refs/heads/main/test%20opti.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/whatsbasement/rb-opt/refs/heads/main/pet%20go%20opti.lua"))()
 print("[Optimize Done!]")
 
 workspace.OUTER:Destroy()
@@ -180,9 +181,9 @@ require(Client.FriendCmds).GetEffectiveFriendsOnline = function(...)
 end
 
 
-pcall(function()
-    game:GetService("CoreGui"):ClearAllChildren()
-end)
+-- pcall(function()
+--     game:GetService("CoreGui"):ClearAllChildren()
+-- end)
 
 
 local function findChest()
@@ -869,7 +870,7 @@ end
 local function mailPet()
     for petId, tbl in require(game:GetService("ReplicatedStorage").Library.Client.Save).Get().Inventory.Pet do
         local petDifficulty = require(game.ReplicatedStorage.Library.Directory.Pets)[tbl.id].difficulty
-        if petDifficulty >= getgenv().petsGoConfig.MAIL_PET_ODDS then
+        if petDifficulty >= getgenv().petsGoConfig.MAIL_PET_ODDS and string.len(getgenv().petsGoConfig.USERNAME_TO_MAIL) > 0 then
             -- unlock pet before sending
             game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Locking_SetLocked"):InvokeServer(petId, false)
             task.wait(2)
@@ -909,7 +910,7 @@ require(Client.Network).Fired("Merchant_Updated"):Connect(function(...)
         local priceId = offer.PriceData.data.id
         local cost = offer.PriceData.data._am
 
-        if itemId == "The Cocktail" or itemId == "Instant Luck Potion" or itemId == "Rainbow Dice Potion" then
+        if itemId == "The Cocktail" or itemId == "Instant Luck Potion" or itemId == "Rainbow Dice Potion" or (itemId == "Lucky Potion" and tier >= 4) then
             if indexTokenAmount >= (cost * stock) then
                 for i=1, stock do
                     network["Merchant_RequestPurchase"]:InvokeServer("AdvancedIndexMerchant", tonumber(offerIndex))
@@ -922,7 +923,7 @@ require(Client.Network).Fired("Merchant_Updated"):Connect(function(...)
             end
         end
         
-        -- pcall(print, string.format("Offer %d: Item: %s, Tier: %d, Stock: %d, Price ID: %s, Cost: %s", offerIndex, itemId, tier, stock, priceId, cost))
+        pcall(print, string.format("Offer %d: Item: %s, Tier: %d, Stock: %d, Price ID: %s, Cost: %s", offerIndex, itemId, tier, stock, priceId, cost))
     end
 end)
 
@@ -985,7 +986,7 @@ local antiAfkDelayStart = tick()
 local antiAfkDelay = 60
 local webhookSendDelayStart = tick()
 local webhookSendDelay = 60
--- game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
+game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
 
 -- collect forever pack free
 network["ForeverPacks: Claim Free"]:InvokeServer("Default")
@@ -993,6 +994,7 @@ network["ForeverPacks: Claim Free"]:InvokeServer("Default")
 task.spawn(function()
     while true do
         task.wait()
+        print("background loop")
         pcall(traverseModules, Root)
         
         pcall(checkAndConsumeFruits)
@@ -1004,31 +1006,34 @@ task.spawn(function()
             antiAfkDelayStart = tick()
         end
 
-        
-        if (tick() - webhookSendDelayStart) >= webhookSendDelay then
-            for petId, tbl in save.Get().Inventory.Pet do
-                local sentBefore = false
-                for _, petName in pairs(doNotResend) do
-                    if tbl.id == petName then
-                        sentBefore = true
-                        break
-                    end
-                end
-                
-                if not sentBefore then
-                    local petDifficulty = require(Library.Directory.Pets)[tbl.id].difficulty
-                    if petDifficulty >= getgenv().petsGoConfig.WEBHOOK_ODDS then
-                        if petDifficulty >= 1000000000 then
-                            hugeFound = true
+        pcall(function()
+            if (tick() - webhookSendDelayStart) >= webhookSendDelay then
+                for petId, tbl in save.Get().Inventory.Pet do
+                    local sentBefore = false
+                    for _, petName in pairs(doNotResend) do
+                        if tbl.id == petName then
+                            sentBefore = true
+                            break
                         end
-                        table.insert(doNotResend, tbl.id)
-                        local quantity = tbl._am or 1
-                        sendWebhook("Pet Found: " .. tbl.id .. "\nQuantity: " .. quantity)
+                    end
+                    
+                    if not sentBefore then
+                        local petDifficulty = require(Library.Directory.Pets)[tbl.id].difficulty
+                        if petDifficulty >= getgenv().petsGoConfig.WEBHOOK_ODDS then
+                            if petDifficulty >= 1000000000 then
+                                hugeFound = true
+                            end
+                            if string.len(getgenv().petsGoConfig.WEBHOOK_ODDS) > 0 and string.len(getgenv().petsGoConfig.WEBHOOK_URL) > 0 then
+                                table.insert(doNotResend, tbl.id)
+                                local quantity = tbl._am or 1
+                                sendWebhook("Pet Found: " .. tbl.id .. "\nQuantity: " .. quantity)
+                            end
+                        end
                     end
                 end
+                webhookSendDelayStart = tick()
             end
-            webhookSendDelayStart = tick()
-        end
+        end)
 
         if getgenv().petsGoConfig.MAIL_PET and (tick() - mailPetDelayStart) >= mailPetDelay then
             mailPet()
