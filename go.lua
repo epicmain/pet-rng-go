@@ -943,8 +943,8 @@ task.spawn(function()
             for itemId, tbl in pairs(save.Get().Inventory.Consumable) do
                 if tbl.id == "Instant Luck Potion" and tbl.tn == 3 then
                     instantLuck3PotionFound = true
-                    consumeBestPotion()  -- use every best potion before luck 3
-                    consumeInstantLuck3Combo(itemId)
+                    pcall(consumeBestPotion)  -- use every best potion before luck 3
+                    pcall(consumeInstantLuck3Combo, itemId)
                     network.Eggs_Roll:InvokeServer()
                     break
                 end
@@ -996,7 +996,7 @@ task.spawn(function()
         
         checkAndConsumeFruits()
 
-        consumeBestPotion()
+        pcall(consumeBestPotion)
         
         if (tick() - antiAfkDelayStart) >= antiAfkDelay then
             network["Idle Tracking: Stop Timer"]:FireServer()
