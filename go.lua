@@ -990,7 +990,7 @@ network["ForeverPacks: Claim Free"]:InvokeServer("Default")
 -- background stuff
 task.spawn(function()
     while true do
-        task.wait()
+        task.wait(1)
         -- print("background loop")
         traverseModules(Root)
         
@@ -1034,12 +1034,12 @@ task.spawn(function()
         end
         
 
-        if getgenv().petsGoConfig.MAIL_PET and (tick() - mailPetDelayStart) >= mailPetDelay then
-            pcall(function()
+        pcall(function()
+            if getgenv().petsGoConfig.MAIL_PET and (tick() - mailPetDelayStart) >= mailPetDelay then
                 mailPet()
                 mailPetDelayStart = tick()
-            end)
-        end
+            end
+        end)
         
 
         if require(Client.LoginStreakCmds).CanClaim() then
