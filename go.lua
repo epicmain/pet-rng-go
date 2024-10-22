@@ -1265,11 +1265,13 @@ local function activateGui()
         getBestDifficultyPet()
 
         -- turn off other gui
-        for _, v in pairs(game:GetService("Players")[localPlayerName].PlayerGui:GetChildren()) do
-            if v.Enabled and v.Name ~= "ScreenGui" then
-                v.Enabled = false
+        pcall(function()
+            for _, v in pairs(game:GetService("Players")[localPlayerName].PlayerGui:GetChildren()) do
+                if v.Enabled and v.Name ~= "ScreenGui" then
+                    v.Enabled = false
+                end
             end
-        end
+        end)
         wait(1) -- Update every second (you can adjust the wait time)
     end
 end
