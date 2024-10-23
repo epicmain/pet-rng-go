@@ -1,12 +1,3 @@
-getgenv().petsGoConfig = {
-    WEBHOOK_URL = "https://discord.com/api/webhooks/1293110746204340325/dZizvbUU4LtGv9P-1Qmywgdv7tWFNNXU9WxEsGwo9HDBcs7mKNnqdIOK9n69QcMFVJ5L",
-    DISCORD_ID = "973180636959490058",
-    WEBHOOK_ODDS = 100000000, -- Minimum Pet Odds To Trigger Webhook
-    MAIL_PET = false,  -- Mail Pet
-    MAIL_PET_ODDS = 10000000,  -- Minimum Pet Odds To Mail
-    USERNAME_TO_MAIL = "seashellunicorn248" -- Mail Pet To Username
-}
-
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local workspace = game:GetService("Workspace")
 local Root = ReplicatedStorage["__DIRECTORY"].Upgrades.Root
@@ -28,6 +19,10 @@ local maxFruitQueue = fruitCmds.ComputeFruitQueueLimit()
 local localPlayerName = LocalPlayer.Name
 local upgradeFruitTimeStart = tick()
 local upgradeFruitDelay = 60
+local upgradePotionTimeStart = tick()
+local upgradePotionDelay = 60
+local teleportCollectDelayStart = tick()
+local teleportCollectDelay = 60
 
 -- discord
 local doNotResend = {}
@@ -147,10 +142,10 @@ game:GetService("Players").LocalPlayer.Idled:Connect(function()
     task.wait(1)
     game:GetService("VirtualUser"):Button2Up(Vector2.new(0,0), game:GetService("Workspace").CurrentCamera.CFrame)
 end)
-print("[Anti-AFK Activated!]")
+-- print("[Anti-AFK Activated!]")
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/whatsbasement/rb-opt/refs/heads/main/pet%20go%20opti.lua"))()
-print("[Optimize Done!]")
+-- print("[Optimize Done!]")
 
 workspace.OUTER:Destroy()
 game:GetService("Lighting"):ClearAllChildren()
@@ -387,6 +382,7 @@ local function consumeInstantLuck3Combo(instantLuck3PotionId)
         ["The Cocktail"] = nil
     }
 
+    -- print("Before potion initialise")
     -- Check for golden/blazing dice potion
     for _, potionName in pairs(potionNames) do
         for potionId, tbl in pairs(save.Get().Inventory.Consumable) do
@@ -395,14 +391,15 @@ local function consumeInstantLuck3Combo(instantLuck3PotionId)
             end
         end
     end
-
+    -- print("After potion initialise")
     -- if found both golden/blazing potion
     -- and potionsFound["Blazing Dice Potion"] ~= nil
     if potionsFound["Golden Dice Potion"] ~= nil then
         -- check if cocktail already used
-        local cocktailDir = game:GetService("ReplicatedStorage")["__DIRECTORY"].Effects.Timed["Effect | The Cocktail"]
-        if require(Client.EffectCmds).GetBest(require(cocktailDir)) == 0 then
+        local cocktailDir = require(game:GetService("ReplicatedStorage")["__DIRECTORY"].Effects.Timed["Effect | The Cocktail"])
+        if require(Client.EffectCmds).GetBest(cocktailDir) == 0 then
             if potionsFound["The Cocktail"] then
+                -- print("Using cocktail")
                 network["Consumables_Consume"]:InvokeServer(potionsFound["The Cocktail"], 1)  -- consume cocktail 
                 task.wait(1)
             else
@@ -414,8 +411,6 @@ local function consumeInstantLuck3Combo(instantLuck3PotionId)
         network["Consumables_Consume"]:InvokeServer(potionsFound["Golden Dice Potion"], 1)  -- consume golden 
         task.wait(1)
         network["Consumables_Consume"]:InvokeServer(potionsFound["Blazing Dice Potion"], 1)  -- consume blazing
-        task.wait(1)
-        network["Consumables_Consume"]:InvokeServer(potionsFound["The Cocktail"], 1)  -- consume blazing
         task.wait(1)
         usedInstantLuckPotion3Amount = usedInstantLuckPotion3Amount + 1
         -- print("Using instant luck 3")
@@ -435,7 +430,7 @@ local function smartPotionUpgrade()
                 task.wait(0.5)
     
             elseif tbl.tn == 2 and tbl._am ~= nil and tbl._am >= 4 then
-                print("Crafted Lucky Tier 3")
+                -- print("Crafted Lucky Tier 3")
                 network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 2, math.floor(tbl._am / 4))
                 task.wait(0.5)
     
@@ -907,7 +902,7 @@ require(Client.Network).Fired("Merchant_Updated"):Connect(function(...)
         local priceId = offer.PriceData.data.id
         local cost = offer.PriceData.data._am
 
-        if itemId == "The Cocktail" or itemId == "Instant Luck Potion" or itemId == "Rainbow Dice Potion" or (itemId == "Lucky Potion" and tier >= 4) then
+        if itemId == "The Cocktail" or itemId == "Instant Luck Potion" or itemId == "Rainbow Dice Potion" or (itemId == "Lucky Potion" and tier >= 5) then
             if indexTokenAmount >= (cost * stock) then
                 for i=1, stock do
                     network["Merchant_RequestPurchase"]:InvokeServer("AdvancedIndexMerchant", tonumber(offerIndex))
@@ -920,17 +915,24 @@ require(Client.Network).Fired("Merchant_Updated"):Connect(function(...)
             end
         end
         
-        -- pcall(print, string.format("Offer %d: Item: %s, Tier: %d, Stock: %d, Price ID: %s, Cost: %s", offerIndex, itemId, tier, stock, priceId, cost))
+        -- pcall(-- print, string.format("Offer %d: Item: %s, Tier: %d, Stock: %d, Price ID: %s, Cost: %s", offerIndex, itemId, tier, stock, priceId, cost))
     end
 end)
 
+local antiAfkDelayStart = tick()
+local antiAfkDelay = 60
 
 local breakables = require(Root["Faster Egg Open"]["Faster Egg Open 2"]["Instant Egg Open"]["Golden Dice"]["Small Coin Piles"])
 task.spawn(function()
     while true do
-        task.wait(0.1)
+        task.wait(0.06)
         pcall(petTargetChestAndBreakables)
         pcall(tapChestAndBreakables)
+        
+        if (tick() - antiAfkDelayStart) >= antiAfkDelay then
+            network["Idle Tracking: Stop Timer"]:FireServer()
+            antiAfkDelayStart = tick()
+        end
 
         local rainbowCountdown = save.Get().DiceCombos["Rainbow"]
         if rainbowCountdown ~= 79 then
@@ -944,6 +946,7 @@ task.spawn(function()
                 if tbl.id == "Instant Luck Potion" and tbl.tn == 3 then
                     instantLuck3PotionFound = true
                     pcall(consumeBestPotion)  -- use every best potion before luck 3
+                    -- print(tbl.id, itemId)
                     pcall(consumeInstantLuck3Combo, itemId)
                     network.Eggs_Roll:InvokeServer()
                     break
@@ -977,12 +980,10 @@ local fruitBoost = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventor
 local potionsUpgrade = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inventory.Fruit["Lucky Potion"])
 
 local mailPetDelayStart = tick()
-local mailPetDelay = 60
+local mailPetDelay = 20
 
-local antiAfkDelayStart = tick()
-local antiAfkDelay = 60
 local webhookSendDelayStart = tick()
-local webhookSendDelay = 60
+local webhookSendDelay = 30
 -- game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
 
 -- collect forever pack free
@@ -997,11 +998,6 @@ task.spawn(function()
         checkAndConsumeFruits()
 
         pcall(consumeBestPotion)
-        
-        if (tick() - antiAfkDelayStart) >= antiAfkDelay then
-            network["Idle Tracking: Stop Timer"]:FireServer()
-            antiAfkDelayStart = tick()
-        end
 
         
         if (tick() - webhookSendDelayStart) >= webhookSendDelay then
@@ -1056,12 +1052,16 @@ task.spawn(function()
             require(Client.HoverboardCmds).RequestUnequip()
             task.wait(1)
         end
+        
+        if (tick() - teleportCollectDelayStart) >= teleportCollectDelay then
+            -- print("doing collect quest")
+            pcall(collectHiddenGift)
 
-        collectHiddenGift()
+            pcall(teleportToFlyingGift)
 
-        teleportToFlyingGift()
-
-        teleportToDig()
+            pcall(teleportToDig)
+            teleportCollectDelayStart = tick()
+        end
         
         if upgradeCmds.IsUnlocked(potionVending) and save.Get()["VendingStocks"].PotionVendingMachine > 0 then
             teleportToMachine("PotionVendingMachine")
@@ -1071,9 +1071,17 @@ task.spawn(function()
             end
         end
 
-        if upgradeCmds.IsUnlocked(fruitMachine) and (tick() - upgradeFruitTimeStart) >= upgradeFruitDelay then
+        if (tick() - upgradeFruitTimeStart) >= upgradeFruitDelay and upgradeCmds.IsUnlocked(fruitMachine) then
             upgradeFruitTimeStart = tick()
             pcall(upgradeFruits)
+        end
+
+        if (tick() - upgradePotionTimeStart) >= upgradePotionDelay and upgradeCmds.IsUnlocked(potionWizard) then
+            teleportToMachine("PotionCraftingMachine")
+
+            pcall(craft, "instantLuck3")
+            pcall(smartPotionUpgrade)
+            upgradePotionTimeStart = tick()
         end
 
         if upgradeCmds.IsUnlocked(merchantUpgrade) then
@@ -1086,16 +1094,6 @@ task.spawn(function()
                     end
                 end
             end
-        end
-
-        if upgradeCmds.IsUnlocked(potionWizard) then
-            local potionCraftingMagnitude = (workspace[localPlayerName].HumanoidRootPart.Position - workspace.MAP.INTERACT.Machines.PotionCraftingMachine.PadGlow.Position).Magnitude
-            if potionCraftingMagnitude > 30 then
-                task.wait(1)
-                teleportToMachine("PotionCraftingMachine")
-            end
-            pcall(craft, "instantLuck3")
-            pcall(smartPotionUpgrade)
         end
     end
 end)
