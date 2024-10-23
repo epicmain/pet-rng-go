@@ -1,12 +1,3 @@
-getgenv().petsGoConfig = {
-    WEBHOOK_URL = "https://discord.com/api/webhooks/1293110746204340325/dZizvbUU4LtGv9P-1Qmywgdv7tWFNNXU9WxEsGwo9HDBcs7mKNnqdIOK9n69QcMFVJ5L",
-    DISCORD_ID = "973180636959490058",
-    WEBHOOK_ODDS = 100000000, -- Minimum Pet Odds To Trigger Webhook
-    MAIL_PET = false,  -- Mail Pet
-    MAIL_PET_ODDS = 200000000,  -- Minimum Pet Odds To Mail
-    USERNAME_TO_MAIL = "opulentquasar591" -- Mail Pet To Username
-}
-
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local workspace = game:GetService("Workspace")
 local Root = ReplicatedStorage["__DIRECTORY"].Upgrades.Root
@@ -432,18 +423,19 @@ end
 
 
 local function smartPotionUpgrade()
+    local craftWaitDelay = 1.5
     for itemId, tbl in pairs(save.Get().Inventory.Consumable) do
         task.wait()
         if tbl.id == "Lucky Potion" then
             if tbl.tn == 1 and tbl._am ~= nil and tbl._am >= 3 then
                 -- print("Crafted Lucky Tier 2")
                 network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 1, math.floor(tbl._am / 3))
-                task.wait(0.5)
+                task.wait(craftWaitDelay)
     
             elseif tbl.tn == 2 and tbl._am ~= nil and tbl._am >= 4 then
                 -- print("Crafted Lucky Tier 3")
                 network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 2, math.floor(tbl._am / 4))
-                task.wait(0.5)
+                task.wait(craftWaitDelay)
     
             elseif tbl.tn == 3 and tbl._am ~= nil and tbl._am >= 5 then
                 local stopCraftingTier4Lucky
@@ -473,7 +465,7 @@ local function smartPotionUpgrade()
                     end
                     -- print("Crafted Lucky Tier 4")
                     network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 3, amountToCraft)
-                    task.wait(0.5)
+                    task.wait(craftWaitDelay)
                 end
     
             elseif tbl.tn == 4 and tbl._am ~= nil and tbl._am >= 5 then
@@ -503,7 +495,7 @@ local function smartPotionUpgrade()
                             -- print("Crafted Lucky Tier 5")
                             if math.floor(tbl2._am / 12) < amountToCraft then amountToCraft = math.floor(tbl2._am / 12) end
                             network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 4, amountToCraft)
-                            task.wait(0.5)
+                            task.wait(craftWaitDelay)
                             break
                         end
                     end
@@ -536,7 +528,7 @@ local function smartPotionUpgrade()
                             -- print("Crafted Lucky Tier 6")
                             if math.floor(tbl2._am / 30) < amountToCraft then amountToCraft = math.floor(tbl2._am / 30) end
                             network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 5, amountToCraft)
-                            task.wait(0.5)
+                            task.wait(craftWaitDelay)
                             break
                         end
                     end
@@ -559,7 +551,7 @@ local function smartPotionUpgrade()
                         if tbl2.id == "Orange" and tbl2.sh and tbl2._am ~= nil and tbl2._am >= 5 then  -- checks for shiny orange
                             -- print("Crafted Lucky Tier 7")
                             network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 6, 1)
-                            task.wait(0.5)
+                            task.wait(craftWaitDelay)
                             break
                         end
                     end
@@ -572,17 +564,17 @@ local function smartPotionUpgrade()
             if tbl.tn == 1 and tbl._am ~= nil and tbl._am >= 3 then
                 -- print("Crafted Coins Potion 2")
                 network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 7, math.floor(tbl._am / 3))
-                task.wait(0.5)
+                task.wait(craftWaitDelay)
     
             elseif tbl.tn == 2 and tbl._am ~= nil and tbl._am >= 4 then
                 -- print("Crafted Coins Potion 3")
                 network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 8, math.floor(tbl._am / 4))
-                task.wait(0.5)
+                task.wait(craftWaitDelay)
     
             elseif tbl.tn == 3 and tbl._am ~= nil and tbl._am >= 5 then
                 -- print("Crafted Coins Potion 4")
                 network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 9, math.floor(tbl._am / 5))
-                task.wait(0.5)
+                task.wait(craftWaitDelay)
     
             elseif tbl.tn == 4 and tbl._am ~= nil and tbl._am >= 5 then
                 local amountToCraft = math.floor(tbl._am / 5)
@@ -591,7 +583,7 @@ local function smartPotionUpgrade()
                         -- print("Crafted Coins Potion 5")
                         if math.floor(tbl2._am / 12) < amountToCraft then amountToCraft = math.floor(tbl2._am / 12) end
                         network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 10, amountToCraft)
-                        task.wait(0.5)
+                        task.wait(craftWaitDelay)
                     end
                 end
             
@@ -602,7 +594,7 @@ local function smartPotionUpgrade()
                         -- print("Crafted Coins Potion 6")
                         if math.floor(tbl2._am / 30) < amountToCraft then amountToCraft = math.floor(tbl2._am / 30) end
                         network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 11, amountToCraft)
-                        task.wait(0.5)
+                        task.wait(craftWaitDelay)
                     end
                 end
 
@@ -613,7 +605,7 @@ local function smartPotionUpgrade()
                         -- print("Crafted Coins Potion 7")
                         if math.floor(tbl2._am / 5) < amountToCraft then amountToCraft = math.floor(tbl2._am / 5) end
                         network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 12, amountToCraft)
-                        task.wait(0.5)
+                        task.wait(craftWaitDelay)
                     end
                 end
             end
@@ -624,12 +616,12 @@ local function smartPotionUpgrade()
             if tbl.tn == 1 and tbl._am ~= nil and tbl._am >= 3 then
                 -- print("Crafted Breakables Potion 2")
                 network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 14, math.floor(tbl._am / 3))
-                task.wait(0.5)
+                task.wait(craftWaitDelay)
             
             elseif tbl.tn == 2 and tbl._am ~= nil and tbl._am >= 5 then
                 -- print("Crafted Breakables Potion 3")
                 network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 15, math.floor(tbl._am / 5))
-                task.wait(0.5)
+                task.wait(craftWaitDelay)
             end
         end
 
@@ -642,7 +634,7 @@ local function smartPotionUpgrade()
                         -- print("Crafted Faster Rolls Potion 2")
                         if math.floor(tbl2._am / 30) < amountToCraft then amountToCraft = math.floor(tbl2._am / 30) end
                         network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 17, amountToCraft)
-                        task.wait(0.5)
+                        task.wait(craftWaitDelay)
                         break
                     end
                 end
@@ -654,12 +646,12 @@ local function smartPotionUpgrade()
             if tbl.tn == 1 and tbl._am ~= nil and tbl._am >= 3 then
                 -- print("Crafted Items Potion 2")
                 network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 19, math.floor(tbl._am / 3))
-                task.wait(0.5)
+                task.wait(craftWaitDelay)
     
             elseif tbl.tn == 2 and tbl._am ~= nil and tbl._am >= 4 then
                 -- print("Crafted Items Potion 3")
                 network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 20, math.floor(tbl._am / 4))
-                task.wait(0.5)
+                task.wait(craftWaitDelay)
 
             elseif tbl.tn == 3 and tbl._am ~= nil and tbl._am >= 5 then
                 local amountToCraft = math.floor(tbl._am / 5)
@@ -668,7 +660,7 @@ local function smartPotionUpgrade()
                         -- print("Crafted Items Potion 4")
                         if math.floor(tbl2._am / 20) < amountToCraft then amountToCraft = math.floor(tbl2._am / 20) end
                         network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 21, amountToCraft)
-                        task.wait(0.5)
+                        task.wait(craftWaitDelay)
                         break
                     end
                 end
@@ -844,7 +836,7 @@ end
 local function saveCache() writefile(cacheFileName, httpService:JSONEncode(sentContentCache)) end
 local function isContentSent(content) return table.find(sentContentCache, content) end
 
-local function sendWebhook(content)
+local function sendWebhook(content, webhook_url)
     if isContentSent(content) then return end
     table.insert(sentContentCache, content)
     if #sentContentCache > 10 then table.remove(sentContentCache, 1) end
@@ -861,7 +853,7 @@ local function sendWebhook(content)
     if requestFunction then
         pcall(function()
             requestFunction({
-                Url = getgenv().petsGoConfig.WEBHOOK_URL,
+                Url = webhook_url,
                 Method = "POST",
                 Headers = { ["Content-Type"] = "application/json" },
                 Body = jsonData
@@ -887,7 +879,9 @@ local function mailPet()
             }
             
             local quantity = tbl._am or 1
-            pcall(sendWebhook, "MAILED Pet: " .. tbl.id .. "\nQuantity: " .. quantity)
+            if string.len(getgenv().petsGoConfig.MAILING_WEBHOOK_URL) > 1 then
+                pcall(sendWebhook, "MAILED Pet: " .. tbl.id .. "\nQuantity: " .. quantity, getgenv().petsGoConfig.MAILING_WEBHOOK_URL)
+            end
             game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Mailbox: Send"):InvokeServer(unpack(args))
             task.wait(5)
             break
@@ -1011,7 +1005,7 @@ task.spawn(function()
         -- print("background loop")
         traverseModules(Root)
         
-        checkAndConsumeFruits()
+        pcall(checkAndConsumeFruits)
 
         pcall(consumeBestPotion)
 
@@ -1036,7 +1030,7 @@ task.spawn(function()
                             if string.len(getgenv().petsGoConfig.WEBHOOK_ODDS) > 1 and string.len(getgenv().petsGoConfig.WEBHOOK_URL) > 1 then
                                 table.insert(doNotResend, tbl.id)
                                 local quantity = tbl._am or 1
-                                sendWebhook("Pet Hatched: " .. tbl.id .. "\nQuantity: " .. quantity)
+                                sendWebhook("Pet Hatched: " .. tbl.id .. "\nQuantity: " .. quantity, getgenv().petsGoConfig.WEBHOOK_URL)
                             end
                         end
                     end
