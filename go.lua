@@ -1,3 +1,12 @@
+getgenv().petsGoConfig = {
+    WEBHOOK_URL = "https://discord.com/api/webhooks/1293110746204340325/dZizvbUU4LtGv9P-1Qmywgdv7tWFNNXU9WxEsGwo9HDBcs7mKNnqdIOK9n69QcMFVJ5L",
+    DISCORD_ID = "973180636959490058",
+    WEBHOOK_ODDS = 100000000, -- Minimum Pet Odds To Trigger Webhook
+    MAIL_PET = false,  -- Mail Pet
+    MAIL_PET_ODDS = 200000000,  -- Minimum Pet Odds To Mail
+    USERNAME_TO_MAIL = "opulentquasar591" -- Mail Pet To Username
+}
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local workspace = game:GetService("Workspace")
 local Root = ReplicatedStorage["__DIRECTORY"].Upgrades.Root
