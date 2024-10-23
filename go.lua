@@ -7,6 +7,7 @@ getgenv().petsGoConfig = {
     USERNAME_TO_MAIL = "opulentquasar591" -- Mail Pet To Username
 }
 
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local workspace = game:GetService("Workspace")
 local Root = ReplicatedStorage["__DIRECTORY"].Upgrades.Root
@@ -29,7 +30,7 @@ local localPlayerName = LocalPlayer.Name
 local upgradeFruitTimeStart = tick()
 local upgradeFruitDelay = 60
 local upgradePotionTimeStart = tick()
-local upgradePotionDelay = 60
+local upgradePotionDelay = 20
 local teleportCollectDelayStart = tick()
 local teleportCollectDelay = 30
 
@@ -1011,8 +1012,8 @@ network["ForeverPacks: Claim Free"]:InvokeServer("Default")
 task.spawn(function()
     while true do
         task.wait(1)
-        -- print("background loop")
-        traverseModules(Root)
+        print("background loop")
+        pcall(traverseModules, Root)
         
         pcall(checkAndConsumeFruits)
 
@@ -1057,24 +1058,28 @@ task.spawn(function()
         end)
 
         if (tick() - mailCollectDelayStart) >= mailCollectDelay then
-            game:GetService("ReplicatedStorage").Network["Mailbox: Claim All"]:InvokeServer()
-            mailCollectDelayStart = tick()
+            pcall(function()
+                network["Mailbox: Claim All"]:InvokeServer()
+                mailCollectDelayStart = tick()
+            end)
         end
 
-        if require(Client.LoginStreakCmds).CanClaim() then
-            require(Client.LoginStreakCmds).RequestBonusRoll()
-            task.wait(1)
-        end
+        pcall(function()
+            if require(Client.LoginStreakCmds).CanClaim() then
+                require(Client.LoginStreakCmds).RequestBonusRoll()
+                task.wait(1)
+            end
 
-        if require(Client.BonusRollCmds).HasAvailable() then
-            require(Client.BonusRollCmds).RequestBonusRoll()
-            task.wait(1)
-        end
+            if require(Client.BonusRollCmds).HasAvailable() then
+                require(Client.BonusRollCmds).RequestBonusRoll()
+                task.wait(1)
+            end
 
-        if require(Client.HoverboardCmds).IsEquipped() then
-            require(Client.HoverboardCmds).RequestUnequip()
-            task.wait(1)
-        end
+            if require(Client.HoverboardCmds).IsEquipped() then
+                require(Client.HoverboardCmds).RequestUnequip()
+                task.wait(1)
+            end
+        end)
         
         if (tick() - teleportCollectDelayStart) >= teleportCollectDelay then
             -- print("doing collect quest")
@@ -1087,11 +1092,13 @@ task.spawn(function()
         end
         
         if upgradeCmds.IsUnlocked(potionVending) and save.Get()["VendingStocks"].PotionVendingMachine > 0 then
-            teleportToMachine("PotionVendingMachine")
-            for i=1, save.Get()["VendingStocks"].PotionVendingMachine do
-                network["VendingMachines_Purchase"]:InvokeServer("PotionVendingMachine")
-                task.wait(0.5)
-            end
+            pcall(function()
+                teleportToMachine("PotionVendingMachine")
+                for i=1, save.Get()["VendingStocks"].PotionVendingMachine do
+                    network["VendingMachines_Purchase"]:InvokeServer("PotionVendingMachine")
+                    task.wait(0.5)
+                end
+            end)
         end
 
         if (tick() - upgradeFruitTimeStart) >= upgradeFruitDelay and upgradeCmds.IsUnlocked(fruitMachine) then
@@ -1101,9 +1108,8 @@ task.spawn(function()
 
         if (tick() - upgradePotionTimeStart) >= upgradePotionDelay and upgradeCmds.IsUnlocked(potionWizard) then
             teleportToMachine("PotionCraftingMachine")
-
-            pcall(craft, "instantLuck3")
             pcall(smartPotionUpgrade)
+            pcall(craft, "instantLuck3")
             upgradePotionTimeStart = tick()
         end
 
@@ -1281,7 +1287,7 @@ local function activateGui()
         inventoryLabel.Text = "Current Inventory: (+" .. currentInventoryNotification .. ")"
 
         -- Adding the Instant Luck Potion 3 amount
-        instantLuckLabel.Text = "Instant 3: " .. usedInstantLuckPotion3Amount
+        instantLuckLabel.Text = "Used Insta 3: " .. usedInstantLuckPotion3Amount
 
         getBestDifficultyPet()
 
