@@ -370,8 +370,8 @@ local function consumeBestPotion()
             end
         end
 
-        local potionDir = game:GetService("ReplicatedStorage")["__DIRECTORY"].Effects.Timed["Effect | " .. potionName]
-        local bestConsumedPotionTier = require(Client.EffectCmds).GetBest(require(potionDir))
+        local potionDir = require(ReplicatedStorage["__DIRECTORY"].Effects.Timed["Effect | " .. potionName])
+        local bestConsumedPotionTier = require(Client.EffectCmds).GetBest(potionDir)
         
         if bestConsumedPotionTier < highestPotionTier then
             -- print("Consumed " .. potionName .. " Tier " .. highestPotionTier)
@@ -404,9 +404,11 @@ local function consumeInstantLuck3Combo(instantLuck3PotionId)
     -- if found both golden/blazing potion
     -- and potionsFound["Blazing Dice Potion"] ~= nil
     if potionsFound["Golden Dice Potion"] ~= nil then
+        -- print('found golden dice')
         -- check if cocktail already used
-        local cocktailDir = require(game:GetService("ReplicatedStorage")["__DIRECTORY"].Effects.Timed["Effect | The Cocktail"])
-        if require(Client.EffectCmds).GetBest(cocktailDir) == 0 then
+        local cocktailDir = require(ReplicatedStorage["__DIRECTORY"].Effects.Timed["Effect | The Cocktail"])
+        local cocktailUsed = require(Client.EffectCmds).GetBest(cocktailDir)  -- 0 means unused, 1 means used
+        if cocktailUsed == 0 then
             if potionsFound["The Cocktail"] then
                 -- print("Using cocktail")
                 network["Consumables_Consume"]:InvokeServer(potionsFound["The Cocktail"], 1)  -- consume cocktail 
@@ -419,10 +421,10 @@ local function consumeInstantLuck3Combo(instantLuck3PotionId)
 
         network["Consumables_Consume"]:InvokeServer(potionsFound["Golden Dice Potion"], 1)  -- consume golden 
         task.wait(1)
-        network["Consumables_Consume"]:InvokeServer(potionsFound["Blazing Dice Potion"], 1)  -- consume blazing
+        pcall(function() network["Consumables_Consume"]:InvokeServer(potionsFound["Blazing Dice Potion"], 1) end)  -- consuming blaze
         task.wait(1)
         usedInstantLuckPotion3Amount = usedInstantLuckPotion3Amount + 1
-        -- print("Using instant luck 3")
+        print("Using instant luck 3")
         network["Consumables_Consume"]:InvokeServer(instantLuck3PotionId, 1)
         task.wait(1)
     end
@@ -885,7 +887,7 @@ local function mailPet()
             }
             
             local quantity = tbl._am or 1
-            pcall(sendWebhook, "Pet Found: " .. tbl.id .. "\nQuantity: " .. quantity)
+            pcall(sendWebhook, "MAILED Pet: " .. tbl.id .. "\nQuantity: " .. quantity)
             game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Mailbox: Send"):InvokeServer(unpack(args))
             task.wait(5)
             break
@@ -950,7 +952,7 @@ task.spawn(function()
             network.Eggs_Roll:InvokeServer()
             
         elseif rainbowCountdown == 79 then
-            -- print("Rainbow READY")
+            print("Rainbow READY")
             task.wait(1)
             local instantLuck3PotionFound
             for itemId, tbl in pairs(save.Get().Inventory.Consumable) do
@@ -958,6 +960,7 @@ task.spawn(function()
                     instantLuck3PotionFound = true
                     pcall(consumeBestPotion)  -- use every best potion before luck 3
                     -- print(tbl.id, itemId)
+                    -- consumeInstantLuck3Combo(itemId)
                     pcall(consumeInstantLuck3Combo, itemId)
                     network.Eggs_Roll:InvokeServer()
                     break
@@ -992,6 +995,8 @@ local potionsUpgrade = require(Root["Faster Egg Open"]["Faster Egg Open 2"].Inve
 
 local mailPetDelayStart = tick()
 local mailPetDelay = 20
+local mailCollectDelayStart = tick()
+local mailCollectDelay = 60
 
 local webhookSendDelayStart = tick()
 local webhookSendDelay = 30
@@ -1031,7 +1036,7 @@ task.spawn(function()
                             if string.len(getgenv().petsGoConfig.WEBHOOK_ODDS) > 1 and string.len(getgenv().petsGoConfig.WEBHOOK_URL) > 1 then
                                 table.insert(doNotResend, tbl.id)
                                 local quantity = tbl._am or 1
-                                sendWebhook("Pet Found: " .. tbl.id .. "\nQuantity: " .. quantity)
+                                sendWebhook("Pet Hatched: " .. tbl.id .. "\nQuantity: " .. quantity)
                             end
                         end
                     end
@@ -1047,7 +1052,11 @@ task.spawn(function()
                 mailPetDelayStart = tick()
             end
         end)
-        
+
+        if (tick() - mailCollectDelayStart) >= mailCollectDelay then
+            game:GetService("ReplicatedStorage").Network["Mailbox: Claim All"]:InvokeServer()
+            mailCollectDelayStart = tick()
+        end
 
         if require(Client.LoginStreakCmds).CanClaim() then
             require(Client.LoginStreakCmds).RequestBonusRoll()
