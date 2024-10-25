@@ -184,7 +184,6 @@ for i,v in next, getnilinstances() do
     pcall(function()
         v.Transparency = 1
         for i1,v1 in next, v:GetDescendants() do
-            print(v1)
             v1.Transparency = 1
         end
     end)
@@ -329,6 +328,10 @@ local function traverseModules(module)
     for _, child in ipairs(module:GetChildren()) do
         if upgradeCmds.IsUnlocked(child.Name) then
             traverseModules(child)
+        -- Temporary halloween upgrade
+        elseif child.Name == "Pumpkin Egg" or child.Name == "Candy Currency" then
+            print("unlocking", child.Name)
+            upgradeCmds.Unlock(child.Name)
         elseif upgradeCmds.CanAfford(child.Name) then
             -- if child.Name ~= "Trading Booths" and child.Name ~= "More Pet Details" and child.Name ~= "Hoverboard" and child.Name ~= "Faster Pets" then
             upgradeCmds.Unlock(child.Name)
@@ -435,12 +438,14 @@ end
 
 
 
+-- Temporary "Pumpkin Potion"
 local function consumeInstantLuck3Combo(instantLuck3PotionId)
-    local potionNames = {"Golden Dice Potion", "Blazing Dice Potion", "The Cocktail"}
+    local potionNames = {"Golden Dice Potion", "Blazing Dice Potion", "The Cocktail", "Pumpkin Potion"}
     local potionsFound = {
         ["Golden Dice Potion"] = nil,
         ["Blazing Dice Potion"] = nil,
-        ["The Cocktail"] = nil
+        ["The Cocktail"] = nil,
+        ["Pumpkin Potion"] = nil
     }
 
     -- print("Before potion initialise")
@@ -456,17 +461,34 @@ local function consumeInstantLuck3Combo(instantLuck3PotionId)
     -- if found both golden/blazing potion
     -- and potionsFound["Blazing Dice Potion"] ~= nil
     if potionsFound["Golden Dice Potion"] ~= nil then
-        -- print('found golden dice')
+        print('found golden dice')
         -- check if cocktail already used
         local cocktailDir = require(ReplicatedStorage["__DIRECTORY"].Effects.Timed["Effect | The Cocktail"])
         local cocktailUsed = require(Client.EffectCmds).GetBest(cocktailDir)  -- 0 means unused, 1 means used
+
+        
+        -- temporary pumpkin potion tier 3
+        local pumpkinDir = require(ReplicatedStorage["__DIRECTORY"].Effects.Timed["Effect | Pumpkin Potion"])
+        local pumpkinUsed = require(Client.EffectCmds).GetBest(pumpkinDir)  -- 0 means unused, 3 means used
+        if pumpkinUsed == 0 then
+            if potionsFound["Pumpkin Potion"] then
+                print("Using pumpkin 3")
+                network["Consumables_Consume"]:InvokeServer(potionsFound["Pumpkin Potion"], 1)  -- consume cocktail 
+                task.wait(1)
+            else
+                print("No pumpkin potion found")
+                return
+            end
+        end
+        -- temporary pumpkin potion tier 3
+
         if cocktailUsed == 0 then
             if potionsFound["The Cocktail"] then
-                -- print("Using cocktail")
+                print("Using cocktail")
                 network["Consumables_Consume"]:InvokeServer(potionsFound["The Cocktail"], 1)  -- consume cocktail 
                 task.wait(1)
             else
-                -- print("No cocktail found")
+                print("No cocktail found")
                 return
             end
         end
@@ -727,6 +749,21 @@ local function smartPotionUpgrade()
                 end
             end
         end
+
+        -- temporary halloween pumpkin update
+        if tbl.id == "Pumpkin Potion" then
+            if tbl.tn == 1 and tbl._am ~= nil and tbl._am >= 2 then
+                print("Crafted Pumpkin Potion 2")
+                network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 33, math.floor(tbl._am / 2))
+                task.wait(craftWaitDelay)
+
+            elseif tbl.tn == 2 and tbl._am ~= nil and tbl._am >= 2 then
+                print("Crafted Pumpkin Potion 3")
+                network["CraftingMachine_Craft"]:InvokeServer("PotionCraftingMachine", 34, math.floor(tbl._am / 2))
+                task.wait(craftWaitDelay)
+            end
+        end
+        -- temporary halloween pumpkin update
     end
 end
 
@@ -994,7 +1031,7 @@ end
 require(game.ReplicatedStorage.Library.Client.Network).Fired("Digging_Created"):Connect(function(...)
     local args = {...}
     for petId, _ in pairs(require(game.ReplicatedStorage.Library.Client.PlayerPet).GetAll()) do
-        print("sending", args[1].uid, "to dig")
+        -- print("sending", args[1].uid, "to dig")
         game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Digging_Target"):InvokeServer(args[1].uid, petId)
         game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Digging_Claim"):InvokeServer(args[1].uid)
         break
@@ -1030,7 +1067,7 @@ require(Client.Network).Fired("Merchant_Updated"):Connect(function(...)
                 end
             else
                 -- check if always not enough index or too much index tokens. then adjust script
-                -- print("Can't Afford Index Item")
+                print("Can't Afford Index Item")
             end
         end
         
