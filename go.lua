@@ -930,10 +930,10 @@ local function sendWebhook(content, webhook_url)
     saveCache()
 
     local finalContent
-    if getgenv().petsGoConfig.SHOW_PLAYERNAME then
-        finalContent = "<@" .. getgenv().petsGoConfig.DISCORD_ID .. ">\n```" .. content .. "\n🙎‍♂️Account Name: " .. localPlayerName .. "```"
-    else
+    if getgenv().petsGoConfig.HIDE_NAME then
         finalContent = "<@" .. getgenv().petsGoConfig.DISCORD_ID .. ">\n```" .. content .. "```"
+    else
+        finalContent = "<@" .. getgenv().petsGoConfig.DISCORD_ID .. ">\n```" .. content .. "\n🙎‍♂️Account Name: " .. localPlayerName .. "```"
     end
     
     local messageContent = {
@@ -976,7 +976,7 @@ local function mailPet()
             
             local quantity = tbl._am or 1
             local rapValue = getRap(tbl) or "N/A"
-            local content = "✉️MAILED Pet: " .. tbl.id .. "\n🎲Pet Odds: 1/" .. petDifficulty .. "\n📦Quantity: " .. quantity .. "\n💎RAP Value: " .. rapValue
+            local content = "📬MAILED Pet: " .. tbl.id .. "\n🎲Pet Odds: 1/" .. petDifficulty .. "\n📦Quantity: " .. quantity .. "\n💎RAP Value: " .. rapValue .. "\n\n✉️Mailed To: " .. getgenv().petsGoConfig.USERNAME_TO_MAIL
             -- check if getgenv exist
             if getgenv().petsGoConfig.MAIL_WEBHOOK_ODDS and getgenv().petsGoConfig.MAILING_WEBHOOK_URL and
              getgenv().petsGoConfig.MAIL_WEBHOOK_ODDS > 1 and string.len(getgenv().petsGoConfig.MAILING_WEBHOOK_URL) > 1 then
@@ -1123,7 +1123,7 @@ task.spawn(function()
 
         
         if (tick() - webhookSendDelayStart) >= webhookSendDelay then
-            -- pcall(function()
+            pcall(function()
                 for petId, tbl in save.Get().Inventory.Pet do
                     local sentBefore = false
                     for _, petName in pairs(doNotResend) do
@@ -1144,7 +1144,7 @@ task.spawn(function()
                                 table.insert(doNotResend, tbl.id)
                                 local quantity = tbl._am or 1
                                 local rapValue = getRap(tbl) or "N/A"
-                                local content = "🐾Pet Hatched: " .. tbl.id .. "\n🎲Pet Odds: 1/" .. petDifficulty .. "\n📦Quantity: " .. quantity .. "\n💎RAP Value: " .. rapValue
+                                local content = "🐾Pet Hatched: " .. tbl.id .. "\n🎲Pet Odds: 1/" .. petDifficulty .. "\n📦Quantity: " .. quantity .. "\n💎RAP Value: " .. rapValue .. "\n"
                                 sendWebhook(content, getgenv().petsGoConfig.WEBHOOK_URL)
                                 task.wait(1)
                             end
@@ -1152,7 +1152,7 @@ task.spawn(function()
                     end
                 end
                 webhookSendDelayStart = tick()
-            -- end)
+            end)
         end
         
 
