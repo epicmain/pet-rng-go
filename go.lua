@@ -134,6 +134,7 @@ if workspace:FindFirstChild("TRADING") then
     end
 end
 
+
 pcall(function()
     game:GetService("CoreGui"):ClearAllChildren()
 end)
@@ -218,6 +219,40 @@ platform.CFrame = workspace.MAP.SPAWNS.Spawn.CFrame + Vector3.new(0, -5.5, 0)
 platform.Size = Vector3.new(500, 1, 500)
 -- platform.Transparency = 1
 workspace[localPlayerName].HumanoidRootPart.Anchored = false
+
+
+-- temporary halloween egg change
+-- local eggNumberStart
+-- local eggNumberEnd
+
+-- if getgenv().petsGoConfig.EVENT_EGG then
+--     eggNumberEnd = 1000
+--     eggNumberStart = 1004
+-- else
+--     eggNumberEnd = 1
+--     eggNumberStart = 9
+-- end
+
+
+-- local function changeEgg()
+--     for i=eggNumberStart, eggNumberEnd, -1 do
+--         for _, v1 in pairs(ReplicatedStorage["__DIRECTORY"].Eggs:GetChildren()) do
+--             local id, name = v1.Name:match("^(%d+%s*|%s*)(.+)$")
+--             if id == i .. " | " then
+--                 local success = network:WaitForChild("Eggs_Equip"):InvokeServer(name)
+--                 if success then
+--                     print("successfully used egg:", name)
+--                     return
+--                 end
+--                 task.wait(0.3)
+--             end
+--         end
+--     end
+-- end
+
+-- changeEgg()
+require(Client.EggCmds).Equip(require(ReplicatedStorage["__DIRECTORY"].Eggs["19 | Magma Egg"]))
+-- temporary halloween egg change
 
 
 require(Client.PlayerPet).CalculateSpeedMultiplier = function(...)
@@ -997,9 +1032,18 @@ end
 local function mailPet()
     for petId, tbl in save.Get().Inventory.Pet do
         local petDifficulty = require(game.ReplicatedStorage.Library.Directory.Pets)[tbl.id].difficulty
+        local formattedDifficulty
         -- check if getgenv exist
         if getgenv().petsGoConfig.MAIL_PET_ODDS and getgenv().petsGoConfig.USERNAME_TO_MAIL and 
         petDifficulty >= getgenv().petsGoConfig.MAIL_PET_ODDS and string.len(getgenv().petsGoConfig.USERNAME_TO_MAIL) > 1 then
+            if petDifficulty >= 1000000 then
+                formattedDifficulty = math.floor(petDifficulty / 1000000) .. "M" 
+            elseif petDifficulty >= 1000 then
+                formattedDifficulty = math.floor(petDifficulty / 1000) .. "K" 
+            else
+                formattedDifficulty = petDifficulty
+            end
+
             -- unlock pet before sendings
             game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Locking_SetLocked"):InvokeServer(petId, false)
             task.wait(2)
@@ -1013,7 +1057,7 @@ local function mailPet()
             
             local quantity = tbl._am or 1
             local rapValue = getRap(tbl) or "N/A"
-            local content = "📬MAILED Pet: " .. tbl.id .. "\n🎲Pet Odds: 1/" .. petDifficulty .. "\n📦Quantity: " .. quantity .. "\n💎RAP Value: " .. rapValue .. "\n\n✉️Mailed To: " .. getgenv().petsGoConfig.USERNAME_TO_MAIL
+            local content = "📬MAILED Pet: " .. tbl.id .. "\n🎲Pet Odds: 1/" .. formattedDifficulty .. "\n📦Quantity: " .. quantity .. "\n💎RAP Value: " .. rapValue .. "\n\n✉️Mailed To: " .. getgenv().petsGoConfig.USERNAME_TO_MAIL
             -- check if getgenv exist
             if getgenv().petsGoConfig.MAIL_WEBHOOK_ODDS and getgenv().petsGoConfig.MAILING_WEBHOOK_URL and
              getgenv().petsGoConfig.MAIL_WEBHOOK_ODDS > 1 and string.len(getgenv().petsGoConfig.MAILING_WEBHOOK_URL) > 1 then
@@ -1172,16 +1216,25 @@ task.spawn(function()
                     
                     if not sentBefore then
                         local petDifficulty = require(Library.Directory.Pets)[tbl.id].difficulty
+                        local formattedDifficulty
                         -- check if getgenv exist
                         if getgenv().petsGoConfig.WEBHOOK_ODDS and petDifficulty >= getgenv().petsGoConfig.WEBHOOK_ODDS then
                             if petDifficulty >= 1000000000 then
                                 hugeFound = true
                             end
                             if getgenv().petsGoConfig.WEBHOOK_ODDS > 1 and string.len(getgenv().petsGoConfig.WEBHOOK_URL) > 1 then
+                                if petDifficulty >= 1000000 then
+                                    formattedDifficulty = math.floor(petDifficulty / 1000000) .. "M" 
+                                elseif petDifficulty >= 1000 then
+                                    formattedDifficulty = math.floor(petDifficulty / 1000) .. "K" 
+                                else
+                                    formattedDifficulty = petDifficulty
+                                end
+
                                 table.insert(doNotResend, tbl.id)
                                 local quantity = tbl._am or 1
                                 local rapValue = getRap(tbl) or "N/A"
-                                local content = "🐾Pet Hatched: " .. tbl.id .. "\n🎲Pet Odds: 1/" .. petDifficulty .. "\n📦Quantity: " .. quantity .. "\n💎RAP Value: " .. rapValue .. "\n"
+                                local content = "🐾Pet Hatched: " .. tbl.id .. "\n🎲Pet Odds: 1/" .. formattedDifficulty .. "\n📦Quantity: " .. quantity .. "\n💎RAP Value: " .. rapValue .. "\n"
                                 sendWebhook(content, getgenv().petsGoConfig.WEBHOOK_URL)
                                 task.wait(1)
                             end
@@ -1451,5 +1504,8 @@ end
 activateGui()
 
 -- ===============================================  GUI  ===============================================
+
+
+
 
 
