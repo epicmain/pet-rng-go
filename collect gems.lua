@@ -13,7 +13,7 @@ getgenv().petsGoConfig = {
     WEBHOOK_URL = "https://discordapp.com/api/webhooks/1332679074933510239/DqzGuqp98v9mU8jz7U0fOc8l2A5wgMjqDMjzxMH7YKJOecVYiHGnlp7ezUocFvGT_q8O",
     MAILING_WEBHOOK_URL = "https://discordapp.com/api/webhooks/1332679165442265129/N4G73oCnpZS-WMWLtSYvEyobeN1Tu6zxH7AD26CDc0rdaED8miWorKPnhP1Iqf0Os_LS",
     DISCORD_ID = "1168121186790686779",  -- Required!!! (For public-webhook)
-    WEBHOOK_ODDS = 100000000, -- Minimum Pet Odds To Trigger Webhook
+    WEBHOOK_ODDS = 1000000000, -- Minimum Pet Odds To Trigger Webhook
 
     DIAMOND_EGG = true,  -- true = Diamond Egg, false = F2P Egg
     MINE_ALL_ORES = true,  -- true = all ore, false = runic & event ore
@@ -23,8 +23,8 @@ getgenv().petsGoConfig = {
     
     MAILING = true,  -- Auto mail
     MAIL_FISHING_ROD = false,  -- true = mail, false = keep fishing rod on account (FASTER Fishing)
-    MAIL_WEBHOOK_ODDS = 100000000, -- Minimum Pet Odds To Trigger MAIL Webhook
-    MAIL_PET_ODDS = 100000000,  -- Minimum Pet Odds To Mail
+    MAIL_WEBHOOK_ODDS = 1000000000, -- Minimum Pet Odds To Trigger MAIL Webhook
+    MAIL_PET_ODDS = 1000000000,  -- Minimum Pet Odds To Mail
     USERNAME_TO_MAIL = {"passi32m", "dizzi5ts"} -- Mail to username, Example : USERNAME_TO_MAIL = {"username1", "username2"}
 }
 
