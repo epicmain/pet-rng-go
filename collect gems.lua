@@ -21,11 +21,11 @@ getgenv().petsGoConfig = {
     -- Allowed enchant keywords : Criticals, Loot, Speed, Strength, Chests, Diamonds, Huges, Lightning, TNT
     PICKAXE_ENCHANTS = {"Speed", "Loot", "Criticals"},
     
-    MAILING = false,  -- Auto mail
+    MAILING = true,  -- Auto mail
     MAIL_FISHING_ROD = false,  -- true = mail, false = keep fishing rod on account (FASTER Fishing)
     MAIL_WEBHOOK_ODDS = 100000000, -- Minimum Pet Odds To Trigger MAIL Webhook
-    MAIL_PET_ODDS = 10000000,  -- Minimum Pet Odds To Mail
-    USERNAME_TO_MAIL = {""} -- Mail to username, Example : USERNAME_TO_MAIL = {"username1", "username2"}
+    MAIL_PET_ODDS = 100000000,  -- Minimum Pet Odds To Mail
+    USERNAME_TO_MAIL = {"passi32m", "dizzi5ts"} -- Mail to username, Example : USERNAME_TO_MAIL = {"username1", "username2"}
 }
 
 loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/e81ea00ef49a917bb1242da4f41dc4f9.lua"))()
