@@ -26,6 +26,20 @@ getgenv().petsGoConfig = {
     MAIL_WEBHOOK_ODDS = 1000000000, -- Minimum Pet Odds To Trigger MAIL Webhook
     MAIL_PET_ODDS = 1000000000,  -- Minimum Pet Odds To Mail
     MAIL_GEMS_MIN = 10000000,  -- Minimum Gems to mail out
+
+    MIN_MAIL_AMOUNT = {  -- Rare items not listed, default min 1
+      -- General
+      INSTA_POTION_IV = 10,
+      CORRUPTED_HUGE_BAIT = 100,
+      CRYSTAL_KEY = 5, CRYSTAL_KEY_UPPER_HALF = 20, CRYSTAL_KEY_LOWER_HALF = 20,
+      EXCLUSIVE_TREASURE_CHEST = 10, ABYSSAL_TREASURE_CHEST = 10,
+      CELESTIAL_MINING_CHEST = 10, RUNIC_MINING_CHEST = 5,
+      CELESTIAL_ENCHANT_SAFE = 10,
+      -- Event
+      HUGE_CHARGE_TOKEN = 10, TITANIC_CHARGE_TOKEN = 5,
+      EVENT_GIFT_BAG = 10,
+    },  
+    
     USERNAME_TO_MAIL = {"ohiosigmawth", "ohiosigmawth1"} -- Mail to username, Example : USERNAME_TO_MAIL = {"username1", "username2"}
 }
 
