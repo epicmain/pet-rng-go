@@ -1,5 +1,5 @@
 script_key="lCLhfKFjHxkFqWzbhAEjckNKrAKIyCPl";
-setfpscap(3)
+setfpscap(5)
 getgenv().petsGoConfig = {
     -- true/false
     IGNORE_FULL_CHARGE_MEGA_EGG = false,
