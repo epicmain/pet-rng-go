@@ -1,5 +1,5 @@
 script_key="lCLhfKFjHxkFqWzbhAEjckNKrAKIyCPl";
-
+setfpscap(3)
 -- Config with "MIN" = 1-5000 Minimum Quantity to sell
 -- Config with "SELL_PERCENTAGE" -> 1 = 100% RAP, 1.1 = 110% RAP, 0.8 = 80% RAP, , 0.85 = 85% RAP (Any Amount)
 getgenv().petsGoConfig = {
