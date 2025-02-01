@@ -11,7 +11,6 @@ getgenv().petsGoConfig = {
     PLAZA_HOP_DELAY = 20,  -- (minutes) If no one purchase, server hop
     BOOTH_RESET_DELAY = 20,  -- (minutes) force reset booth (Reset RAP Prices)
     AVOID_USERNAME = {
-        "ohiosigmawth",
         "ohiosigmawth1",
         "ohiosigmawth2",
         "ohiosigmawth6",
