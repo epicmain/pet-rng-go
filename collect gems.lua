@@ -36,7 +36,6 @@ getgenv().petsGoConfig = {
     },  
     
     USERNAME_TO_MAIL = {
-        "ohiosigmawth",
         "ohiosigmawth1",
         "ohiosigmawth2",
         "ohiosigmawth6",
