@@ -27,18 +27,21 @@ getgenv().petsGoConfig = {
 
     MIN_MAIL_AMOUNT = {  -- Rare items not listed, default min 1
       -- General
-      INSTA_POTION_IV = 10,
+      INSTA_POTION_IV = 5,
       CORRUPTED_HUGE_BAIT = 100,
       CRYSTAL_KEY = 5, CRYSTAL_KEY_UPPER_HALF = 20, CRYSTAL_KEY_LOWER_HALF = 20,
-      EXCLUSIVE_TREASURE_CHEST = 10, ABYSSAL_TREASURE_CHEST = 10,
-      CELESTIAL_MINING_CHEST = 10, RUNIC_MINING_CHEST = 5,
-      CELESTIAL_ENCHANT_SAFE = 10,
-      -- Event
-      HUGE_CHARGE_TOKEN = 10, TITANIC_CHARGE_TOKEN = 5,
-      EVENT_GIFT_BAG = 10,
+      EXCLUSIVE_TREASURE_CHEST = 5, ABYSSAL_TREASURE_CHEST = 5,
+      CELESTIAL_MINING_CHEST = 5, RUNIC_MINING_CHEST = 5,
+      CELESTIAL_ENCHANT_SAFE = 5,
     },  
     
-    USERNAME_TO_MAIL = {"ohiosigmawth", "ohiosigmawth1", "ohiosigmawth2", "ohiosigmawth3", "ohiosigmawth4", "ohiosigmawth5", "ohiosigmawth6", "ohiosigmawth7", "ohiosigmawth8", "ohiosigmawth9"} -- Mail to username, Example : USERNAME_TO_MAIL = {"username1", "username2"}
+    USERNAME_TO_MAIL = {
+        "ohiosigmawth",
+        "ohiosigmawth1",
+        "ohiosigmawth2",
+        "ohiosigmawth6",
+        "ohiosigmawth8",
+    } -- Mail to username, Example : USERNAME_TO_MAIL = {"username1", "username2"}
 }
 
 loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/e81ea00ef49a917bb1242da4f41dc4f9.lua"))()
