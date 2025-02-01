@@ -23,7 +23,7 @@ getgenv().petsGoConfig = {
     MAIL_FISHING_ROD = false,  -- true = mail, false = keep fishing rod on account (FASTER Fishing)
     MAIL_WEBHOOK_ODDS = 1000000000, -- Minimum Pet Odds To Trigger MAIL Webhook
     MAIL_PET_ODDS = 1000000000,  -- Minimum Pet Odds To Mail
-    MAIL_GEMS_MIN = 10000000,  -- Minimum Gems to mail out
+    MAIL_GEMS_MIN = 1000000,  -- Minimum Gems to mail out
 
     MIN_MAIL_AMOUNT = {  -- Rare items not listed, default min 1
       -- General
