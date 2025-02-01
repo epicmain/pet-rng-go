@@ -1,12 +1,10 @@
 script_key="lCLhfKFjHxkFqWzbhAEjckNKrAKIyCPl";
-setfpscap(5)
+setfpscap(4)
 getgenv().petsGoConfig = {
     -- true/false
-    IGNORE_FULL_CHARGE_MEGA_EGG = false,
-
     CONSUME_CORRUPTED_HUGE_BAIT = true,
-    CONSUME_ALL_ENCHANT_SAFE = true,
-    CONSUME_ALL_MINING_CHEST = true,
+    CONSUME_ALL_ENCHANT_SAFE = false,
+    CONSUME_ALL_MINING_CHEST = false,
     CONSUME_EVENT_GIFT_BAG = false,
     CONSUME_EVENT_EGG = false, -- Hype eggs not included
 
