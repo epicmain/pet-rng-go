@@ -1,5 +1,5 @@
 script_key="lCLhfKFjHxkFqWzbhAEjckNKrAKIyCPl";
-setfpscap(4)
+
 -- Config with "MIN" = 1-5000 Minimum Quantity to sell
 -- Config with "SELL_PERCENTAGE" -> 1 = 100% RAP, 1.1 = 110% RAP, 0.8 = 80% RAP, , 0.85 = 85% RAP (Any Amount)
 getgenv().petsGoConfig = {
@@ -11,10 +11,14 @@ getgenv().petsGoConfig = {
     PLAZA_HOP_DELAY = 20,  -- (minutes) If no one purchase, server hop
     BOOTH_RESET_DELAY = 20,  -- (minutes) force reset booth (Reset RAP Prices)
     AVOID_USERNAME = {
-        "ohiosigmawth1",
-        "ohiosigmawth2",
-        "ohiosigmawth6",
-        "ohiosigmawth8",
+    "ohiosigmawth1",
+    "ohiosigmawth2",
+    "ohiosigmawth6",
+    "ohiosigmawth8",
+    "ohiosigmawth10",
+    "adobepearl12",
+    "adobepearl16",
+    "adobepearl20",
     },  -- serverhop when it finds username, You can put multiple usernames
     
     -- Pets
