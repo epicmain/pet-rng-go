@@ -1,5 +1,5 @@
 script_key="lCLhfKFjHxkFqWzbhAEjckNKrAKIyCPl";
-setfpscap(4)
+setfpscap(3)
 getgenv().petsGoConfig = {
     -- true/false
     CONSUME_CORRUPTED_HUGE_BAIT = true,
@@ -16,30 +16,19 @@ getgenv().petsGoConfig = {
     DIAMOND_EGG = true,  -- true = Diamond Egg, false = F2P Egg
     MINE_ALL_ORES = true,  -- true = all ore, false = runic & event ore
     
-    -- Allowed enchant keywords : Criticals, Loot, Speed, Strength, Chests, Diamonds, Huges, Lightning, TNT
-    PICKAXE_ENCHANTS = {"Speed", "Loot", "Criticals"},
-    
     MAILING = true,  -- Auto mail
-    MAIL_FISHING_ROD = false,  -- true = mail, false = keep fishing rod on account (FASTER Fishing)
     MAIL_WEBHOOK_ODDS = 1000000000, -- Minimum Pet Odds To Trigger MAIL Webhook
     MAIL_PET_ODDS = 1000000000,  -- Minimum Pet Odds To Mail
     MAIL_GEMS_MIN = 1000000,  -- Minimum Gems to mail out
 
-    MIN_MAIL_AMOUNT = {  -- Rare items not listed, default min 1
-      -- General
-      INSTA_POTION_IV = 5,
-      CORRUPTED_HUGE_BAIT = 100,
-      CRYSTAL_KEY = 5, CRYSTAL_KEY_UPPER_HALF = 20, CRYSTAL_KEY_LOWER_HALF = 20,
-      EXCLUSIVE_TREASURE_CHEST = 5, ABYSSAL_TREASURE_CHEST = 5,
-      CELESTIAL_MINING_CHEST = 5, RUNIC_MINING_CHEST = 5,
-      CELESTIAL_ENCHANT_SAFE = 1,
-    },  
-    
     USERNAME_TO_MAIL = {
         "ohiosigmawth1",
         "ohiosigmawth2",
         "ohiosigmawth6",
         "ohiosigmawth8",
+        "ohiosigmawth10",
+        "mcdonaldsfriesgoodXD",
+        "ermswhatsthesigma",
     } -- Mail to username, Example : USERNAME_TO_MAIL = {"username1", "username2"}
 }
 
