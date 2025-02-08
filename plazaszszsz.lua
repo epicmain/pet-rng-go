@@ -35,12 +35,12 @@ getgenv().petsGoConfig = {
     SELL_ENCHANT_SAFE = true, SELL_ENCHANT_SAFE_MIN = 5, SELL_ENCHANT_SAFE_PERCENTAGE = 0.93,
 
     -- Potions
-    SELL_POTION = true, SELL_POTION_MIN = 10, SELL_POTION_PERCENTAGE = 0.9,
+    SELL_POTION = true, SELL_POTION_MIN = 10, SELL_POTION_PERCENTAGE = 0.85,
     SELL_GOD_POTION = true, SELL_GOD_POTION_PERCENTAGE = 0.9,
 
     -- Eggs
     -- SELL_EGG_MIN : [Doesn't apply to Huge/Hype Egg (Default MIN 1)]
-    SELL_EGG = true, SELL_EGG_MIN = 5, SELL_EGG_PERCENTAGE = 0.93,
+    SELL_EGG = true, SELL_EGG_MIN = 5, SELL_EGG_PERCENTAGE = 0.88,
     SELL_HUGE_EGG = true, -- true/false
     SELL_HYPE_EGG = true, -- true/false
     
